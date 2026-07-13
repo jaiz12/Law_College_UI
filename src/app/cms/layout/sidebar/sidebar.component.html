@@ -1,0 +1,161 @@
+<aside class="h-screen bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 flex flex-col transition-all duration-300"
+       [class.w-72]="!layout.sidebarCollapsed()"
+       [class.w-20]="layout.sidebarCollapsed()">
+
+  <!-- Logo -->
+  <div class="h-20 flex items-center px-5 border-b border-gray-100 dark:border-slate-800">
+
+    <img src="../../../../../govt.png"
+         class="h-10 w-10 rounded-full" />
+
+    @if(!layout.sidebarCollapsed()){
+
+    <h2 class="ml-4 text-xl font-bold text-gray-800 dark:text-white">
+      Govt of Sikkim
+    </h2>
+
+    }
+
+  </div>
+
+  <!-- Menu -->
+  <div class="flex-1 overflow-y-auto p-4"
+       (mouseenter)="onMouseEnter()">
+
+    <p class="mb-3 text-xs uppercase text-gray-400 dark:text-gray-500"
+       [class.hidden]="layout.sidebarCollapsed()">
+
+      MENU
+
+    </p>
+
+    <div>
+
+      @for(menu of menus; track menu.name){
+
+      <!-- Menu without children -->
+      @if(menu.submenus.length===0){
+
+      <a [routerLink]="menu.routerlink"
+         routerLinkActive="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
+         #mainrla="routerLinkActive"
+         class="mb-2 flex items-center gap-3 rounded-xl px-4 py-3 transition-colors
+               text-gray-700 dark:text-gray-300
+               hover:bg-gray-100 dark:hover:bg-slate-800">
+
+        <div class="transition-colors"
+             [class.text-indigo-600]="mainrla.isActive"
+             [class.dark:text-indigo-400]="mainrla.isActive"
+             [class.text-gray-600]="!mainrla.isActive"
+             [class.dark:text-gray-400]="!mainrla.isActive"
+             [innerHTML]="menu.svgicon | safeHtml">
+        </div>
+
+        @if(!layout.sidebarCollapsed()){
+
+        <span>{{menu.name}}</span>
+
+        }
+
+      </a>
+
+      }
+
+      <!-- Menu with children -->
+      @else {
+
+      <button (click)="toggle(menu)"
+              class="mb-2 flex w-full items-center justify-between rounded-xl px-4 py-3 transition-colors"
+              [ngClass]="
+          isMenuActive(menu)
+          ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800'
+        ">
+
+        <div class="flex items-center gap-3">
+
+          <div class="transition-colors"
+               [class.text-indigo-600]="isMenuActive(menu)"
+               [class.dark:text-indigo-400]="isMenuActive(menu)"
+               [class.text-gray-600]="!isMenuActive(menu)"
+               [class.dark:text-gray-400]="!isMenuActive(menu)"
+               [innerHTML]="menu.svgicon | safeHtml">
+          </div>
+
+          @if(!layout.sidebarCollapsed()){
+
+          <span>{{menu.name}}</span>
+
+          <svg width="18"
+               height="20"
+               viewBox="0 0 18 20"
+               fill="none"
+               xmlns="http://www.w3.org/2000/svg"
+               class="ml-auto stroke-current transition-transform duration-200"
+               [class.rotate-180]="menu.expanded">
+
+            <path d="M4.3125 8.65625L9 13.3437L13.6875 8.65625"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+
+          </svg>
+
+          }
+
+        </div>
+
+      </button>
+
+      @if(menu.expanded){
+
+      @if(!layout.sidebarCollapsed()){
+
+      <div class="ml-10 mb-2">
+
+        @for(sub of menu.submenus; track sub.name){
+
+        <a [routerLink]="sub.routerlink"
+           routerLinkActive="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
+           #subrla="routerLinkActive"
+           class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors
+                 text-gray-700 dark:text-gray-300
+                 hover:bg-gray-100 dark:hover:bg-slate-800">
+
+          <div class="transition-colors"
+               [class.text-indigo-600]="subrla.isActive"
+               [class.dark:text-indigo-400]="subrla.isActive"
+               [class.text-gray-600]="!subrla.isActive"
+               [class.dark:text-gray-400]="!subrla.isActive"
+               [innerHTML]="sub.svgicon | safeHtml">
+          </div>
+
+          <span [class.text-indigo-600]="subrla.isActive"
+                [class.dark:text-indigo-400]="subrla.isActive"
+                [class.text-gray-700]="!subrla.isActive"
+                [class.dark:text-gray-300]="!subrla.isActive">
+
+            {{sub.name}}
+
+          </span>
+
+        </a>
+
+        }
+
+      </div>
+
+      }
+
+      }
+
+      }
+
+      }
+
+    </div>
+
+  </div>
+
+</aside>

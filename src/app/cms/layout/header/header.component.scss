@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+header {
+  transition: all .3s;
+}
+
+button {
+  transition: all .25s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+input {
+  transition: all .3s;
+}

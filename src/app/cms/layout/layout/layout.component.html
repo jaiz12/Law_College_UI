@@ -1,0 +1,43 @@
+<div class="flex h-screen bg-gray-100 overflow-hidden dark:bg-slate-900">
+
+  <!-- Overlay -->
+  @if(layout.mobileSidebarOpen()){
+
+  <div class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+       (click)="layout.closeMobileSidebar()">
+  </div>
+
+  }
+
+  <!-- Sidebar -->
+
+  <div class="fixed inset-y-0 left-0 z-50 transition-all duration-300 lg:relative"
+       [class.translate-x-0]="layout.mobileSidebarOpen()"
+       [class.-translate-x-full]="!layout.mobileSidebarOpen()"
+       [class.lg:translate-x-0]="true"
+       [class.w-72]="!layout.sidebarCollapsed()"
+       [class.w-20]="layout.sidebarCollapsed()">
+
+    <app-sidebar></app-sidebar>
+
+  </div>
+
+  <!-- Main -->
+
+  <div class="flex flex-1 flex-col overflow-hidden">
+
+    <!-- Header -->
+
+    <app-header></app-header>
+
+    <!-- Page -->
+
+    <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+
+      <router-outlet></router-outlet>
+
+    </main>
+
+  </div>
+
+</div>
