@@ -5,3 +5,12 @@
 @tailwind utilities;
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+
+::ng-deep .ngx-pagination a {
+  color: #374151 !important;
+}
+
+.dark ::ng-deep .ngx-pagination a {
+  color: #e2e8f0 !important;
+}

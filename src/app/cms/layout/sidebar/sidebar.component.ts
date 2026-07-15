@@ -48,8 +48,8 @@ export class SidebarComponent {
     `,
       submenus: [
         {
-          name: 'Create Users',
-          routerlink: '/user-mangement/create-users',
+          name: 'Manage User',
+          routerlink: '/user-mangement/manager-user',
           svgicon: `
        <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-5 h-5"
   stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -57,8 +57,8 @@ export class SidebarComponent {
   </svg>`
         },
         {
-          name: 'Create Role',
-          routerlink: '/usermanagement/createroles',
+          name: 'Manage Role',
+          routerlink: '/user-mangement/manage-role',
           svgicon: `
        <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-5 h-5"
   stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">

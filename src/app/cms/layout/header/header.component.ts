@@ -1,12 +1,20 @@
 import {
   Component,
   HostListener,
+  OnInit,
   inject,
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutService } from '../services/layout.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+interface UserInfo {
+  userName: string;
+  email: string;
+  roles: [];
+}
 
 @Component({
   selector: 'app-header',
@@ -15,7 +23,10 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  constructor(private router: Router) {
+
+  }
 
   layout = inject(LayoutService);
 
@@ -25,6 +36,27 @@ export class HeaderComponent {
   isFullscreen = signal(false);
 
   search = '';
+
+  user = signal<UserInfo>({
+    userName: '',
+    email: '',
+    roles: []
+  });
+
+  ngOnInit(): void {
+    this.loadUser();
+  }
+
+  loadUser(): void {
+
+    const user = localStorage.getItem('user');
+
+    if (user) {
+      this.user.set(JSON.parse(user));
+    }
+
+  }
+
 
   toggleSidebar() {
 
@@ -78,6 +110,15 @@ export class HeaderComponent {
 
     this.profileMenu.set(false);
     this.notificationMenu.set(false);
+
+  }
+
+  logout() {
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+
+    this.router.navigate(['/']);
 
   }
 

@@ -5,6 +5,8 @@ import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { ConfigService } from './services/config.service';
 import { provideHttpClient } from '@angular/common/http';
+import { provideToastr } from 'ngx-toastr';
+import { provideAnimations } from '@angular/platform-browser/animations';
 export function initializeApp(configService: ConfigService) {
   return () => configService.loadConfig();
 }
@@ -20,6 +22,14 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeApp,
       deps: [ConfigService],
       multi: true
-    }
+    },
+    provideAnimations(),
+    provideToastr({
+      positionClass: 'toast-top-right',
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
+      preventDuplicates: true
+    })
   ]
 };

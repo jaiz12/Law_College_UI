@@ -1,0 +1,7 @@
+:host ::ng-deep .ngx-pagination a {
+  color: #374151 !important;
+}
+
+:host-context(.dark) ::ng-deep .ngx-pagination a {
+  color: #e2e8f0 !important;
+}

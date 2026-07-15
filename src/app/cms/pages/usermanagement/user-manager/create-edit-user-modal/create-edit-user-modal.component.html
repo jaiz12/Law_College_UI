@@ -1,0 +1,234 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+
+  <div class="w-full max-w-2xl rounded-2xl bg-white shadow-xl dark:bg-slate-900">
+
+    <!-- Header -->
+
+    <div class="flex items-center justify-between border-b p-6">
+
+      <h2 class="text-xl font-bold">
+
+        {{ isEditMode ? 'Edit User' : 'Create User' }}
+
+      </h2>
+
+      <button (click)="cancel()"
+              class="text-xl">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <form [formGroup]="userForm"
+          (ngSubmit)="submit()"
+          class="space-y-5 p-6">
+
+      <div class="grid gap-5 md:grid-cols-2">
+        <input type="text"
+               name="fake-user"
+               autocomplete="userName"
+               class="hidden">
+
+        <input type="password"
+               name="fake-pass"
+               autocomplete="current-password"
+               class="hidden">
+
+        <!-- Username -->
+
+        <div>
+
+          <label>User Id *</label>
+
+          <input type="text"
+                 formControlName="userName"
+                 class="mt-2 w-full rounded-xl border p-3">
+
+          @if(submitted && f['userName'].invalid){
+
+          <p class="text-sm text-red-500">
+
+            User Id is required
+
+          </p>
+
+          }
+
+        </div>
+
+        <!-- Email -->
+
+        <div>
+
+          <label>Email *</label>
+
+          <input type="email"
+                 formControlName="email"
+                 class="mt-2 w-full rounded-xl border p-3">
+
+          @if(submitted && f['email'].invalid){
+
+          <p class="text-sm text-red-500">
+
+            Valid email required
+
+          </p>
+
+          }
+
+        </div>
+
+        <!-- Phone -->
+
+        <div>
+
+          <label>Phone *</label>
+
+          <input type="text"
+                 maxlength="10"
+                 formControlName="phoneNumber"
+                 class="mt-2 w-full rounded-xl border p-3">
+
+          @if(submitted && f['phoneNumber'].invalid){
+
+          <p class="text-sm text-red-500">
+
+            Valid mobile number required
+
+          </p>
+
+          }
+
+        </div>
+
+        <!-- Role -->
+
+        <div>
+
+          <label>Role *</label>
+
+          <select formControlName="roleId"
+                  class="mt-2 w-full rounded-xl border p-3">
+
+            <option [ngValue]="null">
+
+              Select Role
+
+            </option>
+
+            @for(role of roles; track role.id){
+
+            <option [value]="role.id">
+
+              {{ role.name }}
+
+            </option>
+
+            }
+
+          </select>
+
+          @if(submitted && f['roleId'].invalid){
+
+          <p class="text-sm text-red-500">
+
+            Role is required
+
+          </p>
+
+          }
+
+        </div>
+
+      </div>
+
+      <!-- Password -->
+
+      <div>
+
+        <label>
+
+          {{ isEditMode ? 'New Password (Optional)' : 'Password *' }}
+
+        </label>
+
+        <div class="relative mt-2">
+
+          <input [type]="showPassword ? 'text':'password'"
+                 formControlName="password"
+                 class="w-full rounded-xl border p-3 pr-12">
+
+          <button type="button"
+                  (click)="showPassword=!showPassword"
+                  class="absolute right-4 top-3">
+
+            {{ showPassword ? '🙈' : '👁️' }}
+
+          </button>
+
+        </div>
+
+        @if(submitted && f['password'].errors){
+
+        @if(f['password'].errors['required']){
+
+        <p class="text-sm text-red-500">
+
+          Password is required
+
+        </p>
+
+        }
+
+        @if(f['password'].errors['pattern']){
+
+        <p class="text-sm text-red-500">
+
+          Password must contain uppercase, number, special character and minimum 8 characters.
+
+        </p>
+
+        }
+
+        }
+
+        @if(isEditMode){
+
+        <p class="mt-2 text-xs text-gray-500">
+
+          Leave blank to keep the existing password.
+
+        </p>
+
+        }
+
+      </div>
+
+      <!-- Footer -->
+
+      <div class="flex justify-end gap-3 border-t pt-5">
+
+        <button type="button"
+                (click)="cancel()"
+                class="rounded-xl border px-5 py-3">
+
+          Cancel
+
+        </button>
+
+        <button type="submit"
+                class="rounded-xl bg-indigo-600 px-5 py-3 text-white">
+
+          {{ isEditMode ? 'Update User' : 'Create User' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
