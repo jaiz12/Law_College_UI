@@ -123,7 +123,7 @@ export class RoleManagerComponent {
           // show toast
           this.toastr.success(
             res.message,
-            'Success'
+            res.messageType
           );
 
           this.getRoles(); // reload role list
@@ -135,7 +135,7 @@ export class RoleManagerComponent {
 
           this.toastr.warning(
             res.message,
-            'Warning'
+            res.messageType
           );
 
         }
@@ -187,13 +187,15 @@ export class RoleManagerComponent {
 
               if (res.messageType === 'success') {
 
-                this.toastr.success(res.message, 'Success');
+                this.toastr.success(res.message,
+                  res.messageType);
 
                 this.getRoles();
 
               } else {
 
-                this.toastr.warning(res.message, 'Warning');
+                this.toastr.warning(res.message,
+                  res.messageType);
 
               }
 

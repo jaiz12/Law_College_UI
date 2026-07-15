@@ -286,7 +286,8 @@ export class UserManagerComponent implements OnInit {
 
         if (res.messageType === 'success') {
 
-          this.toastr.success(res.message);
+          this.toastr.success(res.message,
+            res.messageType);
 
           this.getUsers();
 
@@ -295,7 +296,8 @@ export class UserManagerComponent implements OnInit {
         }
         else {
 
-          this.toastr.warning(res.message);
+          this.toastr.warning(res.message,
+            res.messageType);
 
         }
 
@@ -360,10 +362,12 @@ export class UserManagerComponent implements OnInit {
 
             if (res.messageType === 'success') {
               this.getUsers();
-              this.toastr.success(res.message);
+              this.toastr.success(res.message,
+                res.messageType);
             }
             else {
-              this.toastr.warning(res.message);
+              this.toastr.warning(res.message,
+            res.messageType);
             }
           },
 
