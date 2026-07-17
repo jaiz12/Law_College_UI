@@ -1,22 +1,25 @@
 <div class="space-y-6">
 
   <!-- Header -->
+
   <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
     <div>
+
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-        Manage User
+        Governing Body
       </h1>
 
       <p class="mt-1 text-gray-500 dark:text-slate-400">
-        Create, edit and manage application users.
+        Create, edit and manage governing body members.
       </p>
+
     </div>
 
-    <button (click)="createUser()"
+    <button (click)="createMember()"
             class="rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white transition hover:bg-indigo-700">
 
-      + Create User
+      + Add Member
 
     </button>
 
@@ -24,7 +27,7 @@
 
   <!-- Card -->
 
-  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors dark:border-slate-700 dark:bg-slate-900">
 
     <!-- Toolbar -->
 
@@ -37,15 +40,17 @@
         <input [ngModel]="search()"
                (ngModelChange)="search.set($event);page.set(1)"
                type="text"
-               placeholder="Search User..."
-               class="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-sm
-                 text-gray-800 outline-none transition
-                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+               placeholder="Search Member..."
+               class="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-sm text-gray-800 outline-none transition
+                 placeholder:text-gray-400
+                 focus:border-indigo-500
+                 focus:ring-2
+                 focus:ring-indigo-200
                  dark:border-slate-700
                  dark:bg-slate-800
                  dark:text-white
                  dark:placeholder:text-slate-500
-                 dark:focus:ring-indigo-900">
+                 dark:focus:ring-indigo-900" />
 
         <svg class="absolute left-4 top-3.5 h-5 w-5 text-gray-400 dark:text-slate-500"
              fill="none"
@@ -55,8 +60,7 @@
 
           <path stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z">
-          </path>
+                d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z" />
 
         </svg>
 
@@ -64,11 +68,11 @@
 
       <span class="text-sm font-medium text-gray-600 dark:text-slate-400">
 
-        Total Users :
+        Total Members :
 
         <span class="font-semibold text-indigo-600 dark:text-indigo-400">
 
-          {{ filteredUsers().length }}
+          {{ filteredMembers().length }}
 
         </span>
 
@@ -89,23 +93,15 @@
           <tr>
 
             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
+              Image
+            </th>
+
+            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
               Name
             </th>
 
             <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Email
-            </th>
-
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Phone Number
-            </th>
-
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Role
-            </th>
-
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Status
+              Description
             </th>
 
             <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
@@ -120,12 +116,18 @@
 
         <tbody>
 
-          @for(user of filteredUsers() | paginate:{
-          itemsPerPage: itemsPerPage(),
-          currentPage: page()
-          }; track user.id){
+          @for(member of filteredMembers() | paginate:{itemsPerPage:itemsPerPage(),currentPage:page()};track member.id){
 
           <tr class="border-b border-gray-100 text-sm transition hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800">
+
+            <!-- Image -->
+
+            <td class="px-6 py-5">
+
+              <img [src]="member.image"
+                   class="h-14 w-14 rounded-full border border-gray-200 object-cover dark:border-slate-700" />
+
+            </td>
 
             <!-- Name -->
 
@@ -133,71 +135,33 @@
 
               <div class="font-semibold text-gray-900 dark:text-white">
 
-                {{ user.userName }}
+                {{member.name}}
 
               </div>
 
             </td>
 
-            <!-- Email -->
+            <!-- Description -->
 
-            <td class="px-6 py-5 text-gray-700 dark:text-gray-300">
+            <td class="px-6 py-5">
 
-              {{ user.email }}
+              <div class="max-w-xl truncate text-gray-600 dark:text-slate-400">
 
-            </td>
+                {{member.description}}
 
-            <!-- Phone -->
-
-            <td class="px-6 py-5 text-center text-gray-700 dark:text-gray-300">
-
-              {{ user.phoneNumber }}
+              </div>
 
             </td>
 
-            <!-- Role -->
-
-            <td class="px-6 py-5 text-center">
-
-              <span class="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-
-                {{ user.roleName }}
-
-              </span>
-
-            </td>
-
-            <!-- Status -->
-
-            <td class="px-6 py-5 text-center">
-
-              @if(user.isActive){
-
-              <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400">
-
-                Active
-
-              </span>
-
-              }@else{
-
-              <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-400">
-
-                Inactive
-
-              </span>
-
-              }
-
-            </td>
-
-            <!-- Actions -->
+            <!-- Action -->
 
             <td class="px-6 py-5">
 
               <div class="flex justify-center gap-3">
 
-                <button (click)="edit(user)"
+                <!-- Edit -->
+
+                <button (click)="edit(member)"
                         class="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100">
 
                   <svg xmlns="http://www.w3.org/2000/svg"
@@ -213,7 +177,9 @@
 
                 </button>
 
-                <button (click)="delete(user)"
+                <!-- Delete -->
+
+                <button (click)="delete(member)"
                         class="rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 transition hover:bg-red-100">
 
                   <svg xmlns="http://www.w3.org/2000/svg"
@@ -241,11 +207,12 @@
 
           <tr>
 
-            <td colspan="6" class="py-20 text-center">
+            <td colspan="4"
+                class="py-20 text-center text-gray-500 dark:text-slate-400">
 
-              <div class="flex flex-col items-center gap-3">
+              <div class="flex flex-col items-center gap-4">
 
-                <svg class="h-12 w-12 text-gray-300 dark:text-slate-600"
+                <svg class="h-14 w-14 text-gray-300 dark:text-slate-600"
                      fill="none"
                      stroke="currentColor"
                      stroke-width="1.5"
@@ -253,20 +220,19 @@
 
                   <path stroke-linecap="round"
                         stroke-linejoin="round"
-                        d="M17 20h5V4H2v16h5m10 0v-2a4 4 0 00-8 0v2m8 0H9m6-10a3 3 0 11-6 0 3 3 0 016 0">
-                  </path>
+                        d="M17 20h5V4H2v16h5m10 0v-4H7v4m10 0H7" />
 
                 </svg>
 
-                <div class="text-lg font-semibold text-gray-700 dark:text-white">
+                <div class="text-lg font-semibold">
 
-                  No Users Found
+                  No Governing Body Members Found
 
                 </div>
 
                 <div class="text-sm text-gray-400 dark:text-slate-500">
 
-                  Try changing your search or create a new user.
+                  Click "Add Member" to create one.
 
                 </div>
 
@@ -282,43 +248,44 @@
 
       </table>
 
-    </div>
+      <!-- Footer -->
 
-    <!-- Footer -->
+      <div class="mt-6 flex flex-col justify-between gap-4 border-t border-gray-200 px-5 pb-4 pt-4 md:flex-row md:items-center dark:border-slate-700">
 
-    <div class="flex flex-col gap-4 border-t border-gray-200 px-6 py-4 md:flex-row md:items-center md:justify-between dark:border-slate-700">
+        <!-- Page Size -->
 
-      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
 
-        <label class="text-sm text-gray-700 dark:text-gray-300">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
 
-          Items per page
+            Items per page
 
-        </label>
+          </label>
 
-        <select [ngModel]="itemsPerPage()"
-                (ngModelChange)="itemsPerPage.set(+$event);page.set(1)"
-                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm
-                 dark:border-slate-700
-                 dark:bg-slate-800
-                 dark:text-white">
+          <select [ngModel]="itemsPerPage()"
+                  (ngModelChange)="itemsPerPage.set(+$event);page.set(1)"
+                  class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
-          @for(size of pageSizeOptions; track size){
+            @for(size of pageSizeOptions;track size){
 
-          <option [value]="size">
+            <option [value]="size">
 
-            {{ size }}
+              {{size}}
 
-          </option>
+            </option>
 
-          }
+            }
 
-        </select>
+          </select>
+
+        </div>
+
+        <!-- Pagination -->
+
+        <pagination-controls (pageChange)="page.set($event)">
+        </pagination-controls>
 
       </div>
-
-      <pagination-controls (pageChange)="page.set($event)">
-      </pagination-controls>
 
     </div>
 
@@ -326,13 +293,11 @@
 
 </div>
 
-<!-- Modal -->
 @if(showModal()){
 
-<app-create-edit-user-modal [user]="selectedUser()"
-                            [roles]="roles()"
-                            (save)="saveUser($event)"
-                            (close)="closeModal()">
-</app-create-edit-user-modal>
+<app-governing-body-modal [member]="selectedMember()"
+                          (close)="closeModal()"
+                          (save)="saveMember($event)">
+</app-governing-body-modal>
 
 }

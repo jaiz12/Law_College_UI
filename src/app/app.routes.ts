@@ -29,6 +29,7 @@ export const routes: Routes = [
           import('./cms/pages/dashboard/dashboard.component')
             .then(m => m.DashboardComponent)
       },
+      // usermanagement
       {
         path: 'user-mangement/manager-user',
         loadComponent: () =>
@@ -41,6 +42,40 @@ export const routes: Routes = [
         import('./cms/pages/usermanagement/role-manager/role-manager.component')
           .then(m => m.RoleManagerComponent)
       },
+      // about
+      {
+        path: 'about/general-overview',
+        loadComponent: () =>
+          import('./cms/pages/about-us/general-overview/general-overview.component')
+            .then(m => m.GeneralOverviewComponent)
+      },
+      {
+        path: 'about/vision-mission',
+        loadComponent: () =>
+          import('./cms/pages/about-us/vision-and-mission/vision-and-mission.component')
+            .then(m => m.VisionAndMissionComponent)
+      },
+      {
+        path: 'about/principal-message',
+        loadComponent: () =>
+          import('./cms/pages/about-us/principals-message/principals-message.component')
+            .then(m => m.PrincipalsMessageComponent)
+      },
+      {
+        path: 'about/governing-body',
+        loadComponent: () =>
+          import('./cms/pages/about-us/governing-body/governing-body.component')
+            .then(m => m.GoverningBodyComponent)
+      },
+
+      //academics
+      {
+        path: 'academics/program-curriculum',
+        loadComponent: () =>
+          import('./cms/pages/academics/program-and-curriculum/program-and-curriculum.component')
+            .then(m => m.ProgramAndCurriculumComponent)
+      },
+
       {
         path: '',
         redirectTo: 'dashboard',
