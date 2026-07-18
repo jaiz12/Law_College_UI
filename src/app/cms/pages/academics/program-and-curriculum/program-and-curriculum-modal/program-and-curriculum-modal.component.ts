@@ -60,7 +60,7 @@ export class ProgramAndCurriculumModalComponent implements OnChanges {
   @Output() save = new EventEmitter<FormData>();
 
 
-  public Editor = ClassicEditor;
+ public Editor: any = ClassicEditor;
 
   submitted = false;
 

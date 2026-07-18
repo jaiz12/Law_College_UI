@@ -20,7 +20,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   styleUrl: './vision-and-mission.component.scss'
 })
 export class VisionAndMissionComponent {
-  public Editor = ClassicEditor;
+ public Editor: any = ClassicEditor;
 
   pageForm: FormGroup;
 

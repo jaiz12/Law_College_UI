@@ -22,7 +22,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 })
 export class PrincipalsMessageComponent {
 
-  public Editor = ClassicEditor;
+ public Editor: any = ClassicEditor;
 
   pageForm: FormGroup;
 

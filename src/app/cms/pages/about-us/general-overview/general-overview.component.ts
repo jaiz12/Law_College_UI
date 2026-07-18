@@ -13,75 +13,58 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 @Component({
   selector: 'app-general-overview',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     ReactiveFormsModule,
-    CKEditorModule],
+    CKEditorModule
+  ],
   templateUrl: './general-overview.component.html',
   styleUrl: './general-overview.component.scss'
 })
 export class GeneralOverviewComponent {
 
-  public Editor = ClassicEditor;
+  // Use the editor type expected by the CKEditor Angular component
+  public Editor: any = ClassicEditor;
 
-  selectedFile!: File;
-
-  pageForm: FormGroup;
+  selectedFile: File | null = null;
 
   imagePreview: string | null = null;
 
+  pageForm: FormGroup;
+
   constructor(private fb: FormBuilder) {
-
     this.pageForm = this.fb.group({
-
       banner: [''],
-
-      description: [
-        '',
-        Validators.required
-      ],
-
+      description: ['', Validators.required],
       metaTitle: [''],
-
-      metaDescription: [''],
-
+      metaDescription: ['']
     });
-
-  }
-  
-
-  removeImage() {
-
-    this.selectedFile = null!;
-
-    this.imagePreview = null;
-
   }
 
-  onFileChange(event: any) {
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-    const file = event.target.files[0];
+    if (!input.files?.length) {
+      return;
+    }
 
-    if (!file) return;
-
-    this.selectedFile = file;
+    this.selectedFile = input.files[0];
 
     const reader = new FileReader();
 
     reader.onload = () => {
-
       this.imagePreview = reader.result as string;
-
     };
 
-    reader.readAsDataURL(file);
-
+    reader.readAsDataURL(this.selectedFile);
   }
 
-  save() {
+  removeImage(): void {
+    this.selectedFile = null;
+    this.imagePreview = null;
+  }
 
+  save(): void {
     console.log(this.pageForm.value);
-
-    // Upload image
-    // Save page
   }
 }
