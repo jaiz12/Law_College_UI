@@ -25,19 +25,45 @@
 
       <label class="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300">
 
-        Banner Image
+        Banner Image <span class="text-[#ff0000]">*</span>
 
       </label>
 
-      <div class="relative rounded-xl border-2 border-dashed border-indigo-300
-                  bg-indigo-50
-                  transition
-                  hover:border-indigo-500
-                  hover:bg-indigo-100
 
-                  dark:border-slate-600
-                  dark:bg-slate-800
-                  dark:hover:bg-slate-700">
+
+      <!-- Preview -->
+      @if(imagePreview){
+
+      <div class="mt-5">
+
+        <div class="relative overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700">
+
+          <img [src]="imagePreview"
+               class="h-64 w-full object-cover">
+
+          <button type="button"
+                  (click)="removeImage()"
+                  class="absolute right-3 top-3 rounded-full bg-red-600 p-2 text-white shadow hover:bg-red-700">
+
+            ✕
+
+          </button>
+
+        </div>
+
+      </div>
+
+      }
+      @else{
+      <div class="relative rounded-xl border-2 border-dashed border-indigo-300
+            bg-indigo-50
+            transition
+            hover:border-indigo-500
+            hover:bg-indigo-100
+
+            dark:border-slate-600
+            dark:bg-slate-800
+            dark:hover:bg-slate-700">
 
         <input type="file"
                accept="image/*"
@@ -74,31 +100,20 @@
         </div>
 
       </div>
-
-      <!-- Preview -->
-      @if(imagePreview){
-
-      <div class="mt-5">
-
-        <div class="relative overflow-hidden rounded-xl border border-gray-200 dark:border-slate-700">
-
-          <img [src]="imagePreview"
-               class="h-64 w-full object-cover">
-
-          <button type="button"
-                  (click)="removeImage()"
-                  class="absolute right-3 top-3 rounded-full bg-red-600 p-2 text-white shadow hover:bg-red-700">
-
-            ✕
-
-          </button>
-
-        </div>
-
-      </div>
-
       }
 
+      @if (
+      pageForm.get('banner')?.invalid &&
+      pageForm.get('banner')?.touched
+      ) {
+
+      <p class="mt-2 text-sm text-red-600">
+
+        Banner image is required.
+
+      </p>
+
+      }
     </div>
 
     <!-- CKEditor -->
@@ -107,13 +122,25 @@
 
       <label class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
 
-        Description
+        Description <span class="text-[#ff0000]">*</span>
 
       </label>
 
       <ckeditor [editor]="Editor"
                 formControlName="description">
       </ckeditor>
+      @if (
+      pageForm.get('description')?.invalid &&
+      pageForm.get('description')?.touched
+      ) {
+
+      <p class="mt-2 text-sm text-red-600">
+
+        Description is required.
+
+      </p>
+
+      }
 
     </div>
 
