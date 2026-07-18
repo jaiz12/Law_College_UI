@@ -11,60 +11,6 @@
 
     </h1>
 
-    <!-- Banner Upload -->
-
-    <div class="mb-8">
-
-      <label class="mb-3 block font-medium text-gray-700 dark:text-gray-300">
-
-        Banner Image
-
-      </label>
-
-      <div (dragover)="onDragOver($event)"
-           (dragleave)="onDragLeave()"
-           (drop)="onDrop($event)"
-           class="cursor-pointer rounded-xl border-2 border-dashed p-8
-               text-center transition"
-           [ngClass]="{
-
-        'border-indigo-600 bg-indigo-50 dark:bg-slate-800': dragging,
-
-        'border-gray-300 dark:border-slate-700': !dragging
-
-      }">
-
-        <input hidden
-               #banner
-               type="file"
-               accept="image/*"
-               (change)="onFileSelected($event)">
-
-        <button type="button"
-                (click)="banner.click()"
-                class="rounded-lg bg-indigo-600 px-5 py-2 text-white">
-
-          Choose Banner
-
-        </button>
-
-        <p class="mt-4 text-gray-500 dark:text-gray-400">
-
-          Drag & Drop image here
-
-        </p>
-
-      </div>
-
-      @if(bannerPreview){
-
-      <img [src]="bannerPreview"
-           class="mt-5 h-60 w-full rounded-xl object-cover shadow">
-
-      }
-
-    </div>
-
     <!-- Vision -->
 
     <div class="mb-8">
@@ -79,7 +25,18 @@
                 formControlName="vision">
 
       </ckeditor>
+      @if (
+      pageForm.get('vision')?.invalid &&
+      pageForm.get('vision')?.touched
+      ) {
 
+      <p class="mt-2 text-sm text-red-600">
+
+        Vision is required.
+
+      </p>
+
+      }
     </div>
 
     <!-- Mission -->
@@ -96,7 +53,18 @@
                 formControlName="mission">
 
       </ckeditor>
+      @if (
+      pageForm.get('mission')?.invalid &&
+      pageForm.get('mission')?.touched
+      ) {
 
+      <p class="mt-2 text-sm text-red-600">
+
+        Mission is required.
+
+      </p>
+
+      }
     </div>
 
     <!-- SEO -->
