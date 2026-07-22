@@ -24,6 +24,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'under-construction',
+        loadComponent: () =>
+          import('./cms/shared/under-construction/under-construction.component')
+            .then(m => m.UnderConstructionComponent)
+      },
+      {
         path: 'dashboard',
         loadComponent: () =>
           import('./cms/pages/dashboard/dashboard.component')
@@ -66,6 +72,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./cms/pages/about-us/governing-body/governing-body.component')
             .then(m => m.GoverningBodyComponent)
+      },
+      {
+        path: 'about/organization-structure',
+        loadComponent: () =>
+          import('./cms/pages/about-us/organizational-structure/organizational-structure.component')
+            .then(m => m.OrganizationalStructureComponent)
+      },
+      {
+        path: 'about/recognitions-and-affiliations',
+        loadComponent: () =>
+          import('./cms/pages/about-us/recognitions-and-affiliations/recognitions-and-affiliations.component')
+            .then(m => m.RecognitionsAndAffiliationsComponent)
       },
 
       //academics

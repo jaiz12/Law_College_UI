@@ -1,33 +1,35 @@
 <div class="space-y-6">
 
-  <!-- Header -->
-
-  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
-    <div>
-
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-        Governing Body
-      </h1>
-
-      <p class="mt-1 text-gray-500 dark:text-slate-400">
-        Create, edit and manage governing body members.
-      </p>
-
-    </div>
-
-    <button (click)="createMember()"
-            class="rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white transition hover:bg-indigo-700">
-
-      + Add Member
-
-    </button>
-
-  </div>
+ 
 
   <!-- Card -->
 
   <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-colors dark:border-slate-700 dark:bg-slate-900">
+
+    <!-- Header -->
+
+    <div class="flex flex-col px-6 py-3  gap-4 md:flex-row md:items-center md:justify-between">
+
+      <div>
+
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+          Governing Body
+        </h1>
+
+        <p class="mt-1 text-gray-500 dark:text-slate-400">
+          Create, edit and manage governing body members.
+        </p>
+
+      </div>
+
+      <button (click)="createMember()"
+              class="rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white transition hover:bg-indigo-700">
+
+        + Add Member
+
+      </button>
+
+    </div>
 
     <!-- Toolbar -->
 
@@ -84,28 +86,41 @@
 
     <div class="overflow-x-auto">
 
-      <table class="min-w-full">
+      <table class="w-full text-left">
 
         <!-- Header -->
 
-        <thead class="border-b border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+
+        <thead class="bg-gray-50 dark:bg-slate-800">
 
           <tr>
 
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th class="px-6 py-4 text-xs font-semibold uppercase
+                tracking-wider text-gray-500">
+
               Image
+
             </th>
 
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th class="px-6 py-4 text-xs font-semibold uppercase
+                tracking-wider text-gray-500">
+
               Name
+
             </th>
 
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th class="px-6 py-4 text-xs font-semibold uppercase
+                tracking-wider text-gray-500">
+
               Description
+
             </th>
 
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
-              Action
+            <th class="px-6 py-4 text-right text-xs font-semibold uppercase
+                tracking-wider text-gray-500">
+
+              Actions
+
             </th>
 
           </tr>
@@ -114,17 +129,17 @@
 
         <!-- Body -->
 
-        <tbody>
+        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
 
           @for(member of filteredMembers() | paginate:{itemsPerPage:itemsPerPage(),currentPage:page()};track member.id){
 
-          <tr class="border-b border-gray-100 text-sm transition hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800">
+          <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
             <!-- Image -->
 
             <td class="px-6 py-5">
 
-              <img [src]="member.image"
+              <img [src]="imageURL() + member.photo"
                    class="h-14 w-14 rounded-full border border-gray-200 object-cover dark:border-slate-700" />
 
             </td>
@@ -145,7 +160,7 @@
 
             <td class="px-6 py-5">
 
-              <div class="max-w-xl truncate text-gray-600 dark:text-slate-400">
+              <div class="font-semibold text-gray-900 dark:text-white">
 
                 {{member.description}}
 
@@ -157,7 +172,7 @@
 
             <td class="px-6 py-5">
 
-              <div class="flex justify-center gap-3">
+              <div class="flex justify-end gap-3">
 
                 <!-- Edit -->
 

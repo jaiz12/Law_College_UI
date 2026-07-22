@@ -1,0 +1,405 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center
+            bg-black/50 p-4 backdrop-blur-sm">
+
+  <div class="flex max-h-[95vh] w-full max-w-[1600px]
+              flex-col overflow-hidden rounded-3xl
+              bg-white shadow-2xl
+              dark:bg-slate-900">
+
+    <!-- Header -->
+    <div class="flex shrink-0 items-center justify-between
+                border-b border-slate-200
+                px-8 py-6
+                dark:border-slate-800">
+
+      <div>
+
+        <h1 class="text-2xl font-bold
+                   text-slate-900
+                   dark:text-white">
+
+          Organizational Structure
+
+        </h1>
+
+        <p class="mt-1 text-sm text-slate-500
+                  dark:text-slate-400">
+
+          View the organizational hierarchy and reporting structure.
+
+        </p>
+
+      </div>
+
+
+      <!-- Close Button -->
+      <button type="button"
+              (click)="closeModal()"
+              class="flex h-10 w-10 items-center
+                     justify-center rounded-full
+                     text-2xl text-slate-400
+                     transition hover:bg-red-50
+                     hover:text-red-500
+                     dark:hover:bg-red-950">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- Toolbar -->
+    <div class="flex shrink-0 flex-wrap
+                items-center justify-between
+                gap-4 border-b border-slate-200
+                px-8 py-4
+                dark:border-slate-800">
+
+      <!-- Search -->
+      <div class="relative">
+
+        <svg class="pointer-events-none absolute
+                    left-3 top-1/2 h-5 w-5
+                    -translate-y-1/2 text-slate-400"
+             fill="none"
+             stroke="currentColor"
+             viewBox="0 0 24 24">
+
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61Z">
+
+          </path>
+
+        </svg>
+
+
+        <input type="text"
+               placeholder="Search member..."
+               (input)="onSearch($event)"
+               class="w-64 rounded-xl border
+                      border-slate-200 bg-white
+                      py-3 pl-10 pr-4 text-sm
+                      outline-none
+                      focus:border-indigo-500
+                      focus:ring-2
+                      focus:ring-indigo-100
+                      dark:border-slate-700
+                      dark:bg-slate-800
+                      dark:text-white">
+
+      </div>
+
+
+      <!-- Actions -->
+      <div class="flex gap-3">
+
+        <button type="button"
+                (click)="expandAll()"
+                class="rounded-xl bg-indigo-600
+                       px-4 py-3 text-sm
+                       font-semibold text-white
+                       hover:bg-indigo-700">
+
+          Expand All
+
+        </button>
+
+
+        <button type="button"
+                (click)="collapseAll()"
+                class="rounded-xl border
+                       border-slate-200
+                       px-4 py-3 text-sm
+                       font-semibold
+                       text-slate-700
+                       hover:bg-slate-50
+                       dark:border-slate-700
+                       dark:text-slate-200">
+
+          Collapse All
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- Scrollable Chart -->
+    <div class="flex-1 overflow-auto">
+
+      <!-- Chart Area -->
+      <div class="org-chart-wrapper overflow-auto bg-slate-50 p-8 dark:bg-slate-950">
+
+        <div class="org-chart min-w-[1100px]">
+
+          <!-- Root Level -->
+          <div class="flex justify-center">
+
+            @for (member of rootMembers(); track member.id) {
+
+            <div class="org-node-wrapper">
+
+              <!-- Root Card -->
+              <div class="org-card root-card">
+
+                <!-- Avatar -->
+                <div class="avatar avatar-root">
+
+                  @if (member.profilePhoto) {
+
+                  <img [src]="imageURL() + member.profilePhoto"
+                       [alt]="member.name"
+                       class="h-full w-full object-cover">
+
+                  }
+
+                  @else {
+
+                  <span>
+
+                    {{ member.name.charAt(0) }}
+
+                  </span>
+
+                  }
+
+                </div>
+
+
+                <!-- Card Content -->
+                <div class="pt-7">
+
+                  <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+
+                    {{ member.name }}
+
+                  </h2>
+
+                  <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                    {{ member.designation }}
+
+                  </p>
+
+                </div>
+
+
+                <!-- Toggle -->
+                @if (hasChildren(member.id)) {
+
+                <button type="button"
+                        (click)="toggle(member)"
+                        class="toggle-button">
+
+                  <svg class="h-4 w-4 transition-transform"
+                       [class.rotate-180]="!member.expanded"
+                       fill="none"
+                       stroke="currentColor"
+                       viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="m19 9-7 7-7-7">
+
+                    </path>
+
+                  </svg>
+
+                </button>
+
+                }
+
+              </div>
+
+
+              <!-- Children -->
+              @if (member.expanded && hasChildren(member.id)) {
+
+              <div class="children-container" [style.--children-count]="getChildren(member.id).length">
+
+                @for (child of getChildren(member.id); track child.id) {
+
+                <div class="child-branch">
+
+                  <!-- Child Card -->
+                  <div class="org-card">
+
+                    <!-- Avatar -->
+                    <div class="avatar">
+
+                      @if (child.profilePhoto) {
+
+                      <img [src]="imageURL() + child.profilePhoto"
+                           [alt]="child.name"
+                           class="h-full w-full object-cover">
+
+                      }
+
+                      @else {
+
+                      <span>
+
+                        {{ child.name.charAt(0) }}
+
+                      </span>
+
+                      }
+
+                    </div>
+
+
+                    <!-- Content -->
+                    <div class="pt-7">
+
+                      <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+
+                        {{ child.name }}
+
+                      </h3>
+
+                      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                        {{ child.designation }}
+
+                      </p>
+
+                    </div>
+
+
+                    <!-- Toggle -->
+                    @if (hasChildren(child.id)) {
+
+                    <button type="button"
+                            (click)="toggle(child)"
+                            class="toggle-button">
+
+                      <svg class="h-4 w-4 transition-transform"
+                           [class.rotate-180]="!child.expanded"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="m19 9-7 7-7-7">
+
+                        </path>
+
+                      </svg>
+
+                    </button>
+
+                    }
+
+                  </div>
+
+
+                  <!-- Nested Children -->
+                  @if (child.expanded && hasChildren(child.id)) {
+
+                  <div class="nested-children" [style.--nested-count]="getChildren(child.id).length">
+
+                    @for (grandChild of getChildren(child.id); track grandChild.id) {
+
+                    <div class="org-card">
+
+                      <div class="avatar">
+
+                        @if (grandChild.profilePhoto) {
+
+                        <img [src]="imageURL() + grandChild.profilePhoto"
+                             [alt]="grandChild.name"
+                             class="h-full w-full object-cover">
+
+                        }
+
+                        @else {
+
+                        <span>
+
+                          {{ grandChild.name.charAt(0) }}
+
+                        </span>
+
+                        }
+
+                      </div>
+
+
+                      <div class="pt-7">
+
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+
+                          {{ grandChild.name }}
+
+                        </h3>
+
+                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                          {{ grandChild.designation }}
+
+                        </p>
+
+                      </div>
+
+
+                      @if (hasChildren(grandChild.id)) {
+
+                      <button type="button"
+                              (click)="toggle(grandChild)"
+                              class="toggle-button">
+
+                        <svg class="h-4 w-4"
+                             fill="none"
+                             stroke="currentColor"
+                             viewBox="0 0 24 24">
+
+                          <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="m19 9-7 7-7-7">
+
+                          </path>
+
+                        </svg>
+
+                      </button>
+
+                      }
+
+                    </div>
+
+                    }
+
+                  </div>
+
+                  }
+
+                </div>
+
+                }
+
+              </div>
+
+              }
+
+            </div>
+
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

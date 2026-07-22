@@ -71,27 +71,30 @@
 
     <div class="overflow-x-auto">
 
-      <table class="min-w-full">
+      <table class="w-full text-left">
 
         <!-- Header -->
 
-        <thead class="border-b border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+        <thead class="bg-gray-50 dark:bg-slate-800">
 
           <tr>
 
-            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th  class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Role
             </th>
 
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th  class="px-6 py-4 text-xs font-semibold uppercase
+                       tracking-wider text-gray-500">
               Users
             </th>
 
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th  class="px-6 py-4 text-xs font-semibold uppercase
+                tracking-wider text-gray-500">
               Status
             </th>
 
-            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700 dark:text-slate-300">
+            <th  class="px-6 py-4 text-xs  text-right font-semibold uppercase
+                tracking-wider text-gray-500">
               Action
             </th>
 
@@ -105,9 +108,10 @@
 
           @for(role of filteredRoles() | paginate:{itemsPerPage: itemsPerPage(), currentPage: page()}; track role.id){
 
-          <tr class="border-b text-sm border-gray-100 transition hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800">
+          <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
-            <!-- Role -->
+
+              <!-- Role -->
 
             <td class="px-6 py-5">
 
@@ -118,7 +122,7 @@
             </td>
             <!-- Users -->
 
-            <td class="px-6 py-5 text-center font-semibold text-gray-800 dark:text-white">
+            <td class="px-6 py-5 font-semibold text-gray-800 dark:text-white">
 
               {{role.users}}
 
@@ -126,7 +130,7 @@
 
             <!-- Status -->
 
-            <td class="px-6 py-5 text-center">
+            <td class="px-6 py-5">
 
               @if(role.users>0){
 
@@ -153,7 +157,7 @@
 
             <td class="px-6 py-5">
 
-              <div class="flex justify-center gap-3">
+              <div class="flex justify-end gap-3">
 
                 <!-- Edit -->
 

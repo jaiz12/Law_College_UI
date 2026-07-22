@@ -12,6 +12,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ToastrService } from 'ngx-toastr';
 import { ConfigService } from '../../../../services/config.service';
+import { ValidationService } from '../../../../services/validation-service.service';
 
 @Component({
   selector: 'app-general-overview',
@@ -36,18 +37,25 @@ export class GeneralOverviewComponent implements OnInit {
   pageForm: FormGroup;
 
   loggedInId = signal('')
-  removedBannerImage: string = '';
   bannerImage: string = '';
-
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService) {
+  pageName: string = "General Overview";
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
     this.pageForm = this.fb.group({
       id: [''],
+      pageName: [''],
       banner: [''],
-      description: ['', Validators.required],
+      description: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
       metaTitle: [''],
       metaDescription: ['']
     });
   }
+
 
   ngOnInit() {
     this.get();
@@ -71,9 +79,6 @@ export class GeneralOverviewComponent implements OnInit {
     // Clear banner validation error
     this.pageForm.get('banner')?.setErrors(null);
 
-    // New image selected,
-    // do not delete old image
-    this.removedBannerImage ='';
 
     const reader =new FileReader();
 
@@ -86,10 +91,6 @@ export class GeneralOverviewComponent implements OnInit {
   }
 
   removeImage(): void {
-
-    if (this.bannerImage) {
-      this.removedBannerImage =this.bannerImage;
-    }
 
     this.selectedFile = null;
 
@@ -109,7 +110,7 @@ export class GeneralOverviewComponent implements OnInit {
   }
 
   get(): void {
-    this.apiservice.GetRequest('GeneralOverview').subscribe({
+    this.apiservice.GetRequest('AboutUs/0/' + this.pageName).subscribe({
        next: (res: any) => {
 
           const data =Array.isArray(res) ? res[0] : res;
@@ -120,6 +121,7 @@ export class GeneralOverviewComponent implements OnInit {
 
           this.pageForm.patchValue({
             id: data.id ?? '',
+            pageName: data.pageName ?? '',
             banner: data.bannerImage ?? '',
             description: data.description ?? '',
             metaTitle: data.metaTitle ?? '',
@@ -185,6 +187,7 @@ export class GeneralOverviewComponent implements OnInit {
     }
 
 
+    formData.append('PageName', this.pageName);
     formData.append('Description',description);
 
     formData.append('MetaTitle',this.pageForm.get('metaTitle')?.value ?? '');
@@ -194,8 +197,6 @@ export class GeneralOverviewComponent implements OnInit {
     if (id) {formData.append('Id', id.toString());
 
       formData.append('UpdatedBy',this.loggedInId());
-
-      formData.append('RemovedBannerImage',this.removedBannerImage);
 
       this.update(id, formData);
 
@@ -210,15 +211,15 @@ export class GeneralOverviewComponent implements OnInit {
   }
 
   private create(formData: FormData): void {
-    this.apiservice.PostRequest('GeneralOverview', formData, true).subscribe({
+    this.apiservice.PostRequest('AboutUs', formData, true).subscribe({
         next: (res) => {
           if (res.isSucceeded) {            
 
-            this.toastr.success(res.message,
-              res.messageType);
+            this.toastr.success(res.message);
             // Clear form
             this.pageForm.reset({
               id: '',
+              pageName: 'General Overview',
               banner: '',
               description: '',
               metaTitle: '',
@@ -234,15 +235,12 @@ export class GeneralOverviewComponent implements OnInit {
             // Clear stored image path
             this.bannerImage ='';
 
-            // Clear removed image path
-            this.removedBannerImage = '';
-
             this.get();
 
           }
           else {
 
-            this.toastr.warning(res.message,res.messageType);
+            this.toastr.warning(res.message);
 
           }
 
@@ -263,17 +261,15 @@ export class GeneralOverviewComponent implements OnInit {
 
   private update(id: number,formData: FormData): void {
 
-    this.apiservice.PutRequest('GeneralOverview',formData,true).subscribe({
+    this.apiservice.PutRequest('AboutUs',formData,true).subscribe({
 
       next: (res: any) => {
 
           if (res.isSucceeded) {
 
-            this.toastr.success(res.message,res.messageType);
+            this.toastr.success(res.message);
 
             this.selectedFile =null;
-
-            this.removedBannerImage ='';
 
             this.get();
 
@@ -282,8 +278,7 @@ export class GeneralOverviewComponent implements OnInit {
           else {
 
             this.toastr.warning(
-              res.message,
-              res.messageType
+              res.message
 
             );
           }

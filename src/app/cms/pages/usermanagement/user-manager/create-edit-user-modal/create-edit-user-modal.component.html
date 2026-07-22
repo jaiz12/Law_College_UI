@@ -6,7 +6,9 @@
 
     <div class="flex items-center justify-between border-b p-6">
 
-      <h2 class="text-xl font-bold">
+      <h2 class="text-xl font-bold
+                       text-gray-800
+                       dark:text-white">
 
         {{ isEditMode ? 'Edit User' : 'Create User' }}
 
@@ -40,7 +42,7 @@
 
         <div>
 
-          <label>User Id *</label>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">User Id  <span class="text-red-500">*</span></label>
 
           <input type="text"
                  formControlName="userName"
@@ -62,7 +64,7 @@
 
         <div>
 
-          <label>Email *</label>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email  <span class="text-red-500">*</span></label>
 
           <input type="email"
                  formControlName="email"
@@ -84,7 +86,7 @@
 
         <div>
 
-          <label>Phone *</label>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone  <span class="text-red-500">*</span></label>
 
           <input type="text"
                  maxlength="10"
@@ -107,7 +109,7 @@
 
         <div>
 
-          <label>Role *</label>
+          <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Role  <span class="text-red-500">*</span></label>
 
           <select formControlName="roleId"
                   class="mt-2 w-full rounded-xl border p-3">
@@ -148,9 +150,9 @@
 
       <div>
 
-        <label>
+        <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
 
-          {{ isEditMode ? 'New Password (Optional)' : 'Password *' }}
+          {{ isEditMode ? 'New Password (Optional)' : 'Password  *' }}
 
         </label>
 
@@ -212,14 +214,30 @@
 
         <button type="button"
                 (click)="cancel()"
-                class="rounded-xl border px-5 py-3">
+                class="rounded-xl
+               border
+               border-gray-300
+               dark:border-slate-700
+               px-5
+               py-3
+               font-medium
+               text-gray-700
+               dark:text-gray-300
+               hover:bg-gray-100
+               dark:hover:bg-slate-800">
 
           Cancel
 
         </button>
 
         <button type="submit"
-                class="rounded-xl bg-indigo-600 px-5 py-3 text-white">
+                class="rounded-xl
+               bg-indigo-600
+               px-5
+               py-3
+               font-medium
+               text-white
+               hover:bg-indigo-700">
 
           {{ isEditMode ? 'Update User' : 'Create User' }}
 

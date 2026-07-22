@@ -1,9 +1,11 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+    AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
@@ -11,6 +13,7 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
+import { ValidationService } from '../../../../services/validation-service.service';
 
 @Component({
   selector: 'app-vision-and-mission',
@@ -27,19 +30,28 @@ export class VisionAndMissionComponent implements OnInit {
   pageForm: FormGroup;
 
   loggedInId = signal('')
+  pageName: string = "Vision and Mission";
 
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService) {
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private validationService: ValidationService) {
    
+    
 
     this.pageForm = this.fb.group({
       id: [''],
-      vision: ['',Validators.required],
-      mission: ['',Validators.required],
+      pageName: [''],
+      description: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
       metaTitle: [''],
       metaDescription: [''],
     });
 
   }
+
 
   ngOnInit() {
     this.get();
@@ -52,7 +64,7 @@ export class VisionAndMissionComponent implements OnInit {
   }
 
   get(): void {
-    this.apiservice.GetRequest('VisionMission').subscribe({
+    this.apiservice.GetRequest('AboutUs/0/' + this.pageName).subscribe({
       next: (res: any) => {
 
         const data = Array.isArray(res) ? res[0] : res;
@@ -63,8 +75,8 @@ export class VisionAndMissionComponent implements OnInit {
 
         this.pageForm.patchValue({
           id: data.id ?? '',
-          vision: data.vision ?? '',
-          mission: data.mission ?? '',
+          pageName: data.pageName ?? '',
+          description: data.description ?? '',
           metaTitle: data.metaTitle ?? '',
           metaDescription: data.metaDescription ?? ''
         });
@@ -86,30 +98,19 @@ export class VisionAndMissionComponent implements OnInit {
 
   save(): void {
     // Get CKEditor HTML
-    const vision = this.pageForm.get('vision')?.value ?? '';
-    const mission = this.pageForm.get('mission')?.value ?? '';
+    const description = this.pageForm.get('description')?.value ?? '';
 
     // Remove HTML tags and whitespace
-    const visonText = vision.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+    const plainText = description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
 
     // CKEditor validation
-    if (!visonText) {
-      this.pageForm.get('vision')?.setErrors({ required: true });
+    if (!plainText) {
+      this.pageForm.get('description')?.setErrors({ required: true });
     }
     else {
-      this.pageForm.get('vision')?.setErrors(null);
+      this.pageForm.get('description')?.setErrors(null);
     }
-
-    // Remove HTML tags and whitespace
-    const missonText = mission.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
-
-    // CKEditor validation
-    if (!missonText) {
-      this.pageForm.get('mission')?.setErrors({ required: true });
-    }
-    else {
-      this.pageForm.get('mission')?.setErrors(null);
-    }
+    
 
     // Banner validation only for CREATE
     const id = this.pageForm.get('id')?.value;
@@ -122,9 +123,9 @@ export class VisionAndMissionComponent implements OnInit {
 
     const formData = new FormData();
 
-    formData.append('Vision', vision);
+    formData.append('PageName', this.pageName);
 
-    formData.append('Mission', mission);
+    formData.append('Description', description);
 
     formData.append('MetaTitle', this.pageForm.get('metaTitle')?.value ?? '');
 
@@ -148,17 +149,15 @@ export class VisionAndMissionComponent implements OnInit {
   }
 
   private create(formData: FormData): void {
-    this.apiservice.PostRequest('VisionMission', formData, true).subscribe({
+    this.apiservice.PostRequest('AboutUs', formData, true).subscribe({
       next: (res) => {
         if (res.isSucceeded) {
 
-          this.toastr.success(res.message,
-            res.messageType);
+          this.toastr.success(res.message);
           // Clear form
           this.pageForm.reset({
             id: '',
-            vision: '',
-            mission: '',
+            pageName: '',
             description: '',
             metaTitle: '',
             metaDescription: ''
@@ -169,7 +168,7 @@ export class VisionAndMissionComponent implements OnInit {
         }
         else {
 
-          this.toastr.warning(res.message, res.messageType);
+          this.toastr.warning(res.message);
 
         }
 
@@ -190,13 +189,13 @@ export class VisionAndMissionComponent implements OnInit {
 
   private update(id: number, formData: FormData): void {
 
-    this.apiservice.PutRequest('VisionMission', formData, true).subscribe({
+    this.apiservice.PutRequest('AboutUs', formData, true).subscribe({
 
       next: (res: any) => {
 
         if (res.isSucceeded) {
 
-          this.toastr.success(res.message, res.messageType);
+          this.toastr.success(res.message);
 
           this.get();
 
@@ -205,8 +204,7 @@ export class VisionAndMissionComponent implements OnInit {
         else {
 
           this.toastr.warning(
-            res.message,
-            res.messageType
+            res.message
 
           );
         }

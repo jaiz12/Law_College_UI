@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+
 import {
   Component,
   EventEmitter,
@@ -10,42 +11,70 @@ import {
 } from '@angular/core';
 
 import {
+  AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
-export interface GoverningBody {
+import { ValidationService } from '../../../../../services/validation-service.service';
+import { ConfigService } from '../../../../../services/config.service';
+import { GoverningBody } from '../governing-body.component';
 
-  id: string | null;
-
-  name: string;
-
-  description: string;
-
-  image: string;
-
-}
 
 @Component({
   selector: 'app-governing-body-modal',
+
   standalone: true,
+
   imports: [
+
     CommonModule,
+
     ReactiveFormsModule
+
   ],
-  templateUrl: './governing-body-modal.component.html',
-  styleUrl: './governing-body-modal.component.scss'
+
+  templateUrl:
+    './governing-body-modal.component.html',
+
+  styleUrl:
+    './governing-body-modal.component.scss'
+
 })
-export class GoverningBodyModalComponent implements OnChanges {
+export class GoverningBodyModalComponent
+  implements OnChanges {
+
+
+  constructor(private config: ConfigService) {
+
+  }
 
   private fb = inject(FormBuilder);
 
-  @Input() member: GoverningBody | null = null;
+  private validationService = inject(ValidationService);
 
-  @Output() save = new EventEmitter<FormData>();
 
-  @Output() close = new EventEmitter<void>();
+  // ---------------------------------------
+  // Input / Output
+  // ---------------------------------------
+
+  @Input()
+  member: GoverningBody | null = null;
+
+
+  @Output()
+  save = new EventEmitter<FormData>();
+
+
+  @Output()
+  close = new EventEmitter<void>();
+
+
+  // ---------------------------------------
+  // File Variables
+  // ---------------------------------------
 
   imagePreview: string | ArrayBuffer | null = null;
 
@@ -53,55 +82,211 @@ export class GoverningBodyModalComponent implements OnChanges {
 
   dragging = false;
 
-  form = this.fb.group({
 
-    Id: [''],
+  // ---------------------------------------
+  // Form
+  // ---------------------------------------
 
-    Name: ['', Validators.required],
+  pageForm = this.fb.group({
 
-    Description: ['', Validators.required]
+    id: this.fb.control<string>('', {
+
+      nonNullable: true
+
+    }),
+
+    name: this.fb.control<string>('', {
+
+      validators: [
+
+        Validators.required,
+
+        this.validationService.noWhitespaceValidator()
+
+      ],
+
+      nonNullable: true
+
+    }),
+
+    description: this.fb.control<string>('', {
+
+      validators: [
+
+        Validators.required,
+
+        this.validationService.noWhitespaceValidator()
+
+      ],
+
+      nonNullable: true
+
+    }),
+
+    photo: this.fb.control<string>('', {
+
+      nonNullable: true
+
+    })
 
   });
 
-  get isEditMode() {
+
+  // ---------------------------------------
+  // Edit Mode
+  // ---------------------------------------
+
+  get isEditMode(): boolean {
 
     return !!this.member;
 
   }
 
+
+  // ---------------------------------------
+  // Input Changes
+  // ---------------------------------------
+
   ngOnChanges(changes: SimpleChanges): void {
 
     if (this.member) {
 
-      this.form.patchValue({
+      this.pageForm.patchValue({
 
-        Id: this.member.id,
+        id: this.member.id ?? '',
 
-        Name: this.member.name,
+        name: this.member.name ?? '',
 
-        Description: this.member.description
+        description: this.member.description ?? '',
+
+        photo: this.member.photo ?? ''
 
       });
 
-      this.imagePreview = this.member.image;
+
+      const photoPath =
+        this.member.photo;
+
+
+      if (photoPath) {
+
+        this.imagePreview =
+          this.config.get('IMAGE_API_URL') +
+          photoPath;
+
+      }
+
+      else {
+
+        this.imagePreview = null;
+
+      }
+
 
       this.selectedFile = null;
+
+
+      // Existing photo is valid during edit
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors(null);
 
     }
 
     else {
 
-      this.form.reset();
+      this.pageForm.reset({
+
+        id: '',
+
+        name: '',
+
+        description: '',
+
+        photo: ''
+
+      });
+
 
       this.imagePreview = null;
 
       this.selectedFile = null;
 
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors(null);
+
     }
 
   }
 
-  onDragOver(event: DragEvent) {
+
+  // ---------------------------------------
+  // File Selection
+  // ---------------------------------------
+
+  onFileChange(event: Event): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+
+    if (!input.files?.length) {
+
+      return;
+
+    }
+
+
+    const file =
+      input.files[0];
+
+
+    this.loadFile(file);
+
+  }
+
+
+  // ---------------------------------------
+  // Load Image
+  // ---------------------------------------
+
+  loadFile(file: File): void {
+
+    this.selectedFile = file;
+
+
+    // Clear validation error
+
+    this.pageForm
+      .get('photo')
+      ?.setErrors(null);
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = () => {
+
+      this.imagePreview =
+        reader.result as string;
+
+    };
+
+
+    reader.readAsDataURL(file);
+
+  }
+
+
+  // ---------------------------------------
+  // Drag & Drop
+  // ---------------------------------------
+
+  onDragOver(event: DragEvent): void {
 
     event.preventDefault();
 
@@ -109,7 +294,8 @@ export class GoverningBodyModalComponent implements OnChanges {
 
   }
 
-  onDragLeave(event: DragEvent) {
+
+  onDragLeave(event: DragEvent): void {
 
     event.preventDefault();
 
@@ -117,13 +303,17 @@ export class GoverningBodyModalComponent implements OnChanges {
 
   }
 
-  onDrop(event: DragEvent) {
+
+  onDrop(event: DragEvent): void {
 
     event.preventDefault();
 
     this.dragging = false;
 
-    const file = event.dataTransfer?.files[0];
+
+    const file =
+      event.dataTransfer?.files[0];
+
 
     if (file) {
 
@@ -133,73 +323,164 @@ export class GoverningBodyModalComponent implements OnChanges {
 
   }
 
-  onFileChange(event: any) {
 
-    const file = event.target.files[0];
+  // ---------------------------------------
+  // Remove Image
+  // ---------------------------------------
 
-    if (file) {
-
-      this.loadFile(file);
-
-    }
-
-  }
-
-  loadFile(file: File) {
-
-    this.selectedFile = file;
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-
-      this.imagePreview = reader.result;
-
-    };
-
-    reader.readAsDataURL(file);
-
-  }
-
-  removeImage() {
+  removeImage(): void {
 
     this.selectedFile = null;
 
     this.imagePreview = null;
 
+
+    this.pageForm
+      .get('photo')
+      ?.setValue('');
+
+
+    const id =
+      this.pageForm.get('id')?.value;
+
+
+    // Photo is required only for CREATE
+
+    if (!id) {
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+
+          required: true
+
+        });
+
+    }
+
   }
 
-  submit() {
 
-    if (this.form.invalid) {
+  // ---------------------------------------
+  // Submit
+  // ---------------------------------------
 
-      this.form.markAllAsTouched();
+  submit(): void {
+
+
+    // CREATE validation
+
+    const id =
+      this.pageForm.get('id')?.value;
+
+
+    if (!id && !this.selectedFile) {
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+
+          required: true
+
+        });
+
+    }
+
+
+    // EDIT mode allows existing image
+
+    if (id && (this.selectedFile || this.imagePreview)) {
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors(null);
+
+    }
+
+
+    if (this.pageForm.invalid) {
+
+      this.pageForm.markAllAsTouched();
 
       return;
 
     }
 
-    const formData = new FormData();
 
-    formData.append('Id', this.form.value.Id ?? '');
+    const formData =
+      new FormData();
 
-    formData.append('Name', this.form.value.Name!);
 
-    formData.append('Description', this.form.value.Description!);
+    // Id
+
+    if (id) {
+
+      formData.append(
+
+        'Id',
+
+        id
+
+      );
+
+    }
+
+
+    // Name
+
+    formData.append(
+
+      'Name',
+
+      this.pageForm
+        .get('name')
+        ?.value ?? ''
+
+    );
+
+
+    // Description
+
+    formData.append(
+
+      'Description',
+
+      this.pageForm
+        .get('description')
+        ?.value ?? ''
+
+    );
+
+
+    // Photo
 
     if (this.selectedFile) {
 
-      formData.append('Image', this.selectedFile);
+      formData.append(
+
+        'Photo',
+
+        this.selectedFile,
+
+        this.selectedFile.name
+
+      );
 
     }
+
 
     this.save.emit(formData);
 
   }
 
-  cancel() {
 
-    this.form.reset();
+  // ---------------------------------------
+  // Cancel
+  // ---------------------------------------
+
+  cancel(): void {
+
+    this.pageForm.reset();
 
     this.selectedFile = null;
 

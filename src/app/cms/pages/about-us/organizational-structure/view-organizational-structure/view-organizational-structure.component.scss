@@ -1,0 +1,236 @@
+.org-chart-wrapper {
+  min-height: 700px;
+}
+
+.org-chart {
+  position: relative;
+  padding: 60px 30px;
+}
+
+/* ---------------------------------------
+   Card
+--------------------------------------- */
+
+.org-card {
+  position: relative;
+  width: 250px;
+  min-height: 150px;
+  padding: 28px 20px 20px;
+  text-align: center;
+  border-radius: 18px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.14);
+  }
+}
+
+:host-context(.dark) .org-card {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+
+/* ---------------------------------------
+   Root Card
+--------------------------------------- */
+
+.root-card {
+  width: 280px;
+  min-height: 165px;
+  border: 2px solid #6366f1;
+}
+
+
+/* ---------------------------------------
+   Avatar
+--------------------------------------- */
+
+.avatar {
+  position: absolute;
+  left: 50%;
+  top: -35px;
+  display: flex;
+  height: 70px;
+  width: 70px;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 5px solid white;
+  background: linear-gradient( 135deg, #6366f1, #8b5cf6 );
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+}
+
+:host-context(.dark) .avatar {
+  border-color: #0f172a;
+}
+
+.avatar-root {
+  height: 80px;
+  width: 80px;
+  top: -40px;
+}
+
+
+/* ---------------------------------------
+   Toggle Button
+--------------------------------------- */
+
+.toggle-button {
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  display: flex;
+  height: 30px;
+  width: 30px;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #64748b;
+  color: white;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background: #4f46e5;
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+
+/* ---------------------------------------
+   Children Layout
+--------------------------------------- */
+
+.children-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat( var(--children-count), 250px );
+  justify-content: center;
+  gap: 24px;
+  margin-top: 90px;
+  padding-top: 50px;
+}
+
+
+/* Horizontal connector */
+.children-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc( 125px );
+  right: calc( 125px );
+  height: 2px;
+  background: #cbd5e1;
+}
+
+
+/* Vertical connector from parent */
+.org-node-wrapper > .children-container::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  height: 50px;
+  width: 2px;
+  background: #cbd5e1;
+}
+
+
+/* Each branch */
+.child-branch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 250px;
+}
+
+/* Vertical line to child */
+.child-branch::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  height: 50px;
+  width: 2px;
+  background: #cbd5e1;
+}
+
+
+/* ---------------------------------------
+   Nested Children
+--------------------------------------- */
+
+.nested-children {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat( var(--nested-count), 250px );
+  justify-content: center;
+  gap: 24px;
+  margin-top: 90px;
+  padding-top: 50px;
+}
+
+.nested-children::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 2px;
+  background: #cbd5e1;
+}
+
+.nested-children .org-card::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  height: 50px;
+  width: 2px;
+  background: #cbd5e1;
+}
+
+
+/* ---------------------------------------
+   Dark Mode Connectors
+--------------------------------------- */
+
+:host-context(.dark) .children-container::before,
+:host-context(.dark) .children-container::after,
+:host-context(.dark) .child-branch::before,
+:host-context(.dark) .nested-children::before,
+:host-context(.dark) .nested-children .org-card::before {
+  background: #475569;
+}
+
+
+/* ---------------------------------------
+   Responsive
+--------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .org-chart {
+    padding: 50px 10px;
+  }
+
+  .children-container {
+    gap: 15px;
+  }
+
+  .org-card {
+    width: 220px;
+  }
+}

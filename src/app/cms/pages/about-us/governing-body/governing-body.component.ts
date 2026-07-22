@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { GoverningBodyModalComponent } from './governing-body-modal/governing-body-modal.component';
+import { ConfigService } from '../../../../services/config.service';
 
 export interface GoverningBody {
 
@@ -16,7 +17,7 @@ export interface GoverningBody {
 
   description: string;
 
-  image: string;
+  photo: string;
 
 }
 
@@ -32,18 +33,19 @@ export interface GoverningBody {
   templateUrl: './governing-body.component.html',
   styleUrl: './governing-body.component.scss'
 })
-export class GoverningBodyComponent {
+export class GoverningBodyComponent implements OnInit {
 
   constructor(
     private apiService: CmsApiService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private config: ConfigService
   ) {
-    this.getMembers();
+    
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Signals
-  //---------------------------------------
+  // ---------------------------------------
 
   search = signal('');
 
@@ -58,55 +60,101 @@ export class GoverningBodyComponent {
   selectedMember = signal<GoverningBody | null>(null);
 
   members = signal<GoverningBody[]>([]);
+  pageName: string = "Governing Body";
+  imageURL = signal('');
 
-  //---------------------------------------
+  loggedInId = signal('');
+
+  ngOnInit() {
+    this.getMembers();
+    this.imageURL.set(this.config.get('IMAGE_API_URL'));
+
+    const userString = localStorage.getItem('user');
+
+    if (userString) {
+      const currentUser = JSON.parse(userString);
+      this.loggedInId.set(currentUser.id);
+    }
+  }
+
+  // ---------------------------------------
   // Filter
-  //---------------------------------------
+  // ---------------------------------------
 
   filteredMembers = computed(() => {
 
-    const keyword = this.search().trim().toLowerCase();
+    const keyword = this.search()
+      .trim()
+      .toLowerCase();
 
     if (!keyword) {
       return this.members();
     }
 
-    return this.members().filter(x =>
+    return this.members().filter(member =>
 
-      x.name.toLowerCase().includes(keyword) ||
+      member.name
+        ?.toLowerCase()
+        .includes(keyword) ||
 
-      x.description.toLowerCase().includes(keyword)
+      member.description
+        ?.toLowerCase()
+        .includes(keyword) ||
+      member.photo
+        ?.toLowerCase()
+        .includes(keyword)
 
     );
 
   });
 
-  //---------------------------------------
-  // Load Members
-  //---------------------------------------
+ 
 
-  getMembers() {
+  // ---------------------------------------
+  // Load Members
+  // ---------------------------------------
+
+  getMembers(): void {
 
     this.apiService
-      .GetRequest('GoverningBody/GetAll')
+      .GetRequest('AboutUs/0/' + this.pageName)
       .subscribe({
 
         next: (res: any) => {
 
-          const list = res.data?.map((x: any) => ({
+          const data = Array.isArray(res)
+            ? res
+            : [res];
 
-            id: String(x.id ?? x.Id),
+          const members: GoverningBody[] =
+            data.map((item: any) => ({
 
-            name: x.name ?? x.Name,
+              id:
+                item.id ??
+                item.Id ??
+                null,
 
-            description: x.description ?? x.Description,
+              name:
+                item.name ??
+                item.Name ??
+                '',
 
-            image: x.image ?? x.Image
+              description:
+                item.description ??
+                item.Description ??
+                '',
 
-          })) ?? [];
+              photo:
+                item.photo ??
+                item.Photo ??
+                item.image ??
+                item.Image ??
+                ''
+            }));
 
-          this.members.set(list);
+          this.members.set(members);
 
+          console.log(this.members())
         },
 
         error: (err) => {
@@ -127,11 +175,11 @@ export class GoverningBodyComponent {
 
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Create
-  //---------------------------------------
+  // ---------------------------------------
 
-  createMember() {
+  createMember(): void {
 
     this.selectedMember.set(null);
 
@@ -139,11 +187,11 @@ export class GoverningBodyComponent {
 
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Edit
-  //---------------------------------------
+  // ---------------------------------------
 
-  edit(member: GoverningBody) {
+  edit(member: GoverningBody): void {
 
     this.selectedMember.set({
 
@@ -155,11 +203,11 @@ export class GoverningBodyComponent {
 
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Close Modal
-  //---------------------------------------
+  // ---------------------------------------
 
-  closeModal() {
+  closeModal(): void {
 
     this.showModal.set(false);
 
@@ -167,31 +215,54 @@ export class GoverningBodyComponent {
 
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Save
-  //---------------------------------------
+  // ---------------------------------------
 
-  saveMember(formData: FormData) {
+  saveMember(formData: FormData): void {
 
     const id = formData.get('Id');
+    formData.append(
+
+      'PageName',
+
+      this.pageName
+
+    );
+
+    if (id) {
+      formData.append('Id', id.toString());
+
+      formData.append('UpdatedBy', this.loggedInId());
+
+    }
+    else {
+      formData.append('CreatedBy', this.loggedInId());
+
+    }
+
+  
 
     const request = id
 
       ? this.apiService.PutRequest(
-        'GoverningBody/Update',
-        formData
+        'AboutUs',
+        formData,
+        true
       )
 
       : this.apiService.PostRequest(
-        'GoverningBody/Create',
-        formData
+        'AboutUs',
+        formData,
+        true
       );
 
     request.subscribe({
 
       next: (res: any) => {
+        console.log(res)
 
-        if (res.messageType === 'success') {
+        if (res.isSucceeded) {
 
           this.toastr.success(res.message);
 
@@ -200,10 +271,11 @@ export class GoverningBodyComponent {
           this.closeModal();
 
         }
-
         else {
 
-          this.toastr.warning(res.message);
+          this.toastr.warning(
+            res.message
+          );
 
         }
 
@@ -227,17 +299,18 @@ export class GoverningBodyComponent {
 
   }
 
-  //---------------------------------------
+  // ---------------------------------------
   // Delete
-  //---------------------------------------
+  // ---------------------------------------
 
-  delete(member: GoverningBody) {
+  delete(member: GoverningBody): void {
 
     Swal.fire({
 
       title: 'Delete Member?',
 
-      text: `Are you sure you want to delete "${member.name}"?`,
+      text:
+        `Are you sure you want to delete "${member.name}"?`,
 
       icon: 'warning',
 
@@ -257,28 +330,41 @@ export class GoverningBodyComponent {
 
     }).then(result => {
 
-      if (!result.isConfirmed) return;
+      if (!result.isConfirmed) {
+
+        return;
+
+      }
+      const formData = new FormData();
+      console.log(member.id)
+      formData.append('Id', member.id ?? '');
+      formData.append('PageName', this.pageName);
+      formData.append('Image', member.photo);
 
       this.apiService
-        .DeleteRequest(
-          'GoverningBody/Delete',
-          member.id
+
+        .DeleteFromFormRequest(
+          'AboutUs',
+          formData,
+          true
         )
+
         .subscribe({
 
           next: (res: any) => {
 
-            if (res.messageType === 'success') {
+            if (res.isSucceeded ) {
 
               this.toastr.success(res.message);
 
               this.getMembers();
 
             }
-
             else {
 
-              this.toastr.warning(res.message);
+              this.toastr.warning(
+                res.message
+              );
 
             }
 

@@ -51,6 +51,7 @@ export class CmsApiService {
     data: any,
     isFormData: boolean = false
   ): Observable<any> {
+    console.log(`${this.API_URL}/${url}`, data)
     return this.http.put<any>(`${this.API_URL}/${url}`, data, {
       headers: this.getHeaders(isFormData),
     });
@@ -59,6 +60,18 @@ export class CmsApiService {
   GetRequest(url: string, params?: unknown): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/${url}`, {
       headers: this.getHeaders(),
+    });
+  }
+
+
+  DeleteFromFormRequest(
+    url: string,
+    data: any,
+    isFormData: boolean = false
+  ): Observable<any> {
+    return this.http.delete<any>(`${this.API_URL}/${url}`, {
+      body: data,
+      headers: this.getHeaders(isFormData),
     });
   }
 

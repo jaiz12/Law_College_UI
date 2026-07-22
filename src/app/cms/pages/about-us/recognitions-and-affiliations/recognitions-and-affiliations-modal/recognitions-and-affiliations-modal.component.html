@@ -1,0 +1,276 @@
+<!-- Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center
+         bg-black/50 p-4 backdrop-blur-sm">
+
+
+  <!-- Modal -->
+  <div class="flex max-h-[90vh] w-full max-w-2xl flex-col
+           overflow-hidden rounded-2xl border border-gray-200
+           bg-white shadow-2xl
+           dark:border-slate-700 dark:bg-slate-900">
+
+    <!-- Header -->
+    <div class="flex shrink-0 items-center justify-between
+          border-b border-gray-200 px-6 py-5
+          dark:border-slate-700">
+
+      <div>
+
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+          {{ isEditMode ? 'Edit Recognition / Affiliation' : 'Add Recognition / Affiliation' }}
+        </h2>
+
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Fill in the details below.
+        </p>
+
+      </div>
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-500 dark:hover:bg-slate-800">
+
+        ✕
+
+      </button>
+
+    </div>
+
+    <!-- Form -->
+    <div class="overflow-y-auto">
+      <form [formGroup]="pageForm"
+            (ngSubmit)="submit()"
+            class="space-y-6 p-6">
+
+        <!-- Title -->
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+
+            Title
+            <span class="text-red-500">*</span>
+
+          </label>
+
+          <input type="text"
+                 formControlName="title"
+                 class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+          @if(pageForm.get('title')?.touched && pageForm.get('title')?.invalid){
+
+          @if(pageForm.get('title')?.hasError('required')){
+
+          <p class="mt-2 text-sm text-red-500">
+            Title is required.
+          </p>
+
+          }
+
+          @if(pageForm.get('title')?.hasError('whitespace')){
+
+          <p class="mt-2 text-sm text-red-500">
+            Title cannot contain only spaces.
+          </p>
+
+          }
+
+          }
+
+        </div>
+
+        <!-- Description -->
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+
+            Description
+            <span class="text-red-500">*</span>
+
+          </label>
+
+          <textarea rows="5"
+                    formControlName="description"
+                    class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+        </textarea>
+
+          @if(pageForm.get('description')?.touched && pageForm.get('description')?.invalid){
+
+          @if(pageForm.get('description')?.hasError('required')){
+
+          <p class="mt-2 text-sm text-red-500">
+            Description is required.
+          </p>
+
+          }
+
+          @if(pageForm.get('description')?.hasError('whitespace')){
+
+          <p class="mt-2 text-sm text-red-500">
+            Description cannot contain only spaces.
+          </p>
+
+          }
+
+          }
+
+        </div>
+
+
+
+        <!-- External + Display Order -->
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- External URL -->
+          <div>
+
+            <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+
+              External URL
+
+            </label>
+
+            <input type="url"
+                   formControlName="externalUrl"
+                   placeholder="https://example.com"
+                   class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+
+
+          </div>
+
+
+
+          <!-- Display Order -->
+          <div>
+
+            <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+
+              Display Order
+              <span class="text-red-500">*</span>
+
+            </label>
+
+            <input type="number"
+                   min="1"
+                   formControlName="displayOrder"
+                   class="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+            @if(pageForm.get('displayOrder')?.touched && pageForm.get('displayOrder')?.invalid){
+
+            @if(pageForm.get('displayOrder')?.hasError('required')){
+
+            <p class="mt-2 text-sm text-red-500">
+              Display Order is required.
+            </p>
+
+            }
+
+            @if(pageForm.get('displayOrder')?.hasError('min')){
+
+            <p class="mt-2 text-sm text-red-500">
+              Display Order must be greater than 0.
+            </p>
+
+            }
+
+            }
+
+          </div>
+
+        </div>
+
+        <!-- Image -->
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+
+            Image
+            <span class="text-red-500">*</span>
+
+          </label>
+
+          @if(imagePreview){
+
+          <div class="relative mt-4 inline-block">
+
+            <img [src]="imagePreview"
+                 class="h-32 w-32 rounded-xl border object-cover">
+
+            <button type="button"
+                    (click)="removeImage()"
+                    class="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-700">
+
+              ✕
+
+            </button>
+
+          </div>
+
+          }
+
+          @else {
+
+          <div class="relative rounded-xl border-2 border-dashed border-indigo-300 bg-indigo-50 dark:border-slate-600 dark:bg-slate-800">
+
+            <input type="file"
+                   accept="image/*"
+                   class="absolute inset-0 cursor-pointer opacity-0"
+                   (change)="onFileChange($event)">
+
+            <div class="flex flex-col items-center justify-center py-10">
+
+              <div class="font-semibold text-gray-700 dark:text-gray-200">
+
+                Drag & Drop Image
+
+              </div>
+
+              <div class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+
+                or click to browse
+
+              </div>
+
+            </div>
+
+          </div>
+
+          }
+
+          @if(pageForm.get('image')?.touched && pageForm.get('image')?.hasError('required')){
+
+          <p class="mt-2 text-sm text-red-600">
+
+            Image is required.
+
+          </p>
+
+          }
+
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 border-t border-slate-200 pt-6 dark:border-slate-700">
+
+          <button type="button"
+                  (click)="cancel()"
+                  class="rounded-xl border border-slate-300 px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+
+            Cancel
+
+          </button>
+
+          <button type="submit"
+                  class="rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white transition hover:bg-indigo-700">
+
+            {{ isEditMode ? 'Update' : 'Save' }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</div>

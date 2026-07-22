@@ -5,11 +5,17 @@
   <div class="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm
            dark:border-slate-700 dark:bg-slate-900">
 
-    <h1 class="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
+    <div class="mb-8">
 
-      Vision & Mission
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        Vision & Mission
+      </h1>
 
-    </h1>
+      <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+        Manage the Vision & Mission page content.
+      </p>
+
+    </div>
 
     <!-- Vision -->
 
@@ -17,50 +23,21 @@
 
       <label class="mb-3 block font-medium text-gray-700 dark:text-gray-300">
 
-        Vision
+        Vision & Mission
 
       </label>
 
       <ckeditor [editor]="Editor"
-                formControlName="vision">
-
+                formControlName="description">
       </ckeditor>
       @if (
-      pageForm.get('vision')?.invalid &&
-      pageForm.get('vision')?.touched
+      pageForm.get('description')?.invalid &&
+      pageForm.get('description')?.touched
       ) {
 
       <p class="mt-2 text-sm text-red-600">
 
-        Vision is required.
-
-      </p>
-
-      }
-    </div>
-
-    <!-- Mission -->
-
-    <div class="mb-8">
-
-      <label class="mb-3 block font-medium text-gray-700 dark:text-gray-300">
-
-        Mission
-
-      </label>
-
-      <ckeditor [editor]="Editor"
-                formControlName="mission">
-
-      </ckeditor>
-      @if (
-      pageForm.get('mission')?.invalid &&
-      pageForm.get('mission')?.touched
-      ) {
-
-      <p class="mt-2 text-sm text-red-600">
-
-        Mission is required.
+        Vision &Aacute; Mission is required.
 
       </p>
 

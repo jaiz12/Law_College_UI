@@ -1,0 +1,420 @@
+<!-- Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center
+         bg-black/50 p-4 backdrop-blur-sm">
+
+
+  <!-- Modal -->
+  <div class="flex max-h-[90vh] w-full max-w-2xl flex-col
+           overflow-hidden rounded-2xl border border-gray-200
+           bg-white shadow-2xl
+           dark:border-slate-700 dark:bg-slate-900">
+
+
+    <!-- Header -->
+    <div class="flex shrink-0 items-center justify-between
+             border-b border-gray-200 px-6 py-5
+             dark:border-slate-700">
+
+      <div>
+
+        <h2 class="text-xl font-bold text-gray-900
+                 dark:text-white">
+
+          {{
+            isEditMode
+              ? 'Edit Organization Position'
+              : 'Add Organization Position'
+          }}
+
+        </h2>
+
+        <p class="mt-1 text-sm text-gray-500
+                 dark:text-slate-400">
+
+          Configure the organization's hierarchy.
+
+        </p>
+
+      </div>
+
+
+      <button type="button"
+              (click)="cancel()"
+              class="text-3xl leading-none text-gray-400
+               hover:text-red-500">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- Content -->
+    <div class="overflow-y-auto">
+
+      <form [formGroup]="pageForm"
+            (ngSubmit)="submit()"
+            class="space-y-6 p-6">
+
+
+        <!-- Name -->
+        <div>
+
+          <label class="mb-2 block font-medium text-gray-700
+                   dark:text-gray-300">
+
+            Name
+            <span class="text-red-500">*</span>
+
+          </label>
+
+          <input type="text"
+                 formControlName="name"
+                 placeholder="Enter person name"
+                 class="w-full rounded-xl border border-gray-300
+                   bg-white px-4 py-3 outline-none
+                   focus:border-indigo-500
+                   focus:ring-2 focus:ring-indigo-200
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+          @if (
+          pageForm.get('name')?.invalid &&
+          pageForm.get('name')?.touched
+          ) {
+
+          <p class="mt-2 text-sm text-red-600">
+
+            Name is required and cannot contain leading or trailing spaces.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- Designation -->
+        <div>
+
+          <label class="mb-2 block font-medium text-gray-700
+                   dark:text-gray-300">
+
+            Designation
+            <span class="text-red-500">*</span>
+
+          </label>
+
+          <input type="text"
+                 formControlName="designation"
+                 placeholder="e.g. Principal, Chairman"
+                 class="w-full rounded-xl border border-gray-300
+                   bg-white px-4 py-3 outline-none
+                   focus:border-indigo-500
+                   focus:ring-2 focus:ring-indigo-200
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+          @if (
+          pageForm.get('designation')?.invalid &&
+          pageForm.get('designation')?.touched
+          ) {
+
+          <p class="mt-2 text-sm text-red-600">
+
+            Designation is required.
+
+          </p>
+
+          }
+
+        </div>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <!-- Email -->
+          <div>
+
+            <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
+
+              Email
+              <span class="text-red-500">*</span>
+            </label>
+
+            <input type="email"
+                   formControlName="email"
+                   placeholder="Enter email address"
+                   class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none
+                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+            @if (
+            pageForm.get('email')?.touched &&
+            pageForm.get('email')?.invalid
+            ) {
+
+            @if (pageForm.get('email')?.hasError('required')) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Email is required.
+            </p>
+
+            }
+
+            @else if (pageForm.get('email')?.hasError('email')) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Please enter a valid email address.
+            </p>
+
+            }
+
+            @else if (pageForm.get('email')?.hasError('whitespace')) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Email cannot contain leading or trailing spaces.
+            </p>
+
+            }
+
+            }
+
+          </div>
+
+          <!-- Phone -->
+          <div>
+
+            <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
+
+              Phone Number
+              <span class="text-red-500">*</span>
+            </label>
+
+            <input type="tel"
+                   formControlName="phone"
+                   placeholder="Enter phone number"
+                   class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-800 outline-none
+                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+            @if (
+            pageForm.get('phone')?.touched &&
+            pageForm.get('phone')?.invalid
+            ) {
+
+            @if (pageForm.get('phone')?.hasError('required')) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Phone number is required.
+            </p>
+
+            }
+
+            @else if (pageForm.get('phone')?.hasError('pattern')) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Please enter a valid phone number.
+            </p>
+
+            }
+
+            }
+
+          </div>
+        </div>
+
+        <!-- Reports To -->
+        <div>
+
+          <label class="mb-2 block font-medium text-gray-700
+                   dark:text-gray-300">
+
+            Reports To <span class="text-red-500">*</span>
+
+          </label>
+
+          <select formControlName="parentId"
+                  class="w-full rounded-xl border border-gray-300
+                   bg-white px-4 py-3 outline-none
+                   focus:border-indigo-500
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+            <option [ngValue]="null">
+
+              Top Level Position
+
+            </option>
+
+            @for (
+            item of members;
+            track item.id
+            ) {
+
+            @if (
+            item.id !== member?.id
+            ) {
+
+            <option [ngValue]="item.id">
+
+              {{ item.name }}
+              -
+              {{ item.designation }}
+
+            </option>
+
+            }
+
+            }
+
+          </select>
+
+          <p class="mt-2 text-xs text-gray-500
+                   dark:text-slate-400">
+
+            Select the person this position reports to.
+
+          </p>
+
+        </div>
+
+
+        <!-- Order -->
+        <div>
+
+          <label class="mb-2 block font-medium text-gray-700
+                   dark:text-gray-300">
+
+            Display Order
+            <span class="text-red-500">*</span>
+          </label>
+
+          <input type="number"
+                 formControlName="displayOrder"
+                 min="1"
+                 class="w-full rounded-xl border border-gray-300
+                   bg-white px-4 py-3 outline-none
+                   focus:border-indigo-500
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+        </div>
+
+
+        <!-- Photo -->
+        <div>
+
+          <label class="mb-2 block font-medium text-gray-700
+                   dark:text-gray-300">
+
+            Profile Photo
+            <span class="text-red-500">*</span>
+          </label>
+
+
+          @if (imagePreview) {
+
+          <div class="relative h-64 w-64 overflow-hidden rounded-xl border">
+
+            <img [src]="imagePreview"
+                 class="h-full w-full object-cover">
+
+            <button type="button"
+                    (click)="removeImage()"
+                    class="absolute right-3 top-3 rounded-full bg-red-600 p-2 text-white">
+
+              ✕
+
+            </button>
+
+          </div>
+
+          }
+
+          @else {
+
+          <div class="relative rounded-xl border-2 border-dashed border-indigo-300 bg-indigo-50
+             dark:border-slate-600 dark:bg-slate-800">
+
+            <input type="file"
+                   accept="image/*"
+                   class="absolute inset-0 cursor-pointer opacity-0"
+                   (change)="onFileChange($event)">
+
+            <div class="flex flex-col items-center justify-center py-10">
+
+              <div class="font-semibold text-gray-700 dark:text-gray-200">
+
+                Drag & Drop Member Photo
+
+              </div>
+
+              <div class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+
+                or click to browse
+
+              </div>
+
+            </div>
+
+          </div>
+
+          }
+          @if (
+          pageForm.get('photo')?.touched &&
+          pageForm.get('photo')?.hasError('required')
+          ) {
+
+          <p class="mt-2 text-sm text-red-600">
+
+            Member Photo is required.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-3 border-t
+                 border-gray-200 pt-5
+                 dark:border-slate-700">
+
+          <button type="button"
+                  (click)="cancel()"
+                  class="rounded-xl border border-gray-300
+                   px-5 py-3 text-gray-700
+                   dark:border-slate-700
+                   dark:text-white">
+
+            Cancel
+
+          </button>
+
+
+          <button type="submit"
+                  class="rounded-xl bg-indigo-600
+                   px-5 py-3 font-medium text-white
+                   hover:bg-indigo-700">
+
+            {{
+              isEditMode
+                ? 'Update Position'
+                : 'Add Position'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
