@@ -139,24 +139,37 @@ export class SidebarComponent {
         },
 
         {
-          name: 'Governing Body',
-          routerlink: '/about/governing-body',
+          name: 'Faculty',
+          routerlink: '/about/faculty',
           svgicon: `
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
            stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
         <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/>
+              d="M12 14.25c3.105 0 5.625-2.015 5.625-4.5S15.105 5.25 12 5.25 6.375 7.265 6.375 9.75 8.895 14.25 12 14.25zM4.5 19.5c0-2.485 3.358-4.5 7.5-4.5s7.5 2.015 7.5 4.5M12 3v2.25M3.75 6.75L12 2.25l8.25 4.5L12 11.25 3.75 6.75z"/>
       </svg>`
         },
 
+
         {
-          name: 'Organizational Structure',
-          routerlink: '/about/organization-structure',
+          name: 'Administrative Staff',
+          routerlink: '/about/administrative-staff',
           svgicon: `
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
            stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
         <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 4v4M6 12h12M6 20v-4M18 20v-4M12 8v4"/>
+              d="M15 19.128a9.38 9.38 0 0 0 2.625.372A9.337 9.337 0 0 0 21 18.75c0-3.728-4.03-6.75-9-6.75s-9 3.022-9 6.75a9.337 9.337 0 0 0 3.375.75c.92 0 1.81-.13 2.625-.372M15 7.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zM6 7.5a2.25 2.25 0 1 1-4.5 0A2.25 2.25 0 0 1 6 7.5z"/>
+      </svg>`
+        },
+
+
+        {
+          name: 'Infrastructure',
+          routerlink: '/about/infrastructure',
+          svgicon: `
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3.75 21h16.5M4.5 21V7.5L12 3l7.5 4.5V21M9 21v-5.25h6V21M8.25 9.75h.008v.008H8.25V9.75zm3.75 0h.008v.008H12V9.75zm3.75 0h.008v.008H15.75V9.75z"/>
       </svg>`
         },
 
@@ -203,181 +216,97 @@ export class SidebarComponent {
       submenus: [
 
         {
-          name: 'Program & Curriculum',
-          routerlink: '/academics/program-curriculum',
+          name: '5-Year Integrated BA LLB',
+          routerlink: '/academics/5-years-integrated-ba-llb',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 6V4m0 2a6 6 0 016 6v6H6v-6a6 6 0 016-6z"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M12 6.253v13m0-13C10.832 5.483 9.246 5 7.5 5S4.168 5.483 3 6.253v13C4.168 18.483 5.754 18 7.5 18s3.332.483 4.5 1.253m0-13C13.168 5.483 14.754 5 16.5 5s3.332.483 4.5 1.253v13C19.832 18.483 18.246 18 16.5 18s-3.332.483-4.5 1.253"/>
+</svg>`
         },
 
         {
-          name: 'Programs Offered',
-          routerlink: '/academics/programs',
+          name: '2-Year LLM',
+          routerlink: '/academics/2-year-llm',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M12 14.25c3.314 0 6-2.35 6-5.25S15.314 3.75 12 3.75 6 6.1 6 9s2.686 5.25 6 5.25zm0 0v6m-3-3h6"/>
+</svg>`
         },
 
         {
-          name: '5 Years Integrated BA LLB',
-          routerlink: '/academics/ba-llb',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4l8 4-8 4-8-4 8-4zm0 8v8"/>
-      </svg>`
-        },
-
-        {
-          name: '3 Year LLB',
-          routerlink: '/academics/llb',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 3l9 4.5-9 4.5L3 7.5 12 3zm0 9v9"/>
-      </svg>`
-        },
-
-        {
-          name: 'Diploma/Certificate Courses',
-          routerlink: '/academics/diploma',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8 4h8v5l2 2v9H6V4h2z"/>
-      </svg>`
-        },
-
-        {
-          name: 'Syllabus & Course Outcomes',
+          name: 'Syllabus',
           routerlink: '/academics/syllabus',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M7 5h10M7 9h10M7 13h7M5 3h14v18H5z"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M7.5 3.75h9A2.25 2.25 0 0118.75 6v12A2.25 2.25 0 0116.5 20.25h-9A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M8.5 8.25h7m-7 3h7m-7 3h5"/>
+</svg>`
         },
 
         {
           name: 'Academic Calendar',
           routerlink: '/academics/calendar',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <rect x="3" y="5" width="18" height="16" rx="2"/>
-        <path d="M16 3v4M8 3v4M3 10h18"/>
-      </svg>`
-        },
-
-        {
-          name: 'Time Table',
-          routerlink: '/academics/timetable',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M12 7v5l3 2"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5M5.25 5.25h13.5A1.5 1.5 0 0120.25 6.75v11.25A1.5 1.5 0 0118.75 19.5H5.25a1.5 1.5 0 01-1.5-1.5V6.75a1.5 1.5 0 011.5-1.5z"/>
+</svg>`
         },
 
         {
           name: 'Research & Publications',
           routerlink: '/academics/research',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M20 22V4a2 2 0 00-2-2H6a2 2 0 00-2 2v15.5"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M19.5 21l-5.25-5.25m1.5-4.5a6 6 0 11-12 0 6 6 0 0112 0z"/>
+</svg>`
         },
 
         {
           name: 'Academic Policies',
           routerlink: '/academics/policies',
           svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 12l2 2 4-4M7 4h10l2 2v14H5V6l2-2z"/>
-      </svg>`
-        },
-
-        {
-          name: 'Scholarships & Academic Awards',
-          routerlink: '/academics/scholarships',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="w-5 h-5"
-           fill="none"
-           stroke="currentColor"
-           stroke-width="2"
-           viewBox="0 0 24 24">
-        <circle cx="12" cy="8" r="4"/>
-        <path stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8 14l-1 7 5-3 5 3-1-7"/>
-      </svg>`
+<svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     stroke-width="1.8"
+     stroke="currentColor"
+     class="w-5 h-5">
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M9 12.75l2.25 2.25L15.75 9.75"/>
+  <path stroke-linecap="round" stroke-linejoin="round"
+        d="M6.75 3.75h8.69a1.5 1.5 0 011.06.44l2.31 2.31a1.5 1.5 0 01.44 1.06v11.69A1.5 1.5 0 0117.75 21h-11.5A1.5 1.5 0 014.75 19.5V5.25A1.5 1.5 0 016.25 3.75h.5z"/>
+</svg>`
         }
 
       ]
@@ -1287,7 +1216,7 @@ export class SidebarComponent {
         },
         {
           name: 'Seminars & Webinars',
-          routerlink: '/news/seminars',
+          routerlink: '/news/seminars-and-webinars',
           svgicon: `
       <svg xmlns="http://www.w3.org/2000/svg"
            class="w-5 h-5"
@@ -1551,4 +1480,9 @@ export class SidebarComponent {
     ) ?? false;
 
   }
+
+
+ 
 }
+
+

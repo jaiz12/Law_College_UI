@@ -68,22 +68,34 @@ export const routes: Routes = [
             .then(m => m.PrincipalsMessageComponent)
       },
       {
-        path: 'about/governing-body',
+        path: 'about/faculty',
         loadComponent: () =>
-          import('./cms/pages/about-us/governing-body/governing-body.component')
-            .then(m => m.GoverningBodyComponent)
+          import('./cms/pages/about-us/faculty/faculty.component')
+            .then(m => m.FacultyComponent)
       },
       {
-        path: 'about/organization-structure',
+        path: 'about/administrative-staff',
         loadComponent: () =>
-          import('./cms/pages/about-us/organizational-structure/organizational-structure.component')
-            .then(m => m.OrganizationalStructureComponent)
+          import('./cms/pages/about-us/administrative-staff/administrative-staff.component')
+            .then(m => m.AdministrativeStaffComponent)
+      },
+      {
+        path: 'about/infrastructure',
+        loadComponent: () =>
+          import('./cms/pages/about-us/infrastructure/infrastructure.component')
+            .then(m => m.InfrastructureComponent)
       },
       {
         path: 'about/recognitions-and-affiliations',
         loadComponent: () =>
           import('./cms/pages/about-us/recognitions-and-affiliations/recognitions-and-affiliations.component')
             .then(m => m.RecognitionsAndAffiliationsComponent)
+      },
+      {
+        path: 'about/statutory-bodies',
+        loadComponent: () =>
+          import('./cms/pages/about-us/statutory-bodies/statutory-bodies.component')
+            .then(m => m.StatutoryBodiesComponent)
       },
 
       //academics
@@ -92,6 +104,26 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./cms/pages/academics/program-and-curriculum/program-and-curriculum.component')
             .then(m => m.ProgramAndCurriculumComponent)
+      },
+      {
+        path: 'academics/programs-offered',
+        loadComponent: () =>
+          import('./cms/pages/academics/programs-offered/programs-offered.component')
+            .then(m => m.ProgramsOfferedComponent)
+      },
+
+      //news & events
+      {
+        path: 'news/announcements',
+        loadComponent: () =>
+          import('./cms/pages/news-and-events/announcements/announcements.component')
+            .then(m => m.AnnouncementsComponent)
+      },
+      {
+        path: 'news/seminars-and-webinars',
+        loadComponent: () =>
+          import('./cms/pages/news-and-events/seminars-and-webinars/seminars-and-webinars.component')
+            .then(m => m.SeminarsWebinarsComponent)
       },
 
       {
