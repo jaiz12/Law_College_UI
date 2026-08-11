@@ -1,0 +1,163 @@
+<div class="media-container">
+
+  <!-- Header -->
+
+  <div class="media-header">
+
+    <div>
+
+      <button type="button"
+              class="back-btn"
+              (click)="goBack()">
+
+        <i class="fa-solid fa-arrow-left"></i>
+
+        Albums
+
+      </button>
+
+
+      <h3>
+
+        {{ album?.name }}
+
+      </h3>
+
+
+      <p>
+
+        {{ album?.description }}
+
+      </p>
+
+    </div>
+
+
+    <button type="button"
+            class="btn-primary"
+            (click)="openAddModal()">
+
+      <i class="fa-solid fa-plus"></i>
+
+      Add Media
+
+    </button>
+
+  </div>
+
+
+  <!-- Media Grid -->
+
+  <div class="media-grid">
+
+    @for (
+    item of media();
+    track item.id
+    ) {
+
+    <div class="media-card">
+
+
+      <!-- Photo -->
+      @if (item.type === 'photo') {
+
+      <div class="media-preview">
+
+        <img [src]="item.file"
+             [alt]="item.title" />
+
+      </div>
+
+      }
+
+
+      <!-- Video -->
+      @if (item.type === 'video') {
+
+      <div class="media-preview">
+
+        <video controls>
+
+          <source [src]="item.file" />
+
+        </video>
+
+      </div>
+
+      }
+
+
+      <div class="media-content">
+
+        <h4>
+          {{ item.title }}
+        </h4>
+
+
+        <p>
+          {{ item.description }}
+        </p>
+
+
+        <div class="media-actions">
+
+          <button type="button"
+                  class="btn-edit"
+                  (click)="editMedia(item)">
+
+            <i class="fa-solid fa-pen"></i>
+
+          </button>
+
+
+          <button type="button"
+                  class="btn-delete"
+                  (click)="deleteMedia(item)">
+
+            <i class="fa-solid fa-trash"></i>
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    }
+
+  </div>
+
+
+  <!-- Empty -->
+  @if (media().length === 0) {
+
+  <div class="empty-state">
+
+    <i class="fa-solid fa-photo-film"></i>
+
+    <h4>
+      No media found
+    </h4>
+
+    <p>
+      Add photos or videos to this album.
+    </p>
+
+  </div>
+
+  }
+
+
+  <!-- Modal -->
+  @if (showModal()) {
+
+  <app-media-modal [media]="selectedMedia()"
+                   (save)="saveMedia($event)"
+                   (close)="closeModal()">
+
+  </app-media-modal>
+
+  }
+
+</div>

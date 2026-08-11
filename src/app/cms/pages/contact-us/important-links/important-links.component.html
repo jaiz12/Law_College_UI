@@ -1,0 +1,260 @@
+<div class="space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+
+    <div>
+
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+
+        Important Links
+
+      </h2>
+
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+
+        Manage internal and external website links.
+
+      </p>
+
+    </div>
+
+    <button type="button"
+            (click)="openAddModal()"
+            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 font-medium text-white transition hover:bg-indigo-700">
+
+      <i class="fa-solid fa-plus"></i>
+
+      Add Link
+
+    </button>
+
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full text-left">
+
+        <!-- Header -->
+
+
+        <thead class="bg-gray-50 dark:bg-slate-800">
+
+          <tr>
+
+            <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+              Link Name
+
+            </th>
+
+            <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+              Link
+
+            </th>
+
+            <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+              Type
+
+            </th>
+
+            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+              Action
+
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          @for(link of links() | paginate:{itemsPerPage:itemsPerPage(),currentPage:page()}; track link.id){
+
+          <tr class="border-t border-gray-200 hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800">
+
+            <!-- Name -->
+            <td class="px-6 py-4">
+
+              <span class="font-medium text-gray-900 dark:text-white">
+
+                {{ link.name }}
+
+              </span>
+
+            </td>
+
+            <!-- Link -->
+            <td class="px-6 py-4">
+
+              <!--<span class="break-all text-indigo-600 dark:text-indigo-400">
+
+            {{ link.link }}
+
+          </span>-->
+
+              <a [href]="link.link"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="font-medium text-indigo-600 hover:underline
+         dark:text-indigo-400">
+
+                {{ link.link }}
+
+              </a>
+
+            </td>
+
+            <!-- Type -->
+            <td class="px-6 py-4 text-center">
+
+              @if(link.type === 'internal'){
+
+              <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">
+
+                Internal
+
+              </span>
+
+              }
+
+              @else {
+
+              <span class="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+
+                External
+
+              </span>
+
+              }
+
+            </td>
+
+            <!-- Action -->
+            <td class="px-6 py-4">
+
+              <div class="flex items-center justify-center gap-2">
+
+                <button type="button"
+                        (click)="editLink(link)"
+                        class="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100">
+
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       fill="none"
+                       viewBox="0 0 24 24"
+                       stroke-width="1.8"
+                       stroke="currentColor"
+                       class="h-5 w-5">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M16.862 4.487a2.1 2.1 0 113.03 2.899L8.25 19.5 3 21l1.5-5.25L16.862 4.487z" />
+                  </svg>
+
+
+                </button>
+
+                <button type="button"
+                        (click)="deleteLink(link)"
+                        class="rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 transition hover:bg-red-100">
+
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       fill="none"
+                       viewBox="0 0 24 24"
+                       stroke-width="1.8"
+                       stroke="currentColor"
+                       class="h-5 w-5">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6 7h12M9 7V4h6v3m-8 0l1 13h8l1-13" />
+                  </svg>
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+          }
+
+          @empty {
+
+          <tr>
+
+            <td colspan="4"
+                class="px-6 py-16 text-center text-gray-500 dark:text-gray-400">
+
+              <i class="fa-solid fa-link mb-3 block text-5xl"></i>
+
+              No Important Links Found.
+
+            </td>
+
+          </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+      <!-- Footer -->
+
+      <div class="mt-6 flex flex-col justify-between gap-4 border-t border-gray-200 px-5 pb-4 pt-4 md:flex-row md:items-center dark:border-slate-700">
+
+        <!-- Page Size -->
+
+        <div class="flex items-center gap-3">
+
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+
+            Items per page
+
+          </label>
+
+          <select [ngModel]="itemsPerPage()"
+                  (ngModelChange)="itemsPerPage.set(+$event);page.set(1)"
+                  class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+            @for(size of pageSizeOptions;track size){
+
+            <option [value]="size">
+
+              {{size}}
+
+            </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- Pagination -->
+
+        <pagination-controls (pageChange)="page.set($event)">
+        </pagination-controls>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+@if(showModal()){
+
+<app-important-link-modal [link]="selectedLink()"
+                          (save)="saveLink($event)"
+                          (close)="closeModal()">
+</app-important-link-modal>
+
+}

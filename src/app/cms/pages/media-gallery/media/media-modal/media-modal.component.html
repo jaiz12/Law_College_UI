@@ -1,0 +1,478 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+
+  <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-2xl">
+
+    <!-- ================================= -->
+    <!-- Header -->
+    <!-- ================================= -->
+
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+
+      <div>
+        <h3 class="text-lg font-semibold text-gray-800">
+          {{ isEditMode ? 'Edit Media' : 'Add Media' }}
+        </h3>
+
+        <p class="mt-1 text-sm text-gray-500">
+          {{
+ isEditMode
+            ? 'Update media information'
+            : 'Add photo or video to this album'
+          }}
+        </p>
+      </div>
+
+      <button type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-lg
+               text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+              (click)="cancel()"
+              aria-label="Close">
+
+        <i class="fa-solid fa-xmark text-lg"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- Form -->
+    <!-- ================================= -->
+
+    <form [formGroup]="pageForm"
+          (ngSubmit)="submit()">
+
+      <div class="space-y-5 p-6">
+
+
+        <!-- ================================= -->
+        <!-- Media Type -->
+        <!-- ================================= -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+
+            Media Type
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <select formControlName="type"
+                  (change)="onTypeChange()"
+                  class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5
+                   text-sm text-gray-700 outline-none transition
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+            <option value="photo">
+              Photo
+            </option>
+
+            <option value="video">
+              Video
+            </option>
+
+          </select>
+
+
+          @if (
+          pageForm.controls.type.touched &&
+          pageForm.controls.type.invalid
+          ) {
+
+          <p class="mt-1 text-xs text-red-500">
+            Please select a media type.
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Title -->
+        <!-- ================================= -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+
+            Title
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <input type="text"
+                 formControlName="title"
+                 placeholder="Enter media title"
+                 autocomplete="off"
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2.5
+                   text-sm text-gray-700 outline-none transition
+                   placeholder:text-gray-400
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+
+
+          @if (
+          pageForm.controls.title.touched &&
+          pageForm.controls.title.invalid
+          ) {
+
+          <div class="mt-1">
+
+            @if (
+            pageForm.controls.title.errors?.['required']
+            ) {
+
+            <p class="text-xs text-red-500">
+              Title is required.
+            </p>
+
+            }
+
+            @else if (
+            pageForm.controls.title.errors?.['whitespace']
+            ) {
+
+            <p class="text-xs text-red-500">
+              Title cannot contain only spaces.
+            </p>
+
+            }
+
+          </div>
+
+          }
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Description -->
+        <!-- ================================= -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+
+            Description
+
+          </label>
+
+
+          <textarea rows="4"
+                    formControlName="description"
+                    placeholder="Enter media description"
+                    class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5
+                   text-sm text-gray-700 outline-none transition
+                   placeholder:text-gray-400
+                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+          </textarea>
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- File Upload -->
+        <!-- ================================= -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+
+            {{
+              pageForm.controls.type.value === 'photo'
+                ? 'Photo'
+                : 'Video'
+            }}
+
+            @if (!isEditMode) {
+
+            <span class="text-red-500">
+              *
+            </span>
+
+            }
+
+          </label>
+
+
+          <!-- Upload Area -->
+
+          <div class="rounded-xl border-2 border-dashed p-6 text-center
+                   transition cursor-pointer"
+               [class.border-blue-500]="dragging"
+               [class.bg-blue-50]="dragging"
+               [class.border-gray-300]="!dragging"
+               [class.hover:border-blue-400]="!dragging"
+               [class.hover:bg-gray-50]="!dragging"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)">
+
+
+            <!-- Hidden Input -->
+
+            <input #fileInput
+                   type="file"
+                   hidden
+                   [accept]="
+                pageForm.controls.type.value === 'photo'
+                  ? 'image/*'
+                  : 'video/*'
+              "
+                   (change)="onFileChange($event)" />
+
+
+            <!-- Icon -->
+
+            <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center
+                     rounded-full bg-blue-50 text-blue-600">
+
+              <i class="fa-solid text-2xl"
+                 [class.fa-image]="
+                  pageForm.controls.type.value === 'photo'
+                "
+                 [class.fa-video]="
+                  pageForm.controls.type.value === 'video'
+                ">
+              </i>
+
+            </div>
+
+
+            <!-- Text -->
+
+            <p class="text-sm font-medium text-gray-700">
+
+              Drag & drop your
+
+              {{
+                pageForm.controls.type.value === 'photo'
+                  ? 'photo'
+                  : 'video'
+              }}
+
+              here
+
+            </p>
+
+
+            <p class="mt-1 text-xs text-gray-500">
+              or
+            </p>
+
+
+            <!-- Browse Button -->
+
+            <button type="button"
+                    class="mt-3 inline-flex items-center gap-2 rounded-lg
+                     bg-blue-600 px-4 py-2 text-sm font-medium text-white
+                     transition hover:bg-blue-700"
+                    (click)="fileInput.click()">
+
+              <i class="fa-solid fa-folder-open"></i>
+
+              Browse File
+
+            </button>
+
+
+            <!-- Selected File -->
+            @if (selectedFile) {
+
+            <div class="mx-auto mt-4 flex max-w-md items-center gap-3
+                       rounded-lg bg-gray-50 px-4 py-3 text-left">
+
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center
+                         rounded-lg bg-blue-100 text-blue-600">
+
+                <i class="fa-solid"
+                   [class.fa-image]="
+                      pageForm.controls.type.value === 'photo'
+                    "
+                   [class.fa-video]="
+                      pageForm.controls.type.value === 'video'
+                    ">
+                </i>
+
+              </div>
+
+
+              <div class="min-w-0 flex-1">
+
+                <p class="truncate text-sm font-medium text-gray-700">
+                  {{ selectedFile.name }}
+                </p>
+
+                <p class="text-xs text-gray-500">
+                  {{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB
+                </p>
+
+              </div>
+
+            </div>
+
+            }
+
+          </div>
+
+
+          <!-- Required File Error -->
+          @if (
+          !isEditMode &&
+          !selectedFile &&
+          pageForm.touched
+          ) {
+
+          <p class="mt-1 text-xs text-red-500">
+
+            Please select a
+            {{
+                pageForm.controls.type.value === 'photo'
+                  ? 'photo'
+                  : 'video'
+            }}.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- Preview -->
+        <!-- ================================= -->
+        @if (preview) {
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium text-gray-700">
+
+            Preview
+
+          </label>
+
+
+          <div class="overflow-hidden rounded-xl border border-gray-200
+                     bg-gray-50">
+
+
+            <!-- Photo Preview -->
+            @if (
+            pageForm.controls.type.value === 'photo'
+            ) {
+
+            <img [src]="preview"
+                 alt="Media Preview"
+                 class="max-h-80 w-full object-contain" />
+
+            }
+
+
+            <!-- Video Preview -->
+            @if (
+            pageForm.controls.type.value === 'video'
+            ) {
+
+            <video controls
+                   preload="metadata"
+                   class="max-h-80 w-full">
+
+              <source [src]="preview" />
+
+              Your browser does not support
+              video playback.
+
+            </video>
+
+            }
+
+          </div>
+
+        </div>
+
+        }
+
+
+        <!-- ================================= -->
+        <!-- Edit Information -->
+        <!-- ================================= -->
+        @if (isEditMode) {
+
+        <div class="rounded-lg bg-gray-50 px-4 py-3">
+
+          <div class="flex items-center justify-between">
+
+            <span class="text-sm text-gray-500">
+              Media ID
+            </span>
+
+            <span class="text-sm font-medium text-gray-700">
+              {{ pageForm.controls.id.value }}
+            </span>
+
+          </div>
+
+          @if (!selectedFile) {
+
+          <p class="mt-2 text-xs text-gray-500">
+            Leave the file unchanged to keep the existing media.
+          </p>
+
+          }
+
+        </div>
+
+        }
+
+      </div>
+
+
+      <!-- ================================= -->
+      <!-- Footer -->
+      <!-- ================================= -->
+
+      <div class="flex items-center justify-end gap-3 border-t border-gray-200
+               bg-gray-50 px-6 py-4">
+
+
+        <button type="button"
+                class="rounded-lg border border-gray-300 bg-white px-5 py-2.5
+                 text-sm font-medium text-gray-700 transition
+                 hover:bg-gray-100"
+                (click)="cancel()">
+
+          Cancel
+
+        </button>
+
+
+        <button type="submit"
+                [disabled]="pageForm.invalid || (!isEditMode && !selectedFile)"
+                class="inline-flex items-center gap-2 rounded-lg bg-blue-600
+                 px-5 py-2.5 text-sm font-medium text-white transition
+                 hover:bg-blue-700
+                 disabled:cursor-not-allowed
+                 disabled:opacity-50">
+
+          <i class="fa-solid"
+             [class.fa-plus]="!isEditMode"
+             [class.fa-pen-to-square]="isEditMode">
+          </i>
+
+          {{ isEditMode ? 'Update Media' : 'Add Media' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

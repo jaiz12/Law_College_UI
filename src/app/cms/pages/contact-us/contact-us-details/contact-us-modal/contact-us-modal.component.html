@@ -1,0 +1,214 @@
+<!-- Contact Us Modal -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+
+  <div class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-slate-700">
+
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+        {{ isEditMode ? 'Edit Contact Detail' : 'Add Contact Detail' }}
+      </h2>
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-red-500 dark:hover:bg-slate-800">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="pageForm"
+          (ngSubmit)="submit()"
+          class="space-y-6 p-6">
+
+      <!-- Icon -->
+      <div>
+
+        <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
+
+          Icon
+          <span class="text-red-500">*</span>
+
+        </label>
+
+        <div class="relative">
+
+          <!-- Selected -->
+          <button type="button"
+                  (click)="showIcons = !showIcons"
+                  class="flex w-full items-center justify-between rounded-xl border
+           border-gray-300 bg-white px-4 py-3 text-gray-900
+           transition duration-200
+           hover:border-indigo-500
+           dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+            <div class="flex items-center gap-3">
+
+              @if(selectedIcon){
+
+              <i [class]="selectedIcon.value"
+                 class="text-indigo-600 dark:text-indigo-400"></i>
+
+              <span>{{ selectedIcon.name }}</span>
+
+              } @else {
+
+              <span class="text-gray-500 dark:text-gray-400">
+                Select Icon
+              </span>
+
+              }
+
+            </div>
+
+            <i class="fa-solid fa-chevron-down text-gray-500 dark:text-gray-400"></i>
+
+          </button>
+
+          @if(showIcons){
+
+          <div class="absolute z-50 mt-2 max-h-72 w-full overflow-hidden rounded-xl
+           border border-gray-300 bg-white shadow-2xl
+           dark:border-slate-700 dark:bg-slate-900">
+
+            <!-- Search -->
+            <div class="border-b border-gray-200 dark:border-slate-700">
+
+              <input type="text"
+                     placeholder="Search icons..."
+                     [formControl]="searchControl"
+                     class="w-full bg-transparent px-4 py-3
+         text-gray-900 placeholder:text-gray-400
+         outline-none
+         dark:text-white dark:placeholder:text-slate-400">
+
+            </div>
+
+            <!-- Icons -->
+            <div class="max-h-60 overflow-y-auto">
+
+              @for(icon of filteredIcons(); track icon.value){
+
+              <button type="button"
+                      (click)="selectIcon(icon)"
+                      class="flex w-full items-center gap-3 px-4 py-3
+               text-left
+               text-gray-800
+               transition
+               hover:bg-indigo-50
+               dark:text-gray-200
+               dark:hover:bg-slate-800">
+
+                <i [class]="icon.value"
+                   class="w-5 text-center text-indigo-600 dark:text-indigo-400"></i>
+
+                <span>{{ icon.name }}</span>
+
+              </button>
+
+              }
+
+              @empty {
+
+              <div class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                No icons found.
+              </div>
+
+              }
+
+            </div>
+
+          </div>
+
+          }
+
+        </div>
+
+        @if (pageForm.get('icon')?.touched &&
+        pageForm.get('icon')?.hasError('required')) {
+
+        <p class="mt-2 text-sm text-red-500">
+
+          Icon is required.
+
+        </p>
+
+        }
+
+      </div>
+
+      
+
+      <!-- Details -->
+      <div>
+
+        <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
+
+          Detail
+          <span class="text-red-500">*</span>
+
+        </label>
+
+        <input type="text"
+               formControlName="detail"
+               placeholder="Enter phone, email, address..."
+               class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition
+                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
+                 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+
+        @if (pageForm.get('detail')?.touched &&
+        pageForm.get('detail')?.invalid) {
+
+        @if (pageForm.get('detail')?.hasError('required')) {
+
+        <p class="mt-2 text-sm text-red-500">
+
+          Detail is required.
+
+        </p>
+
+        }
+
+        @if (pageForm.get('detail')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+
+          Detail cannot contain only spaces.
+
+        </p>
+
+        }
+
+        }
+
+      </div>
+
+      <!-- Footer -->
+      <div class="flex justify-end gap-3 border-t border-gray-200 pt-5 dark:border-slate-700">
+
+        <button type="button"
+                (click)="cancel()"
+                class="rounded-xl border border-gray-300 px-5 py-2.5 font-medium text-gray-700 transition hover:bg-gray-100 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800">
+
+          Cancel
+
+        </button>
+
+        <button type="submit"
+                class="rounded-xl bg-indigo-600 px-6 py-2.5 font-medium text-white transition hover:bg-indigo-700">
+
+          <i class="fa-solid fa-floppy-disk mr-2"></i>
+
+          {{ isEditMode ? 'Update' : 'Save' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

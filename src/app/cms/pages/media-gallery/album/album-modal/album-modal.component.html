@@ -1,0 +1,445 @@
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
+<div class="flex items-center justify-between
+         border-b border-gray-200
+         px-6 py-4
+         dark:border-gray-700">
+
+  <div>
+
+    <h3 class="text-lg font-semibold
+             text-gray-800
+             dark:text-white">
+
+      {{ isEditMode ? 'Edit Album' : 'Add Album' }}
+
+    </h3>
+
+
+    <p class="mt-0.5 text-xs
+             text-gray-500
+             dark:text-gray-400">
+
+      {{
+        isEditMode
+          ? 'Update album information'
+          : 'Create a new gallery album'
+      }}
+
+    </p>
+
+  </div>
+
+
+  <button type="button"
+          class="flex h-9 w-9 items-center
+           justify-center rounded-lg
+           text-gray-500
+           transition
+           hover:bg-gray-100
+           hover:text-gray-700
+           dark:text-gray-400
+           dark:hover:bg-gray-700
+           dark:hover:text-white"
+          (click)="cancel()"
+          aria-label="Close">
+
+    <i class="fa-solid fa-xmark"></i>
+
+  </button>
+
+</div>
+
+
+<!-- ===================================================== -->
+<!-- FORM -->
+<!-- ===================================================== -->
+
+<form [formGroup]="pageForm"
+      (ngSubmit)="submit()">
+
+
+  <!-- =================================================== -->
+  <!-- BODY -->
+  <!-- =================================================== -->
+
+  <div class="space-y-5 px-6 py-5">
+
+
+    <!-- ================================================ -->
+    <!-- Album Name -->
+    <!-- ================================================ -->
+
+    <div>
+
+      <label for="albumName"
+             class="mb-1.5 block text-sm
+               font-medium text-gray-700
+               dark:text-gray-200">
+
+        Album Name
+
+        <span class="text-red-500">*</span>
+
+      </label>
+
+
+      <input id="albumName"
+             type="text"
+             formControlName="name"
+             placeholder="Enter album name"
+             autocomplete="off"
+             class="w-full rounded-lg
+               border border-gray-300
+               bg-white px-3.5 py-2.5
+               text-sm text-gray-800
+               placeholder-gray-400
+               outline-none transition
+               focus:border-blue-500
+               focus:ring-2
+               focus:ring-blue-500/20
+               dark:border-gray-600
+               dark:bg-gray-700
+               dark:text-white
+               dark:placeholder-gray-500" />
+
+
+      @if (
+      pageForm.controls.name.touched &&
+      pageForm.controls.name.hasError('required')
+      ) {
+
+      <p class="mt-1.5 text-xs text-red-500">
+        Album name is required.
+      </p>
+
+      }
+
+      @else if (
+      pageForm.controls.name.touched &&
+      pageForm.controls.name.hasError('whitespace')
+      ) {
+
+      <p class="mt-1.5 text-xs text-red-500">
+        Album name cannot contain only spaces.
+      </p>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- Description -->
+    <!-- ================================================ -->
+
+    <div>
+
+      <label for="albumDescription"
+             class="mb-1.5 block text-sm
+               font-medium text-gray-700
+               dark:text-gray-200">
+
+        Description
+
+      </label>
+
+
+      <textarea id="albumDescription"
+                rows="4"
+                formControlName="description"
+                placeholder="Enter album description"
+                class="w-full resize-none rounded-lg
+               border border-gray-300
+               bg-white px-3.5 py-2.5
+               text-sm text-gray-800
+               placeholder-gray-400
+               outline-none transition
+               focus:border-blue-500
+               focus:ring-2
+               focus:ring-blue-500/20
+               dark:border-gray-600
+               dark:bg-gray-700
+               dark:text-white
+               dark:placeholder-gray-500">
+      </textarea>
+
+
+      @if (
+      pageForm.controls.description.touched &&
+      pageForm.controls.description.hasError('whitespace')
+      ) {
+
+      <p class="mt-1.5 text-xs text-red-500">
+        Description cannot contain only spaces.
+      </p>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- Cover Photo -->
+    <!-- ================================================ -->
+
+    <div>
+
+      <label class="mb-2 block text-sm
+               font-medium text-gray-700
+               dark:text-gray-300">
+
+        Cover Photo
+
+        <span class="text-red-500">*</span>
+
+      </label>
+
+
+      <!-- ============================================ -->
+      <!-- Image Preview -->
+      <!-- ============================================ -->
+      @if (imagePreview) {
+
+      <div class="relative h-56 w-full
+                 overflow-hidden rounded-xl
+                 border border-gray-200
+                 bg-gray-100
+                 dark:border-gray-600
+                 dark:bg-gray-700">
+
+        <img [src]="imagePreview"
+             alt="Album Cover Preview"
+             class="h-full w-full object-cover" />
+
+
+        <!-- Remove -->
+
+        <button type="button"
+                (click)="removeImage()"
+                class="absolute right-3 top-3
+                   flex h-9 w-9
+                   items-center justify-center
+                   rounded-full
+                   bg-red-600
+                   text-white
+                   shadow-md
+                   transition
+                   hover:bg-red-700">
+
+          <i class="fa-solid fa-xmark"></i>
+
+        </button>
+
+      </div>
+
+      }
+
+      @else {
+
+      <!-- ========================================== -->
+      <!-- Upload Area -->
+      <!-- ========================================== -->
+
+      <div class="relative rounded-xl
+                 border-2 border-dashed
+                 border-blue-300
+                 bg-blue-50
+                 transition
+                 hover:border-blue-500
+                 hover:bg-blue-100
+                 dark:border-gray-600
+                 dark:bg-gray-800
+                 dark:hover:border-blue-500">
+
+        <input type="file"
+               accept="image/*"
+               class="absolute inset-0
+                   z-10 h-full w-full
+                   cursor-pointer opacity-0"
+               (change)="onFileChange($event)" />
+
+
+        <div class="flex flex-col
+                   items-center justify-center
+                   px-5 py-10
+                   text-center">
+
+          <div class="mb-3 flex h-14 w-14
+                     items-center justify-center
+                     rounded-full
+                     bg-blue-100
+                     text-blue-600
+                     dark:bg-blue-900/30
+                     dark:text-blue-400">
+
+            <i class="fa-solid fa-image text-xl"></i>
+
+          </div>
+
+
+          <p class="font-semibold
+                     text-gray-700
+                     dark:text-gray-200">
+
+            Drag & Drop Album Cover
+
+          </p>
+
+
+          <p class="mt-1 text-sm
+                     text-gray-500
+                     dark:text-gray-400">
+
+            or click to browse
+
+          </p>
+
+
+          <p class="mt-2 text-xs
+                     text-gray-400
+                     dark:text-gray-500">
+
+            JPG, PNG, WEBP
+
+          </p>
+
+        </div>
+
+      </div>
+
+      }
+
+
+      <!-- ============================================ -->
+      <!-- Required Error -->
+      <!-- ============================================ -->
+      @if (
+      !selectedFile &&
+      !imagePreview &&
+      pageForm.touched
+      ) {
+
+      <p class="mt-2 text-sm text-red-600">
+
+        Album cover photo is required.
+
+      </p>
+
+      }
+
+    </div>
+
+
+    <!-- ================================================ -->
+    <!-- Album Information -->
+    <!-- ================================================ -->
+    @if (isEditMode) {
+
+    <div class="rounded-lg
+               border border-blue-100
+               bg-blue-50 p-4
+               dark:border-blue-900/50
+               dark:bg-blue-900/20">
+
+      <div class="flex items-center
+                 justify-between">
+
+        <span class="text-sm font-medium
+                   text-gray-600
+                   dark:text-gray-300">
+
+          Album ID
+
+        </span>
+
+
+        <span class="rounded-md
+                   bg-white px-2.5 py-1
+                   text-sm font-semibold
+                   text-blue-600
+                   shadow-sm
+                   dark:bg-gray-700
+                   dark:text-blue-400">
+
+          {{ pageForm.controls.id.value }}
+
+        </span>
+
+      </div>
+
+    </div>
+
+    }
+
+  </div>
+
+
+  <!-- =================================================== -->
+  <!-- FOOTER -->
+  <!-- =================================================== -->
+
+  <div class="flex items-center justify-end
+           gap-3 border-t
+           border-gray-200
+           bg-gray-50 px-6 py-4
+           dark:border-gray-700
+           dark:bg-gray-800">
+
+
+    <button type="button"
+            class="rounded-lg
+             border border-gray-300
+             bg-white px-4 py-2.5
+             text-sm font-medium
+             text-gray-700
+             transition
+             hover:bg-gray-100
+             dark:border-gray-600
+             dark:bg-gray-700
+             dark:text-gray-200
+             dark:hover:bg-gray-600"
+            (click)="cancel()">
+
+      Cancel
+
+    </button>
+
+
+    <button type="submit"
+            [disabled]="
+        pageForm.invalid ||
+        (!selectedFile && !imagePreview)
+      "
+            class="inline-flex
+             items-center gap-2
+             rounded-lg
+             bg-blue-600
+             px-4 py-2.5
+             text-sm font-medium
+             text-white
+             shadow-sm
+             transition
+             hover:bg-blue-700
+             focus:outline-none
+             focus:ring-2
+             focus:ring-blue-500
+             focus:ring-offset-2
+             disabled:cursor-not-allowed
+             disabled:opacity-50">
+
+      <i class="fa-solid"
+         [class.fa-plus]="!isEditMode"
+         [class.fa-pen-to-square]="isEditMode">
+      </i>
+
+
+      {{ isEditMode ? 'Update Album' : 'Create Album' }}
+
+    </button>
+
+  </div>
+
+</form>

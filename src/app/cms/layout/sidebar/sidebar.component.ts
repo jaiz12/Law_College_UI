@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { LayoutService } from '../services/layout.service';
 import { SafeHtmlPipe } from '../../../services/safe-html.pipe';
+import { ConfigService } from '../../../services/config.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,28 +12,27 @@ import { SafeHtmlPipe } from '../../../services/safe-html.pipe';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent {
-  constructor(public router: Router) { }
+export class SidebarComponent implements OnInit {
+  constructor(public router: Router, private configService: ConfigService) { }
 
   layout = inject(LayoutService);
 
   dashboardOpen = signal(true);
+  menus : any = []
 
+  ngOnInit() {
+
+    this.menus = this.configService.get('menus');
+  }
   toggleDashboard() {
     this.dashboardOpen.update(v => !v);
   }
-
-  menus = [
+  menused = [
     {
       name: 'Dashboard',
       routerlink: '/dashboard',
       expanded: false,
-      svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-  stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-      <path d="M3 10l9-7 9 7v10H3z"/>
-  </svg>
-      `,
+      svgicon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 10l9-7 9 7v10H3z"/></svg>`,
       submenus: []
     },
     {
@@ -1369,7 +1369,7 @@ export class SidebarComponent {
 
   toggle(menu: any) {
 
-    this.menus.forEach(x => {
+    this.menus.forEach((x: any) => {
       if (x !== menu) {
         x.expanded = false;
       }
