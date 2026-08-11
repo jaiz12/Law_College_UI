@@ -1,124 +1,131 @@
-<div class="media-container">
+<!-- ================================================= -->
+<!-- HEADER -->
+<!-- ================================================= -->
 
-  <!-- Header -->
+<div class="mb-6 flex items-center justify-between">
 
-  <div class="media-header">
-
-    <div>
-
-      <button type="button"
-              class="back-btn"
-              (click)="goBack()">
-
-        <i class="fa-solid fa-arrow-left"></i>
-
-        Albums
-
-      </button>
-
-
-      <h3>
-
-        {{ album?.name }}
-
-      </h3>
-
-
-      <p>
-
-        {{ album?.description }}
-
-      </p>
-
-    </div>
-
+  <div>
 
     <button type="button"
-            class="btn-primary"
-            (click)="openAddModal()">
+            class="mb-3 flex items-center gap-2
+             text-sm font-medium
+             text-gray-600
+             transition
+             hover:text-indigo-600
+             dark:text-gray-400
+             dark:hover:text-indigo-400"
+            (click)="goBack()">
 
-      <i class="fa-solid fa-plus"></i>
+      <i class="fa-solid fa-arrow-left"></i>
 
-      Add Media
+      Albums
 
     </button>
+
+
+    <h3 class="text-2xl font-bold
+               text-gray-800
+               dark:text-white">
+
+      {{ album?.name }}
+
+    </h3>
+
+
+    @if (album?.description) {
+
+    <p class="mt-1 text-sm
+                text-gray-500
+                dark:text-gray-400">
+
+      {{ album?.description }}
+
+    </p>
+
+    }
 
   </div>
 
 
-  <!-- Media Grid -->
+  <button type="button"
+          class="inline-flex items-center gap-2
+           rounded-xl
+           bg-indigo-600
+           px-5 py-3
+           text-sm font-medium
+           text-white
+           transition
+           hover:bg-indigo-700"
+          (click)="openAddModal()">
 
-  <div class="media-grid">
+    <i class="fa-solid fa-plus"></i>
 
-    @for (
-    item of media();
-    track item.id
-    ) {
+    Add Media
 
-    <div class="media-card">
+  </button>
 
-
-      <!-- Photo -->
-      @if (item.type === 'photo') {
-
-      <div class="media-preview">
-
-        <img [src]="item.file"
-             [alt]="item.title" />
-
-      </div>
-
-      }
+</div>
 
 
-      <!-- Video -->
-      @if (item.type === 'video') {
+<!-- ================================================= -->
+<!-- MEDIA GRID -->
+<!-- ================================================= -->
+@if (media().length > 0) {
 
-      <div class="media-preview">
+<div class="grid grid-cols-1
+              gap-5
+              sm:grid-cols-2
+              lg:grid-cols-3
+              xl:grid-cols-4">
 
-        <video controls>
+  @for (
+  item of media();
+  track item.id
+  ) {
 
-          <source [src]="item.file" />
-
-        </video>
-
-      </div>
-
-      }
-
-
-      <div class="media-content">
-
-        <h4>
-          {{ item.title }}
-        </h4>
-
-
-        <p>
-          {{ item.description }}
-        </p>
-
-
-        <div class="media-actions">
-
-          <button type="button"
-                  class="btn-edit"
-                  (click)="editMedia(item)">
-
-            <i class="fa-solid fa-pen"></i>
-
-          </button>
+  <div class="group overflow-hidden
+                  rounded-2xl
+                  border border-gray-200
+                  bg-white
+                  shadow-sm
+                  transition
+                  hover:-translate-y-1
+                  hover:shadow-lg
+                  dark:border-slate-700
+                  dark:bg-slate-800">
 
 
-          <button type="button"
-                  class="btn-delete"
-                  (click)="deleteMedia(item)">
+    <!-- ======================================= -->
+    <!-- IMAGE -->
+    <!-- ======================================= -->
+    @if (isImage(item)) {
 
-            <i class="fa-solid fa-trash"></i>
+    <div class="relative aspect-video
+                      overflow-hidden
+                      bg-gray-100
+                      dark:bg-slate-900">
 
-          </button>
+      <img [src]="getMediaUrl(item.image)"
+           alt="Album Image"
+           class="h-full w-full
+                     object-cover
+                     transition
+                     duration-300
+                     group-hover:scale-105" />
 
-        </div>
+
+      <!-- IMAGE LABEL -->
+
+      <div class="absolute left-3 top-3
+                        rounded-full
+                        bg-black/60
+                        px-3 py-1
+                        text-xs font-medium
+                        text-white">
+
+        <i class="fa-solid fa-image mr-1"></i>
+
+        Image
 
       </div>
 
@@ -126,38 +133,196 @@
 
     }
 
+
+    <!-- ======================================= -->
+    <!-- VIDEO -->
+    <!-- ======================================= -->
+    @if (isVideo(item)) {
+
+    <div class="relative aspect-video
+                      overflow-hidden
+                      bg-black">
+
+      <video controls
+             class="h-full w-full
+                     object-contain">
+
+        <source [src]="getMediaUrl(item.video)" />
+
+        Your browser does not support
+        video playback.
+
+      </video>
+
+
+      <!-- VIDEO LABEL -->
+
+      <div class="absolute left-3 top-3
+                        rounded-full
+                        bg-black/60
+                        px-3 py-1
+                        text-xs font-medium
+                        text-white">
+
+        <i class="fa-solid fa-video mr-1"></i>
+
+        Video
+
+      </div>
+
+    </div>
+
+    }
+
+
+    <!-- ======================================= -->
+    <!-- ACTIONS -->
+    <!-- ======================================= -->
+
+    <div class="flex items-center
+                    justify-between
+                    border-t
+                    border-gray-100
+                    px-4 py-3
+                    dark:border-slate-700">
+
+      <span class="text-xs
+                       text-gray-500
+                       dark:text-gray-400">
+
+        Media #{{ item.id }}
+
+      </span>
+
+
+      <div class="flex gap-2">
+
+        <!-- EDIT -->
+
+        <button type="button"
+                (click)="editMedia(item)"
+                class="flex h-9 w-9
+                     items-center justify-center
+                     rounded-lg
+                     text-blue-600
+                     transition
+                     hover:bg-blue-50
+                     dark:text-blue-400
+                     dark:hover:bg-blue-900/20">
+
+          <i class="fa-solid fa-pen"></i>
+
+        </button>
+
+
+        <!-- DELETE -->
+
+        <button type="button"
+                (click)="deleteMedia(item)"
+                class="flex h-9 w-9
+                     items-center justify-center
+                     rounded-lg
+                     text-red-600
+                     transition
+                     hover:bg-red-50
+                     dark:text-red-400
+                     dark:hover:bg-red-900/20">
+
+          <i class="fa-solid fa-trash"></i>
+
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
-
-
-  <!-- Empty -->
-  @if (media().length === 0) {
-
-  <div class="empty-state">
-
-    <i class="fa-solid fa-photo-film"></i>
-
-    <h4>
-      No media found
-    </h4>
-
-    <p>
-      Add photos or videos to this album.
-    </p>
-
-  </div>
-
-  }
-
-
-  <!-- Modal -->
-  @if (showModal()) {
-
-  <app-media-modal [media]="selectedMedia()"
-                   (save)="saveMedia($event)"
-                   (close)="closeModal()">
-
-  </app-media-modal>
 
   }
 
 </div>
+
+}
+
+
+<!-- ================================================= -->
+<!-- NO MEDIA -->
+<!-- ================================================= -->
+@if (media().length === 0) {
+
+<div class="flex min-h-[350px]
+              flex-col items-center
+              justify-center
+              rounded-2xl
+              border-2 border-dashed
+              border-gray-300
+              bg-gray-50
+              text-center
+              dark:border-slate-700
+              dark:bg-slate-800/50">
+
+  <div class="mb-4 flex h-16 w-16
+                items-center justify-center
+                rounded-full
+                bg-indigo-100
+                text-indigo-600
+                dark:bg-indigo-900/30
+                dark:text-indigo-400">
+
+    <i class="fa-solid fa-photo-film text-2xl"></i>
+
+  </div>
+
+
+  <h4 class="text-lg font-semibold
+               text-gray-800
+               dark:text-white">
+
+    No media found
+
+  </h4>
+
+
+  <p class="mt-1 text-sm
+              text-gray-500
+              dark:text-gray-400">
+
+    Add photos or videos to this album.
+
+  </p>
+
+
+  <button type="button"
+          class="mt-5 rounded-xl
+             bg-indigo-600
+             px-5 py-2.5
+             text-sm font-medium
+             text-white
+             hover:bg-indigo-700"
+          (click)="openAddModal()">
+
+    <i class="fa-solid fa-plus mr-2"></i>
+
+    Add Media
+
+  </button>
+
+</div>
+
+}
+
+
+<!-- ================================================= -->
+<!-- MEDIA MODAL -->
+<!-- ================================================= -->
+@if (showModal()) {
+
+<app-media-modal [media]="selectedMedia()"
+                 [albumId]="album?.id ?? 0"
+                 [imageUrl]="imageURL()"
+                 (save)="saveMedia($event)"
+                 (close)="closeModal()">
+
+</app-media-modal>
+
+}

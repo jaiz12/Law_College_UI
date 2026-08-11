@@ -14,21 +14,28 @@ import {
 
 import {
   FormBuilder,
-  ReactiveFormsModule,
-  Validators
+  ReactiveFormsModule
 } from '@angular/forms';
-import { ValidationService } from '../../../../../services/validation-service.service';
-import { Media } from '../media.component';
+
+import {
+  Media
+} from '../media.component';
 
 
 @Component({
-  selector: 'app-media-modal',
 
-  standalone: true,
+  selector:
+    'app-media-modal',
+
+  standalone:
+    true,
 
   imports: [
+
     CommonModule,
+
     ReactiveFormsModule
+
   ],
 
   templateUrl:
@@ -36,106 +43,128 @@ import { Media } from '../media.component';
 
   styleUrl:
     './media-modal.component.scss'
+
 })
 export class MediaModalComponent
   implements OnChanges {
 
+
+  // ===================================================
+  // SERVICES
+  // ===================================================
+
   private fb =
     inject(FormBuilder);
 
-  private validationService =
-    inject(ValidationService);
 
-  // ---------------------------------------
-  // Input / Output
-  // ---------------------------------------
+  // ===================================================
+  // INPUTS
+  // ===================================================
 
   @Input()
-  media: Media | null = null;
+  media:
+    Media | null = null;
+
+
+  @Input()
+  albumId:
+    number = 0;
+
+
+  @Input()
+  imageUrl:
+    string = '';
+
+
+  // ===================================================
+  // OUTPUTS
+  // ===================================================
 
   @Output()
   save =
-    new EventEmitter<Media>();
+    new EventEmitter<FormData>();
+
 
   @Output()
   close =
     new EventEmitter<void>();
 
-  // ---------------------------------------
-  // File
-  // ---------------------------------------
+
+  // ===================================================
+  // FILE
+  // ===================================================
 
   selectedFile:
     File | null = null;
 
-  preview:
+
+  // ===================================================
+  // PREVIEW
+  // ===================================================
+
+  mediaPreview:
     string | null = null;
 
-  dragging = false;
 
-  // ---------------------------------------
-  // Form
-  // ---------------------------------------
+  mediaType:
+    'image' |
+    'video' |
+    null = null;
+
+
+  // ===================================================
+  // FORM
+  // ===================================================
 
   pageForm =
     this.fb.group({
 
       id:
         this.fb.control<number>(
+
           0,
+
           {
-            nonNullable: true
+            nonNullable:
+              true
           }
-        ),
 
-      type:
-        this.fb.control<
-          'photo' | 'video'
-        >(
-          'photo',
-          {
-            validators: [
-              Validators.required
-            ],
-
-            nonNullable: true
-          }
-        ),
-
-      title:
-        this.fb.control<string>(
-          '',
-          {
-            validators: [
-              Validators.required,
-              this.validationService
-                .noWhitespaceValidator()
-            ],
-
-            nonNullable: true
-          }
-        ),
-
-      description:
-        this.fb.control<string>(
-          '',
-          {
-            nonNullable: true
-          }
         )
+
     });
 
-  // ---------------------------------------
-  // Edit Mode
-  // ---------------------------------------
+
+  // ===================================================
+  // EDIT MODE
+  // ===================================================
 
   get isEditMode(): boolean {
+
     return !!this.media;
+
   }
 
-  // ---------------------------------------
-  // Input Changes
-  // ---------------------------------------
+
+  // ===================================================
+  // EXISTING MEDIA
+  // ===================================================
+
+  get hasExistingMedia(): boolean {
+
+    return !!(
+
+      this.media?.image ||
+
+      this.media?.video
+
+    );
+
+  }
+
+
+  // ===================================================
+  // INPUT CHANGES
+  // ===================================================
 
   ngOnChanges(
     changes: SimpleChanges
@@ -146,51 +175,121 @@ export class MediaModalComponent
       this.pageForm.patchValue({
 
         id:
-          this.media.id,
-
-        type:
-          this.media.type,
-
-        title:
-          this.media.title,
-
-        description:
-          this.media.description
+          this.media.id
 
       });
 
-      this.preview =
-        this.media.file || null;
 
-      this.selectedFile = null;
+      this.selectedFile =
+        null;
 
-      this.dragging = false;
 
-    } else {
+      // ---------------------------------------------
+      // Existing image
+      // ---------------------------------------------
 
-      this.pageForm.reset({
+      if (this.media.image) {
 
-        id: 0,
+        this.mediaType =
+          'image';
 
-        type: 'photo',
 
-        title: '',
+        this.mediaPreview =
+          this.getMediaUrl(
+            this.media.image
+          );
 
-        description: ''
+      }
 
-      });
 
-      this.preview = null;
+      // ---------------------------------------------
+      // Existing video
+      // ---------------------------------------------
 
-      this.selectedFile = null;
+      else if (this.media.video) {
 
-      this.dragging = false;
+        this.mediaType =
+          'video';
+
+
+        this.mediaPreview =
+          this.getMediaUrl(
+            this.media.video
+          );
+
+      }
+
+
+      else {
+
+        this.mediaType =
+          null;
+
+
+        this.mediaPreview =
+          null;
+
+      }
+
     }
+
+    else {
+
+      this.resetForm();
+
+    }
+
   }
 
-  // ---------------------------------------
-  // File Change
-  // ---------------------------------------
+
+  // ===================================================
+  // GET MEDIA URL
+  // ===================================================
+
+  private getMediaUrl(
+    path: string
+  ): string {
+
+    if (!path) {
+
+      return '';
+
+    }
+
+
+    if (
+
+      path.startsWith('http://') ||
+
+      path.startsWith('https://') ||
+
+      path.startsWith('data:')
+
+    ) {
+
+      return path;
+
+    }
+
+
+    const baseUrl =
+      this.imageUrl
+        ?.replace(/\/+$/, '') ?? '';
+
+
+    const filePath =
+      path
+        .replace(/^\/+/, '');
+
+
+    return `${baseUrl}/${filePath}`;
+
+  }
+
+
+  // ===================================================
+  // FILE CHANGE
+  // ===================================================
 
   onFileChange(
     event: Event
@@ -199,174 +298,276 @@ export class MediaModalComponent
     const input =
       event.target as HTMLInputElement;
 
+
     if (!input.files?.length) {
+
       return;
+
     }
 
-    this.loadFile(
-      input.files[0]
-    );
+
+    const file =
+      input.files[0];
+
+
+    this.loadFile(file);
+
   }
 
-  // ---------------------------------------
-  // Load File
-  // ---------------------------------------
+
+  // ===================================================
+  // LOAD FILE
+  // ===================================================
 
   loadFile(
     file: File
   ): void {
 
-    const type =
-      this.pageForm.controls.type.value;
+    // -----------------------------------------------
+    // Validate image/video
+    // -----------------------------------------------
 
     if (
-      type === 'photo' &&
-      !file.type.startsWith('image/')
-    ) {
 
-      return;
-    }
+      !file.type.startsWith('image/') &&
 
-    if (
-      type === 'video' &&
       !file.type.startsWith('video/')
+
     ) {
 
       return;
+
     }
 
-    this.selectedFile = file;
 
-    const reader =
-      new FileReader();
+    this.selectedFile =
+      file;
 
-    reader.onload = () => {
 
-      this.preview =
-        reader.result as string;
-    };
+    // -----------------------------------------------
+    // Determine media type
+    // -----------------------------------------------
 
-    reader.readAsDataURL(file);
-  }
+    if (
+      file.type.startsWith('image/')
+    ) {
 
-  // ---------------------------------------
-  // Drag Over
-  // ---------------------------------------
+      this.mediaType =
+        'image';
 
-  onDragOver(
-    event: DragEvent
-  ): void {
-
-    event.preventDefault();
-
-    this.dragging = true;
-  }
-
-  // ---------------------------------------
-  // Drag Leave
-  // ---------------------------------------
-
-  onDragLeave(
-    event: DragEvent
-  ): void {
-
-    event.preventDefault();
-
-    this.dragging = false;
-  }
-
-  // ---------------------------------------
-  // Drop
-  // ---------------------------------------
-
-  onDrop(
-    event: DragEvent
-  ): void {
-
-    event.preventDefault();
-
-    this.dragging = false;
-
-    const file =
-      event.dataTransfer?.files[0];
-
-    if (file) {
-      this.loadFile(file);
     }
+
+    else {
+
+      this.mediaType =
+        'video';
+
+    }
+
+
+    // -----------------------------------------------
+    // Preview
+    // -----------------------------------------------
+
+    const objectUrl =
+      URL.createObjectURL(file);
+
+
+    this.mediaPreview =
+      objectUrl;
+
   }
 
-  // ---------------------------------------
-  // Type Change
-  // ---------------------------------------
 
-  onTypeChange(): void {
+  // ===================================================
+  // REMOVE MEDIA
+  // ===================================================
 
-    this.selectedFile = null;
+  removeMedia(): void {
 
-    this.preview = null;
+    this.selectedFile =
+      null;
+
+
+    this.mediaPreview =
+      null;
+
+
+    this.mediaType =
+      null;
+
   }
 
-  // ---------------------------------------
-  // Submit
-  // ---------------------------------------
+
+  // ===================================================
+  // SUBMIT
+  // ===================================================
 
   submit(): void {
 
-    if (this.pageForm.invalid) {
+    // -----------------------------------------------
+    // Album ID required
+    // -----------------------------------------------
 
-      this.pageForm.markAllAsTouched();
+    if (!this.albumId) {
 
       return;
+
     }
 
-    // New media must have a file
+
+    // -----------------------------------------------
+    // Media required
+    //
+    // For CREATE:
+    // selectedFile is mandatory.
+    //
+    // For EDIT:
+    // existing media OR new file is required.
+    // -----------------------------------------------
 
     if (
-      !this.isEditMode &&
-      !this.selectedFile
+
+      !this.selectedFile &&
+
+      !this.hasExistingMedia
+
     ) {
 
       return;
+
     }
 
-    const value =
-      this.pageForm.getRawValue();
 
-    const item: Media = {
+    const formData =
+      new FormData();
 
-      id:
-        value.id,
 
-      albumId:
-        this.media?.albumId ?? 0,
+    // -----------------------------------------------
+    // Album ID
+    // -----------------------------------------------
 
-      type:
-        value.type,
+    formData.append(
 
-      title:
-        value.title.trim(),
+      'AlbumId',
 
-      description:
-        value.description.trim(),
+      this.albumId.toString()
 
-      file:
-        this.media?.file ?? '',
+    );
 
-      selectedFile:
-        this.selectedFile
 
-    };
+    // -----------------------------------------------
+    // ID
+    // -----------------------------------------------
 
-    this.save.emit(item);
+    if (this.isEditMode) {
+
+      formData.append(
+
+        'Id',
+
+        this.media!.id.toString()
+
+      );
+
+    }
+
+
+    // -----------------------------------------------
+    // Photo
+    //
+    // IMPORTANT:
+    // Both image and video are sent as "Photo"
+    // because your backend DTO should have:
+    //
+    // public IFormFile? Photo { get; set; }
+    // -----------------------------------------------
+
+    if (this.selectedFile) {
+
+      formData.append(
+
+        'Photo',
+
+        this.selectedFile,
+
+        this.selectedFile.name
+
+      );
+
+    }
+
+
+    // -----------------------------------------------
+    // Debug
+    // -----------------------------------------------
+
+    console.log(
+      'Media FormData'
+    );
+
+
+    formData.forEach(
+      (value, key) => {
+
+        console.log(
+          key,
+          value
+        );
+
+      }
+    );
+
+
+    // -----------------------------------------------
+    // Send to parent
+    // -----------------------------------------------
+
+    this.save.emit(
+      formData
+    );
+
   }
 
-  // ---------------------------------------
-  // Cancel
-  // ---------------------------------------
+
+  // ===================================================
+  // CANCEL
+  // ===================================================
 
   cancel(): void {
 
+    this.resetForm();
+
     this.close.emit();
+
+  }
+
+
+  // ===================================================
+  // RESET
+  // ===================================================
+
+  private resetForm(): void {
+
+    this.pageForm.reset({
+
+      id:
+        0
+
+    });
+
+
+    this.selectedFile =
+      null;
+
+
+    this.mediaPreview =
+      null;
+
+
+    this.mediaType =
+      null;
+
   }
 
 }

@@ -1,4 +1,7 @@
-import { CommonModule } from '@angular/common';
+import {
+  CommonModule
+} from '@angular/common';
+
 import {
   Component,
   EventEmitter,
@@ -7,445 +10,790 @@ import {
   Output,
   signal
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+
+import {
+  FormsModule
+} from '@angular/forms';
+
 import Swal from 'sweetalert2';
 
-import { CmsApiService } from '../../../../services/cms-api-service.service';
-import { Album } from '../album/album.component';
-import { MediaModalComponent } from './media-modal/media-modal.component';
+import {
+  ToastrService
+} from 'ngx-toastr';
+
+import {
+  CmsApiService
+} from '../../../../services/cms-api-service.service';
+
+import {
+  ConfigService
+} from '../../../../services/config.service';
+
+import {
+  MediaModalComponent
+} from './media-modal/media-modal.component';
+
+import {
+  Album
+} from '../album/album.component';
+
+
+// =====================================================
+// MEDIA INTERFACE
+// =====================================================
 
 export interface Media {
+
   id: number;
+
   albumId: number;
-  type: 'photo' | 'video';
-  title: string;
-  description: string;
-  file: string;
-  selectedFile?: File | null;
+
+  image: string | null;
+
+  video: string | null;
+
+  photo: File | null;
+
 }
 
+
+// =====================================================
+// COMPONENT
+// =====================================================
+
 @Component({
+
   selector: 'app-media',
+
   standalone: true,
+
   imports: [
+
     CommonModule,
+
     FormsModule,
+
     MediaModalComponent
+
   ],
-  templateUrl: './media.component.html',
-  styleUrl: './media.component.scss'
+
+  templateUrl:
+    './media.component.html',
+
+  styleUrl:
+    './media.component.scss'
+
 })
-export class MediaComponent implements OnInit {
+export class MediaComponent
+  implements OnInit {
 
-  constructor(
-    private apiService: CmsApiService,
-    private toastr: ToastrService
-  ) { }
 
-  // ---------------------------------------
-  // Input / Output
-  // ---------------------------------------
+  // ===================================================
+  // INPUT
+  // ===================================================
 
   @Input()
   album: Album | null = null;
 
+
+  // ===================================================
+  // OUTPUT
+  // ===================================================
+
   @Output()
-  back = new EventEmitter<void>();
+  back =
+    new EventEmitter<void>();
 
-  // ---------------------------------------
-  // Signals
-  // ---------------------------------------
 
-  media = signal<Media[]>([]);
+  // ===================================================
+  // SERVICES
+  // ===================================================
 
-  showModal = signal(false);
+  constructor(
 
-  selectedMedia = signal<Media | null>(null);
+    private apiService:
+      CmsApiService,
 
-  loggedInId = signal('');
+    private toastr:
+      ToastrService,
 
-  // ---------------------------------------
-  // Init
-  // ---------------------------------------
+    private config:
+      ConfigService
+
+  ) { }
+
+
+  // ===================================================
+  // SIGNALS
+  // ===================================================
+
+  media =
+    signal<Media[]>([]);
+
+
+  showModal =
+    signal(false);
+
+
+  selectedMedia =
+    signal<Media | null>(null);
+
+
+  imageURL =
+    signal('');
+
+  loggedInId =
+    signal('');
+
+  // ===================================================
+  // INIT
+  // ===================================================
 
   ngOnInit(): void {
+
+    this.imageURL.set(
+      this.config.get('IMAGE_API_URL')
+    );
+    this.getLoggedInUser();
+
+    this.getMedia();
+
+  }
+
+  // =====================================================
+  // GET LOGGED IN USER
+  // =====================================================
+
+  private getLoggedInUser(): void {
 
     const userString =
       localStorage.getItem('user');
 
-    if (userString) {
+
+    if (!userString) {
+
+      return;
+
+    }
+
+
+    try {
 
       const currentUser =
         JSON.parse(userString);
 
+
       this.loggedInId.set(
-        currentUser.id
+
+        currentUser?.id?.toString() ?? ''
+
       );
+
     }
 
-    if (this.album) {
-      this.getMedia();
+    catch (error) {
+
+      console.error(
+        'Unable to read logged in user.',
+        error
+      );
+
+      this.loggedInId.set('');
+
     }
+
   }
 
-  // ---------------------------------------
-  // Get Media
-  // ---------------------------------------
+
+  // ===================================================
+  // GET MEDIA
+  // ===================================================
 
   getMedia(): void {
 
-    if (!this.album) {
+    if (!this.album?.id) {
+
+      this.media.set([]);
+
       return;
+
     }
 
+
     this.apiService
+
       .GetRequest(
-        'Media/Album/' + this.album.id
+        `Media/Album/${this.album.id}`
       )
+
       .subscribe({
 
         next: (res: any) => {
 
           const data =
+
             Array.isArray(res)
+
               ? res
-              : res?.data
+
+              : Array.isArray(res?.data)
+
                 ? res.data
-                : res?.rows
+
+                : Array.isArray(res?.rows)
+
                   ? res.rows
+
                   : [];
 
-          const media: Media[] =
-            data.map((item: any) => ({
 
-              id:
-                item.id ??
-                item.Id ??
-                0,
+          const mediaList:
+            Media[] =
 
-              albumId:
-                item.albumId ??
-                item.AlbumId ??
-                this.album!.id,
+            data.map(
+              (item: any) => ({
 
-              type:
-                item.type ??
-                item.Type ??
-                'photo',
+                id:
+                  item.id ??
+                  item.Id ??
+                  0,
 
-              title:
-                item.title ??
-                item.Title ??
-                '',
 
-              description:
-                item.description ??
-                item.Description ??
-                '',
+                albumId:
+                  item.albumId ??
+                  item.AlbumId ??
+                  this.album?.id ??
+                  0,
 
-              file:
-                item.file ??
-                item.File ??
-                '',
 
-              selectedFile:
-                null
+                image:
+                  item.image ??
+                  item.Image ??
+                  null,
 
-            }));
 
-          this.media.set(media);
+                video:
+                  item.video ??
+                  item.Video ??
+                  null,
+
+
+                photo:
+                  null
+
+              })
+            );
+
+
+          this.media.set(
+            mediaList
+          );
+
         },
+
 
         error: (err) => {
 
+          console.error(
+            'Get Media Error:',
+            err
+          );
+
+
           this.toastr.error(
+
             err?.error?.message ||
+
             err?.message ||
+
             'Unable to load media.'
+
           );
 
         }
 
       });
+
   }
 
-  // ---------------------------------------
-  // Add Media
-  // ---------------------------------------
+
+  // ===================================================
+  // GET MEDIA URL
+  // ===================================================
+
+  getMediaUrl(
+    path: string | null
+  ): string {
+
+    if (!path) {
+
+      return '';
+
+    }
+
+
+    if (
+
+      path.startsWith('http://') ||
+
+      path.startsWith('https://') ||
+
+      path.startsWith('data:')
+
+    ) {
+
+      return path;
+
+    }
+
+
+    const baseUrl =
+      this.imageURL()
+        ?.replace(/\/+$/, '') ?? '';
+
+
+    const filePath =
+      path
+        .replace(/^\/+/, '');
+
+
+    return `${baseUrl}/${filePath}`;
+
+  }
+
+
+  // ===================================================
+  // CHECK IMAGE
+  // ===================================================
+
+  isImage(
+    item: Media
+  ): boolean {
+
+    return !!item.image;
+
+  }
+
+
+  // ===================================================
+  // CHECK VIDEO
+  // ===================================================
+
+  isVideo(
+    item: Media
+  ): boolean {
+
+    return !!item.video;
+
+  }
+
+
+  // ===================================================
+  // ADD MEDIA
+  // ===================================================
 
   openAddModal(): void {
 
-    this.selectedMedia.set(null);
+    if (!this.album?.id) {
 
-    this.showModal.set(true);
+      this.toastr.warning(
+        'Album information is missing.'
+      );
+
+      return;
+
+    }
+
+
+    this.selectedMedia.set(
+      null
+    );
+
+
+    this.showModal.set(
+      true
+    );
+
   }
 
-  // ---------------------------------------
-  // Edit Media
-  // ---------------------------------------
 
-  editMedia(item: Media): void {
+  // ===================================================
+  // EDIT MEDIA
+  // ===================================================
+
+  editMedia(
+    item: Media
+  ): void {
 
     this.selectedMedia.set({
 
-      ...item,
+      id:
+        item.id,
 
-      selectedFile: null
+      albumId:
+        item.albumId,
+
+      image:
+        item.image,
+
+      video:
+        item.video,
+
+      photo:
+        null
 
     });
 
-    this.showModal.set(true);
+
+    this.showModal.set(
+      true
+    );
+
   }
 
-  // ---------------------------------------
-  // Close Modal
-  // ---------------------------------------
+
+  // ===================================================
+  // CLOSE MODAL
+  // ===================================================
 
   closeModal(): void {
 
-    this.showModal.set(false);
+    this.showModal.set(
+      false
+    );
 
-    this.selectedMedia.set(null);
+
+    this.selectedMedia.set(
+      null
+    );
+
   }
 
-  // ---------------------------------------
-  // Save Media
-  // ---------------------------------------
 
-  saveMedia(item: Media): void {
+  // ===================================================
+  // SAVE MEDIA
+  // ===================================================
 
-    if (!this.album) {
-      return;
-    }
+  saveMedia(
+    formData: FormData
+  ): void {
+
+    const id =
+      formData.get('Id');
+
 
     const isEdit =
-      item.id > 0;
+      !!id &&
+      Number(id) > 0;
 
-    const formData =
-      new FormData();
+    // ===================================================
+    // CREATED BY
+    // ===================================================
 
-    // ---------------------------------------
-    // ID / User
-    // ---------------------------------------
+    if (!isEdit) {
+
+      formData.append(
+
+        'CreatedBy',
+
+        this.loggedInId()
+
+      );
+
+    }
+
+
+    // ===================================================
+    // UPDATED BY
+    // ===================================================
 
     if (isEdit) {
 
       formData.append(
-        'Id',
-        item.id.toString()
-      );
 
-      formData.append(
         'UpdatedBy',
+
         this.loggedInId()
+
       );
 
-    } else {
-
-      formData.append(
-        'CreatedBy',
-        this.loggedInId()
-      );
     }
 
-    // ---------------------------------------
-    // Album
-    // ---------------------------------------
-
-    formData.append(
-      'AlbumId',
-      this.album.id.toString()
-    );
-
-    // ---------------------------------------
-    // Type
-    // ---------------------------------------
-
-    formData.append(
-      'Type',
-      item.type
-    );
-
-    // ---------------------------------------
-    // Title
-    // ---------------------------------------
-
-    formData.append(
-      'Title',
-      item.title
-    );
-
-    // ---------------------------------------
-    // Description
-    // ---------------------------------------
-
-    formData.append(
-      'Description',
-      item.description
-    );
-
-    // ---------------------------------------
-    // File
-    // ---------------------------------------
-
-    if (item.selectedFile) {
-
-      formData.append(
-        'File',
-        item.selectedFile,
-        item.selectedFile.name
-      );
-    }
-
-    // ---------------------------------------
-    // API
-    // ---------------------------------------
 
     const request =
+
       isEdit
 
         ? this.apiService.PutRequest(
+
           'Media',
+
           formData,
+
           true
+
         )
 
         : this.apiService.PostRequest(
+
           'Media',
+
           formData,
+
           true
+
         );
+
 
     request.subscribe({
 
       next: (res: any) => {
 
-        if (res.isSucceeded) {
+        if (res?.isSucceeded) {
 
           this.toastr.success(
+
             res.message ||
-            `Media ${isEdit ? 'updated' : 'added'
-            } successfully.`
+
+            (
+
+              isEdit
+
+                ? 'Media updated successfully.'
+
+                : 'Media added successfully.'
+
+            )
+
           );
 
-          this.getMedia();
 
           this.closeModal();
 
-        } else {
+
+          this.getMedia();
+
+        }
+
+        else {
 
           this.toastr.warning(
-            res.message ||
-            'Unable to save media.'
+
+            res?.message ||
+
+            (
+
+              isEdit
+
+                ? 'Unable to update media.'
+
+                : 'Unable to add media.'
+
+            )
+
           );
+
         }
 
       },
 
+
       error: (err) => {
 
         console.error(
-          'Media API Error:',
+          'Media Save Error:',
           err
         );
 
+
         this.toastr.error(
+
           err?.error?.message ||
+
           err?.message ||
+
           'Unable to save media.'
+
         );
 
       }
 
     });
+
   }
 
-  // ---------------------------------------
-  // Delete Media
-  // ---------------------------------------
 
-  deleteMedia(item: Media): void {
+  // ===================================================
+  // DELETE MEDIA
+  // ===================================================
+
+  deleteMedia(
+    item: Media
+  ): void {
 
     Swal.fire({
 
-      title: 'Delete Media?',
+      title:
+        'Delete Media?',
 
       text:
-        `Are you sure you want to delete "${item.title}"?`,
+        'Are you sure you want to delete this media?',
 
-      icon: 'warning',
+      icon:
+        'warning',
 
-      showCancelButton: true,
+      showCancelButton:
+        true,
 
-      confirmButtonColor: '#dc2626',
+      confirmButtonColor:
+        '#dc2626',
 
-      cancelButtonColor: '#6b7280',
+      cancelButtonColor:
+        '#6b7280',
 
-      confirmButtonText: 'Yes, Delete',
+      confirmButtonText:
+        'Yes, Delete',
 
-      cancelButtonText: 'Cancel',
+      cancelButtonText:
+        'Cancel',
 
-      reverseButtons: true,
+      reverseButtons:
+        true,
 
-      focusCancel: true
+      focusCancel:
+        true
 
-    }).then(result => {
+    })
 
-      if (!result.isConfirmed) {
-        return;
-      }
+      .then(result => {
 
-      this.apiService
-        .DeleteRequest(
-          'Media',
-          item.id
-        )
-        .subscribe({
+        if (!result.isConfirmed) {
 
-          next: (res: any) => {
+          return;
 
-            if (res.isSucceeded) {
+        }
 
-              this.toastr.success(
-                res.message ||
-                'Media deleted successfully.'
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+
+          'Id',
+
+          item.id.toString()
+
+        );
+
+
+        if (item.image) {
+
+          formData.append(
+
+            'Image',
+
+            item.image
+
+          );
+
+        }
+
+
+        if (item.video) {
+
+          formData.append(
+
+            'Video',
+
+            item.video
+
+          );
+
+        }
+
+
+        this.apiService
+
+          .DeleteFromFormRequest(
+
+            'Media',
+
+            formData,
+
+            true
+
+          )
+
+          .subscribe({
+
+            next: (res: any) => {
+
+              if (res?.isSucceeded) {
+
+                this.toastr.success(
+
+                  res.message ||
+
+                  'Media deleted successfully.'
+
+                );
+
+
+                this.getMedia();
+
+              }
+
+              else {
+
+                this.toastr.warning(
+
+                  res?.message ||
+
+                  'Unable to delete media.'
+
+                );
+
+              }
+
+            },
+
+
+            error: (err) => {
+
+              console.error(
+                'Media Delete Error:',
+                err
               );
 
-              this.getMedia();
 
-            } else {
+              this.toastr.error(
 
-              this.toastr.warning(
-                res.message ||
+                err?.error?.message ||
+
+                err?.message ||
+
                 'Unable to delete media.'
+
               );
 
             }
 
-          },
+          });
 
-          error: (err) => {
+      });
 
-            this.toastr.error(
-              err?.error?.message ||
-              err?.message ||
-              'Unable to delete media.'
-            );
-
-          }
-
-        });
-
-    });
   }
 
-  // ---------------------------------------
-  // Back
-  // ---------------------------------------
+
+  // ===================================================
+  // BACK TO ALBUMS
+  // ===================================================
 
   goBack(): void {
+
     this.back.emit();
+
   }
 
 }
