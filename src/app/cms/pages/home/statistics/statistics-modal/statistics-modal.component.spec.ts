@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TwoYearLlmComponent } from './two-year-llm.component';
+import { StatisticsModalComponent } from './statistics-modal.component';
 
-describe('TwoYearLlmComponent', () => {
-  let component: TwoYearLlmComponent;
-  let fixture: ComponentFixture<TwoYearLlmComponent>;
+describe('StatisticsModalComponent', () => {
+  let component: StatisticsModalComponent;
+  let fixture: ComponentFixture<StatisticsModalComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TwoYearLlmComponent]
+      imports: [StatisticsModalComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TwoYearLlmComponent);
+    fixture = TestBed.createComponent(StatisticsModalComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

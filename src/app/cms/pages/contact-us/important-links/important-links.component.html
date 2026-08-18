@@ -1,7 +1,7 @@
 <div class="space-y-6">
 
   <!-- Header -->
-  <div class="flex items-center justify-between">
+  <div class="flex items-center justify-between px-6 py-3 ">
 
     <div>
 
@@ -32,7 +32,7 @@
   </div>
 
   <!-- Table -->
-  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div class="overflow-hidden border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
 
     <div class="overflow-x-auto">
 
@@ -93,12 +93,6 @@
             <!-- Link -->
             <td class="px-6 py-4">
 
-              <!--<span class="break-all text-indigo-600 dark:text-indigo-400">
-
-            {{ link.link }}
-
-          </span>-->
-
               <a [href]="link.link"
                  target="_blank"
                  rel="noopener noreferrer"
@@ -112,7 +106,7 @@
             </td>
 
             <!-- Type -->
-            <td class="px-6 py-4 text-center">
+            <td class="px-6 py-4">
 
               @if(link.type === 'internal'){
 
@@ -139,7 +133,7 @@
             <!-- Action -->
             <td class="px-6 py-4">
 
-              <div class="flex items-center justify-center gap-2">
+              <div class="flex justify-end gap-3">
 
                 <button type="button"
                         (click)="editLink(link)"

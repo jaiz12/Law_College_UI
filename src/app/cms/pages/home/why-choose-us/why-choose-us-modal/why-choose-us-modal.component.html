@@ -1,0 +1,627 @@
+<!-- ============================================= -->
+<!-- OVERLAY -->
+<!-- ============================================= -->
+
+<div class="fixed inset-0 z-50
+            flex items-center justify-center
+            bg-black/50
+            p-4
+            backdrop-blur-sm">
+
+
+  <!-- =========================================== -->
+  <!-- MODAL -->
+  <!-- =========================================== -->
+
+  <div class="flex max-h-[90vh]
+              w-full max-w-2xl
+              flex-col
+              overflow-hidden
+              rounded-2xl
+              border border-gray-200
+              bg-white
+              shadow-2xl
+              dark:border-slate-700
+              dark:bg-slate-900">
+
+
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
+
+    <div class="flex shrink-0
+                items-center
+                justify-between
+                border-b
+                border-gray-200
+                px-6 py-5
+                dark:border-slate-700">
+
+      <div>
+
+        <h2 class="text-xl font-bold
+                   text-gray-900
+                   dark:text-white">
+
+          {{
+            isEditMode
+              ? 'Edit Why Choose Us'
+              : 'Add Why Choose Us'
+          }}
+
+        </h2>
+
+
+        <p class="mt-1 text-sm
+                  text-gray-500
+                  dark:text-slate-400">
+
+          Configure a Why Choose Us item.
+
+        </p>
+
+      </div>
+
+
+      <button type="button"
+              (click)="cancel()"
+              class="flex h-9 w-9
+               items-center
+               justify-center
+               rounded-lg
+               text-gray-400
+               transition
+               hover:bg-gray-100
+               hover:text-red-500
+               dark:hover:bg-slate-700">
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- CONTENT -->
+    <!-- ========================================= -->
+
+    <div class="overflow-y-auto">
+
+      <form [formGroup]="pageForm"
+            (ngSubmit)="submit()"
+            class="space-y-6 p-6">
+
+
+        <!-- ======================================= -->
+        <!-- ICON -->
+        <!-- ======================================= -->
+        <!-- ======================================= -->
+        <!-- ICON -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                text-sm font-medium
+                text-gray-700
+                dark:text-gray-300">
+
+            Icon
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <div class="relative">
+
+
+            <!-- ===================================== -->
+            <!-- SELECTED ICON BUTTON -->
+            <!-- ===================================== -->
+
+            <button type="button"
+                    (click)="showIcons = !showIcons"
+                    class="flex w-full items-center
+                   justify-between
+                   rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-4 py-3
+                   text-gray-800
+                   transition
+                   hover:border-indigo-500
+                   focus:outline-none
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+
+              <div class="flex items-center gap-3">
+
+                @if (selectedIcon) {
+
+                <div class="flex h-9 w-9
+                      items-center
+                      justify-center
+                      rounded-lg
+                      bg-indigo-50
+                      text-indigo-600
+                      dark:bg-indigo-900/30
+                      dark:text-indigo-400">
+
+                  <i [class]="selectedIcon.value"></i>
+
+                </div>
+
+                <div class="text-left">
+
+                  <div class="font-medium">
+
+                    {{ selectedIcon.name }}
+
+                  </div>
+
+                  <div class="text-xs
+                        text-gray-400">
+
+                    {{ selectedIcon.value }}
+
+                  </div>
+
+                </div>
+
+                }
+
+                @else {
+
+                <div class="flex h-9 w-9
+                      items-center
+                      justify-center
+                      rounded-lg
+                      bg-gray-100
+                      text-gray-400
+                      dark:bg-slate-700">
+
+                  <i class="fa-solid fa-icons"></i>
+
+                </div>
+
+                <span class="text-gray-500
+                       dark:text-gray-400">
+
+                  Select an icon
+
+                </span>
+
+                }
+
+              </div>
+
+
+              <i class="fa-solid"
+                 [class.fa-chevron-down]="!showIcons"
+                 [class.fa-chevron-up]="showIcons">
+              </i>
+
+            </button>
+
+
+            <!-- ===================================== -->
+            <!-- ICON DROPDOWN -->
+            <!-- ===================================== -->
+            @if (showIcons) {
+
+            <div class="absolute left-0
+                  right-0
+                  top-full
+                  z-[100]
+                  mt-2
+                  overflow-hidden
+                  rounded-xl
+                  border
+                  border-gray-200
+                  bg-white
+                  shadow-2xl
+                  dark:border-slate-700
+                  dark:bg-slate-900">
+
+
+              <!-- SEARCH -->
+              <div class="border-b
+                    border-gray-200
+                    dark:border-slate-700">
+
+                <div class="relative">
+
+                  <i class="fa-solid fa-magnifying-glass
+                      absolute left-4
+                      top-1/2
+                      -translate-y-1/2
+                      text-gray-400">
+                  </i>
+
+
+                  <input type="text"
+                         [formControl]="searchControl"
+                         placeholder="Search icon..."
+                         class="w-full
+                          bg-transparent
+                          px-4 py-3 pl-11
+                          text-sm
+                          text-gray-800
+                          outline-none
+                          placeholder:text-gray-400
+                          dark:text-white
+                          dark:placeholder:text-slate-500">
+
+                </div>
+
+              </div>
+
+
+              <!-- ICON LIST -->
+
+              <div class="max-h-72
+                    overflow-y-auto
+                    p-2">
+
+
+                @for (
+                icon of filteredIcons();
+                track icon.value
+                ) {
+
+                <button type="button"
+                        (click)="selectIcon(icon)"
+                        class="flex w-full
+                           items-center
+                           gap-3
+                           rounded-lg
+                           px-3 py-3
+                           text-left
+                           transition
+                           hover:bg-indigo-50
+                           dark:hover:bg-slate-800">
+
+
+                  <!-- ICON -->
+
+                  <div class="flex h-10 w-10
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-lg
+                          bg-gray-100
+                          text-indigo-600
+                          dark:bg-slate-800
+                          dark:text-indigo-400">
+
+                    <i [class]="icon.value"
+                       class="text-lg">
+                    </i>
+
+                  </div>
+
+
+                  <!-- NAME -->
+
+                  <div class="min-w-0">
+
+                    <div class="font-medium
+                            text-gray-800
+                            dark:text-gray-200">
+
+                      {{ icon.name }}
+
+                    </div>
+
+                    <div class="truncate
+                            text-xs
+                            text-gray-400
+                            dark:text-gray-500">
+
+                      {{ icon.value }}
+
+                    </div>
+
+                  </div>
+
+
+                  <!-- SELECTED -->
+                  @if (
+                  pageForm.get('icon')?.value ===
+                  icon.value
+                  ) {
+
+                  <i class="fa-solid
+                          fa-circle-check
+                          ml-auto
+                          text-indigo-600">
+                  </i>
+
+                  }
+
+                </button>
+
+                }
+
+
+                @empty {
+
+                <div class="px-4 py-8
+                        text-center
+                        text-sm
+                        text-gray-500
+                        dark:text-gray-400">
+
+                  <i class="fa-solid fa-icons
+                        mb-2
+                        text-2xl">
+                  </i>
+
+                  <p>
+                    No icons found.
+                  </p>
+
+                </div>
+
+                }
+
+              </div>
+
+            </div>
+
+            }
+
+          </div>
+
+
+          <!-- VALIDATION -->
+          @if (
+          pageForm.get('icon')?.touched &&
+          pageForm.get('icon')?.hasError('required')
+          ) {
+
+          <p class="mt-2
+              text-sm
+              text-red-500">
+
+            Please select an icon.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ======================================= -->
+        <!-- TITLE -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                        text-sm font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            Title
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <input type="text"
+                 formControlName="title"
+                 placeholder="Enter title"
+                 class="w-full rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-4 py-3
+                   text-gray-800
+                   outline-none
+                   focus:border-indigo-500
+                   focus:ring-2
+                   focus:ring-indigo-200
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+
+          @if (
+          pageForm.get('title')?.invalid &&
+          pageForm.get('title')?.touched
+          ) {
+
+          <p class="mt-2 text-sm
+                      text-red-600">
+
+            Title is required.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ======================================= -->
+        <!-- DESCRIPTION -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                        text-sm font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            Description
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <textarea formControlName="description"
+                    rows="5"
+                    placeholder="Enter description"
+                    class="w-full resize-none
+                   rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-4 py-3
+                   text-gray-800
+                   outline-none
+                   focus:border-indigo-500
+                   focus:ring-2
+                   focus:ring-indigo-200
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+          </textarea>
+
+
+          @if (
+          pageForm.get('description')?.invalid &&
+          pageForm.get('description')?.touched
+          ) {
+
+          <p class="mt-2 text-sm
+                      text-red-600">
+
+            Description is required.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ======================================= -->
+        <!-- EXTERNAL LINK -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                        text-sm font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            External Link
+
+            <span class="text-xs font-normal
+                         text-gray-400">
+
+              (Optional)
+
+            </span>
+
+          </label>
+
+
+          <div class="relative">
+
+            <i class="fa-solid fa-link
+                      absolute left-4 top-1/2
+                      -translate-y-1/2
+                      text-gray-400">
+            </i>
+
+
+            <input type="url"
+                   formControlName="externalLink"
+                   placeholder="https://example.com"
+                   class="w-full rounded-xl
+                     border border-gray-300
+                     bg-white
+                     px-4 py-3 pl-11
+                     text-gray-800
+                     outline-none
+                     focus:border-indigo-500
+                     focus:ring-2
+                     focus:ring-indigo-200
+                     dark:border-slate-700
+                     dark:bg-slate-800
+                     dark:text-white">
+
+          </div>
+
+
+          <p class="mt-2 text-xs
+                    text-gray-500
+                    dark:text-gray-400">
+
+            Optional link for visitors to learn more.
+
+          </p>
+
+        </div>
+
+        <!-- ======================================= -->
+        <!-- FOOTER -->
+        <!-- ======================================= -->
+
+        <div class="flex justify-end
+                    gap-3
+                    border-t
+                    border-gray-200
+                    pt-5
+                    dark:border-slate-700">
+
+
+          <button type="button"
+                  (click)="cancel()"
+                  class="rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-5 py-3
+                   text-sm
+                   font-medium
+                   text-gray-700
+                   transition
+                   hover:bg-gray-100
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white
+                   dark:hover:bg-slate-700">
+
+            Cancel
+
+          </button>
+
+
+          <button type="submit"
+                  class="rounded-xl
+         bg-indigo-600
+         px-5 py-3
+         text-sm
+         font-medium
+         text-white
+         transition
+         hover:bg-indigo-700">
+
+
+            {{
+    isEditMode
+      ? 'Update'
+      : 'Create'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

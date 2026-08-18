@@ -1,0 +1,561 @@
+<div class="space-y-6">
+
+
+  <!-- ================================================= -->
+  <!-- MAIN CARD -->
+  <!-- ================================================= -->
+
+  <div class="overflow-hidden
+           rounded-2xl
+           border border-gray-200
+           bg-white
+           shadow-sm
+           transition-colors
+           dark:border-slate-700
+           dark:bg-slate-900">
+
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <div class="flex flex-col
+             gap-4
+             px-6 py-3
+             md:flex-row
+             md:items-center
+             md:justify-between">
+
+
+      <!-- Title -->
+
+      <div>
+
+        <h1 class="text-2xl
+                 font-bold
+                 text-gray-900
+                 dark:text-white">
+
+          Our Program
+
+        </h1>
+
+
+        <p class="mt-1
+                 text-gray-500
+                 dark:text-slate-400">
+
+          Manage the reasons that make your our pogram stand out.
+
+        </p>
+
+      </div>
+
+
+      <!-- Add Button -->
+
+      <button type="button"
+              (click)="addItem()"
+              class="rounded-xl
+               bg-indigo-600
+               px-5 py-3
+               font-medium
+               text-white
+               transition
+               hover:bg-indigo-700">
+
+        + Add Our Program
+
+      </button>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TOOLBAR -->
+    <!-- ================================================= -->
+
+    <div class="flex flex-col
+             gap-4
+             p-6
+             md:flex-row
+             md:items-center
+             md:justify-between">
+
+
+      <!-- Search -->
+
+      <div class="relative
+               w-full
+               md:w-96">
+
+
+        <input [ngModel]="search()"
+               (ngModelChange)="
+            search.set($event);
+            page.set(1)
+          "
+               type="text"
+               placeholder="Search Our Program..."
+               class="w-full
+                 rounded-xl
+                 border border-gray-300
+                 bg-white
+                 py-3
+                 pl-11
+                 pr-4
+                 text-sm
+                 text-gray-800
+                 outline-none
+                 transition
+
+                 placeholder:text-gray-400
+
+                 focus:border-indigo-500
+                 focus:ring-2
+                 focus:ring-indigo-200
+
+                 dark:border-slate-700
+                 dark:bg-slate-800
+                 dark:text-white
+                 dark:placeholder:text-slate-500
+                 dark:focus:ring-indigo-900" />
+
+
+        <svg class="absolute
+                 left-4
+                 top-3.5
+                 h-5
+                 w-5
+                 text-gray-400
+                 dark:text-slate-500"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             viewBox="0 0 24 24">
+
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z" />
+
+        </svg>
+
+      </div>
+
+
+      <!-- Total -->
+
+      <span class="text-sm
+               font-medium
+               text-gray-600
+               dark:text-slate-400">
+
+        Total Our Program :
+
+        <span class="font-semibold
+                 text-indigo-600
+                 dark:text-indigo-400">
+
+          {{ filteredItems().length }}
+
+        </span>
+
+      </span>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- DESKTOP TABLE -->
+    <!-- ================================================= -->
+
+    <div class="overflow-hidden border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+
+      <div class="overflow-x-auto">
+
+        <table class="w-full
+                 text-left">
+
+
+          <!-- Table Header -->
+
+          <thead class="bg-gray-50
+                   dark:bg-slate-800">
+
+            <tr>
+
+
+              <!-- Title -->
+
+              <th class="px-6 py-4
+                       text-xs
+                       font-semibold
+                       uppercase
+                       tracking-wider
+                       text-gray-500
+                       dark:text-slate-400">
+
+                Title
+
+              </th>
+
+
+              <!-- Short Description -->
+
+              <th class="px-6 py-4
+                       text-xs
+                       font-semibold
+                       uppercase
+                       tracking-wider
+                       text-gray-500
+                       dark:text-slate-400">
+
+                Short Description
+
+              </th>
+              <!-- Description -->
+
+              <th class="px-6 py-4
+                       text-xs
+                       font-semibold
+                       uppercase
+                       tracking-wider
+                       text-gray-500
+                       dark:text-slate-400">
+
+                Description
+
+              </th>
+
+
+              <!-- Actions -->
+
+              <th class="px-6 py-4
+                       text-right
+                       text-xs
+                       font-semibold
+                       uppercase
+                       tracking-wider
+                       text-gray-500
+                       dark:text-slate-400">
+
+                Actions
+
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <!-- Table Body -->
+
+          <tbody class="divide-y
+                   divide-gray-200
+                   dark:divide-slate-700">
+
+
+            @for (
+
+            item of filteredItems()
+            | paginate: {
+            itemsPerPage:
+            itemsPerPage(),
+
+            currentPage:
+            page()
+            };
+
+            track item.id
+
+            ) {
+
+
+            <tr class="transition
+                       hover:bg-gray-50
+                       dark:hover:bg-slate-800">
+
+
+              <!-- ================================= -->
+              <!-- TITLE -->
+              <!-- ================================= -->
+
+              <td class="px-6 py-5">
+
+
+                <div class="font-semibold
+                           text-gray-900
+                           dark:text-white">
+
+                  {{ item.title }}
+
+                </div>
+
+              </td>
+
+
+              <!-- ================================= -->
+              <!-- SHORT DESCRIPTION -->
+              <!-- ================================= -->
+
+              <td class="w-1/2
+                         px-6 py-5">
+
+
+                <div class="line-clamp-2
+                           text-sm
+                           text-gray-600
+                           dark:text-gray-300">
+
+                  {{ item.shortDescription }}
+
+                </div>
+
+              </td>
+
+
+              <!-- ================================= -->
+              <!-- DESCRIPTION -->
+              <!-- ================================= -->
+
+              <td class="w-1/2
+                         px-6 py-5">
+
+
+                <div class="line-clamp-2
+                           text-sm
+                           text-gray-600
+                           dark:text-gray-300">
+
+                  {{ item.description }}
+
+                </div>
+
+              </td>
+
+
+
+              <!-- ================================= -->
+              <!-- ACTIONS -->
+              <!-- ================================= -->
+
+              <td class="px-6 py-5">
+
+
+                <div class="flex
+                           justify-end
+                           gap-3">
+
+
+                  <!-- Edit -->
+
+                  <button type="button"
+                          (click)="editItem(item)"
+                          class="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.8"
+                         stroke="currentColor"
+                         class="h-5 w-5">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M16.862 4.487a2.1 2.1 0 113.03 2.899L8.25 19.5 3 21l1.5-5.25L16.862 4.487z" />
+                    </svg>
+
+
+                  </button>
+
+
+                  <!-- Delete -->
+
+                  <button type="button"
+                          (click)="deleteItem(item)"
+                          class="rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 transition hover:bg-red-100">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         fill="none"
+                         viewBox="0 0 24 24"
+                         stroke-width="1.8"
+                         stroke="currentColor"
+                         class="h-5 w-5">
+                      <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M6 7h12M9 7V4h6v3m-8 0l1 13h8l1-13" />
+                    </svg>
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+            }
+
+
+            <!-- ===================================== -->
+            <!-- EMPTY -->
+            <!-- ===================================== -->
+            @empty {
+
+            <tr>
+
+              <td colspan="5"
+                  class="py-20
+                         text-center
+                         text-gray-500
+                         dark:text-slate-400">
+
+
+                <div class="flex
+                           flex-col
+                           items-center
+                           gap-4">
+
+
+                  <div class="flex
+                             h-14
+                             w-14
+                             items-center
+                             justify-center
+                             rounded-full
+                             bg-gray-100
+                             text-gray-400
+                             dark:bg-slate-800
+                             dark:text-slate-500">
+
+
+                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 4L2.5 9 12 14l9.5-5L12 4zm-5 7v4c0 1.5 2.24 3 5 3s5-1.5 5-3v-4' /> </svg>
+
+                  </div>
+
+
+                  <div class="text-lg
+                             font-semibold">
+
+                    No Our Program Found
+
+                  </div>
+
+
+                  <div class="text-sm
+                             text-gray-400
+                             dark:text-slate-500">
+
+                    Click "Add Our Program" to create one.
+
+                  </div>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+    <!-- ================================================= -->
+    <!-- FOOTER -->
+    <!-- ================================================= -->
+
+    <div class=" flex
+             flex-col
+             justify-between
+             gap-4
+             px-5
+             pb-4
+             pt-4
+             md:flex-row
+             md:items-center">
+
+
+      <!-- Items Per Page -->
+
+      <div class="flex
+               items-center
+               gap-3">
+
+
+        <label class="text-sm
+                 font-medium
+                 text-gray-700
+                 dark:text-gray-300">
+
+          Items per page
+
+        </label>
+
+
+        <select [ngModel]="itemsPerPage()"
+                (ngModelChange)="
+            itemsPerPage.set(+$event);
+            page.set(1)
+          "
+                class="rounded-lg
+                 border
+                 border-gray-300
+                 bg-white
+                 px-3 py-2
+                 text-sm
+                 text-gray-700
+                 shadow-sm
+                 focus:border-indigo-500
+                 focus:outline-none
+                 dark:border-slate-700
+                 dark:bg-slate-800
+                 dark:text-white">
+
+
+          @for (
+          size of pageSizeOptions;
+          track size
+          ) {
+
+          <option [value]="size">
+
+            {{ size }}
+
+          </option>
+
+          }
+
+        </select>
+
+      </div>
+
+
+      <!-- Pagination -->
+
+      <pagination-controls (pageChange)="page.set($event)">
+      </pagination-controls>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- MODAL -->
+<!-- ================================================= -->
+@if (showModal()) {
+
+<app-our-program-modal [item]="selectedItem()"
+                      (save)="saveItem($event)"
+                      (close)="closeModal()">
+
+</app-our-program-modal>
+
+}

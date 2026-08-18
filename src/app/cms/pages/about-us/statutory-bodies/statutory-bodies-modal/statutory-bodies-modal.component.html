@@ -182,9 +182,21 @@
           </button>
 
           <button type="submit"
-                  class="rounded-xl bg-indigo-600 px-5 py-3 text-white hover:bg-indigo-700">
+                  class="rounded-xl
+         bg-indigo-600
+         px-5 py-3
+         text-sm
+         font-medium
+         text-white
+         transition
+         hover:bg-indigo-700">
 
-            {{ isEditMode ? 'Update Statutory Body' : 'Create Statutory Body' }}
+
+            {{
+    isEditMode
+      ? 'Update'
+      : 'Create'
+            }}
 
           </button>
 

@@ -1,1422 +1,251 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+
+import {
+  Component,
+  OnInit,
+  inject,
+  signal
+} from '@angular/core';
+
+import {
+  Router,
+  RouterModule,
+  NavigationEnd
+} from '@angular/router';
+
+import { filter } from 'rxjs';
+
 import { LayoutService } from '../services/layout.service';
 import { SafeHtmlPipe } from '../../../services/safe-html.pipe';
 import { ConfigService } from '../../../services/config.service';
 
+
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, SafeHtmlPipe],
+
+  imports: [
+    CommonModule,
+    RouterModule,
+    SafeHtmlPipe
+  ],
+
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent implements OnInit {
-  constructor(public router: Router, private configService: ConfigService) { }
+
+  constructor(
+    public router: Router,
+    private configService: ConfigService
+  ) { }
 
   layout = inject(LayoutService);
 
   dashboardOpen = signal(true);
-  menus : any = []
 
-  ngOnInit() {
+  menus: any[] = [];
 
-    this.menus = this.configService.get('menus');
+
+  // ===================================================
+  // INIT
+  // ===================================================
+
+  ngOnInit(): void {
+
+    this.menus =
+      this.configService.get('menus') || [];
+
+
+    // Check active menu when component loads
+    this.expandActiveMenu();
+
+
+    // Check again whenever route changes
+    this.router.events
+
+      .pipe(
+        filter(
+          event => event instanceof NavigationEnd
+        )
+      )
+
+      .subscribe(() => {
+
+        this.expandActiveMenu();
+
+      });
+
   }
-  toggleDashboard() {
-    this.dashboardOpen.update(v => !v);
-  }
-  menused = [
-    {
-      name: 'Dashboard',
-      routerlink: '/dashboard',
-      expanded: false,
-      svgicon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M3 10l9-7 9 7v10H3z"/></svg>`,
-      submenus: []
-    },
-    {
-      name: 'User Management',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-     <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-5 h-5"
-  stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5"/>
-      <circle cx="9" cy="7" r="4"/>
-  </svg>
-    `,
-      submenus: [
-        {
-          name: 'Manage User',
-          routerlink: '/user-mangement/manager-user',
-          svgicon: `
-       <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-5 h-5"
-  stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-      <path d="M12 5v14M5 12h14"/>
-  </svg>`
-        },
-        {
-          name: 'Manage Role',
-          routerlink: '/user-mangement/manage-role',
-          svgicon: `
-       <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="w-5 h-5"
-  stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-      <path d="M12 2l7 4v6c0 5-3.5 9-7 10-3.5-1-7-5-7-10V6z"/>
-  </svg>`
-        }
-      ]
-    },
-    {
-      name: 'Home',
-      routerlink: '/home',
-      expanded: false,
-      svgicon: `<svg xmlns="http://www.w3.org/2000/svg"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke- width="1.8"
-       stroke = "currentColor"
-       class= "w-5 h-5" >
-    <path stroke - linecap="round"
-          stroke - linejoin="round"
-          d = "M2.25 12L12 3.75 21.75 12M4.5 10.5V20.25h15V10.5M9.75 20.25v-6h4.5v6" />
-    </svg>`,
-      submenus: []
-    },
 
-    {
-      name: 'About Us',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-  <svg xmlns="http://www.w3.org/2000/svg"
-       fill="none"
-       viewBox="0 0 24 24"
-       stroke-width="1.8"
-       stroke="currentColor"
-       class="w-5 h-5">
-    <path stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M12 9h.01M12 12v4.5M12 21a9 9 0 100-18 9 9 0 000 18z"/>
-  </svg>
-  `,
-      submenus: [
-        {
-          name: 'General Overview',
-          routerlink: '/about/general-overview',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 6v6l4 2"/>
-        <circle cx="12" cy="12" r="9"/>
-      </svg>`
-        },
 
-        {
-          name: 'Vision & Mission',
-          routerlink: '/about/vision-mission',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M2.25 12S6 5.25 12 5.25 21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12z"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>`
-        },
+  // ===================================================
+  // EXPAND ACTIVE MENU
+  // ===================================================
 
-        {
-          name: "Principal's Message",
-          routerlink: '/about/principal-message',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M8 10h8M8 14h5"/>
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M5 4h14v16l-3-2-4 2-4-2-3 2V4z"/>
-      </svg>`
-        },
+  private expandActiveMenu(): void {
 
-        {
-          name: 'Faculty',
-          routerlink: '/about/faculty',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 14.25c3.105 0 5.625-2.015 5.625-4.5S15.105 5.25 12 5.25 6.375 7.265 6.375 9.75 8.895 14.25 12 14.25zM4.5 19.5c0-2.485 3.358-4.5 7.5-4.5s7.5 2.015 7.5 4.5M12 3v2.25M3.75 6.75L12 2.25l8.25 4.5L12 11.25 3.75 6.75z"/>
-      </svg>`
-        },
+    this.menus.forEach((menu: any) => {
 
+      // ------------------------------------------------
+      // Parent menu itself is active
+      // ------------------------------------------------
 
-        {
-          name: 'Administrative Staff',
-          routerlink: '/about/administrative-staff',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 19.128a9.38 9.38 0 0 0 2.625.372A9.337 9.337 0 0 0 21 18.75c0-3.728-4.03-6.75-9-6.75s-9 3.022-9 6.75a9.337 9.337 0 0 0 3.375.75c.92 0 1.81-.13 2.625-.372M15 7.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0zM6 7.5a2.25 2.25 0 1 1-4.5 0A2.25 2.25 0 0 1 6 7.5z"/>
-      </svg>`
-        },
+      if (
+        menu.routerlink &&
+        this.router.isActive(
+          menu.routerlink,
+          {
+            paths: 'exact',
+            queryParams: 'ignored',
+            fragment: 'ignored',
+            matrixParams: 'ignored'
+          }
+        )
+      ) {
 
+        menu.expanded = true;
 
-        {
-          name: 'Infrastructure',
-          routerlink: '/about/infrastructure',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3.75 21h16.5M4.5 21V7.5L12 3l7.5 4.5V21M9 21v-5.25h6V21M8.25 9.75h.008v.008H8.25V9.75zm3.75 0h.008v.008H12V9.75zm3.75 0h.008v.008H15.75V9.75z"/>
-      </svg>`
-        },
+        return;
 
-        {
-          name: 'Recognitions & Affiliations',
-          routerlink: '/about/recognitions-and-affiliations',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16.8l-4.9 2.6.9-5.5-4-3.9 5.5-.8L12 3z"/>
-      </svg>`
-        },
-
-        {
-          name: 'Statutory Bodies',
-          routerlink: '/about/statutory-bodies',
-          svgicon: `
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-           stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/>
-      </svg>`
-        }
-      ]
-    },
-
-    {
-      name: 'Academics',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3L2.25 8.25 12 13.5l9.75-5.25L12 3zm-6.75 8.25v4.5c0 1.8 3.02 3.75 6.75 3.75s6.75-1.95 6.75-3.75v-4.5"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: '5-Year Integrated BA LLB',
-          routerlink: '/academics/5-years-integrated-ba-llb',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M4.5 5.25A2.25 2.25 0 016.75 3h10.5A2.25 2.25 0 0119.5 5.25v13.5A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V5.25zm3 3h9m-9 3h9m-9 3h6"/>
-</svg>`
-        },
-
-        {
-          name: '2-Year LLM',
-          routerlink: '/academics/2-year-llm',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 4L2.5 9 12 14l9.5-5L12 4zm-5 7v4c0 1.5 2.24 3 5 3s5-1.5 5-3v-4"/>
-</svg>`
-        },
-
-        {
-          name: 'Syllabus',
-          routerlink: '/academics/syllabus',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M7.5 3.75h7.5L19.5 8.25v12H7.5A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9 9h6M9 12h6M9 15h4"/>
-</svg>`
-        },
-
-        {
-          name: 'Academic Calendar',
-          routerlink: '/academics/academic-calendar',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M8 2v3M16 2v3M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>
-</svg>`
-        },
-
-        {
-          name: 'Research & Publications',
-          routerlink: '/academics/research-and-publications',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="11" cy="11" r="6"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M20 20l-4.2-4.2"/>
-</svg>`
-        },
-
-        {
-          name: 'Academic Policies',
-          routerlink: '/academics/academic-policies',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Admissions',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3L2.25 8.25 12 13.5l9.75-5.25L12 3zm-6.75 8.25v4.5c0 1.8 3.02 3.75 6.75 3.75s6.75-1.95 6.75-3.75v-4.5"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Eligibility Admission process & Intake',
-          routerlink: '/admissions/eligibility-admission-process-and-intake',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 12.75l2.25 2.25L15.75 9"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-</svg>`
-        },
-
-        {
-          name: 'Reservation Policy',
-          routerlink: '/admissions/reservation-policy',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3v18M3 12h18"/>
-  <circle cx="12" cy="12" r="8"/>
-</svg>`
-        },
-
-        {
-          name: 'Fee Structure',
-          routerlink: '/admissions/fee-structure',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="12" r="9"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 7v10M15 9c0-1.2-1.3-2-3-2s-3 .8-3 2 1.3 2 3 2 3 .8 3 2-1.3 2-3 2-3-.8-3-2"/>
-</svg>`
-        },
-
-        {
-          name: 'Prospectus',
-          routerlink: '/admissions/prospectus',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M7.5 3.75h7.5L19.5 8.25v12H7.5A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M15 3.75v4.5h4.5"/>
-</svg>`
-        },
-
-        {
-          name: 'Online Application',
-          routerlink: '/admissions/online-application',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="5" y="3" width="14" height="18" rx="2"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8 8h8M8 12h8M8 16h5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M17 18l2 2 3-3"/>
-</svg>`
-        },
-
-        {
-          name: 'Contact Admission Office',
-          routerlink: '/admissions/contact-admission-office',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M2.25 6.75C2.25 5.507 3.257 4.5 4.5 4.5h15c1.243 0 2.25 1.007 2.25 2.25v10.5c0 1.243-1.007 2.25-2.25 2.25h-15A2.25 2.25 0 012.25 17.25V6.75z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M3 6l9 7 9-7"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Examinations',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 3.75h6M9 3.75a2.25 2.25 0 00-2.25 2.25v.75H5.25A2.25 2.25 0 003 9v10.5a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 19.5V9a2.25 2.25 0 00-2.25-2.25h-1.5V6A2.25 2.25 0 0015 3.75H9z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 12h6M9 16h4"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Notifications',
-          routerlink: '/examinations/notifications',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M14.857 17.082A23.848 23.848 0 0018 15.75V11.25a6 6 0 10-12 0v4.5a23.848 23.848 0 003.143 1.332"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9.75 18.75a2.25 2.25 0 004.5 0"/>
-</svg>`
-        },
-
-        {
-          name: 'Exam Schedules',
-          routerlink: '/examinations/exam-schedules',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5"/>
-  <rect x="3.75" y="5.25" width="16.5" height="15" rx="2"/>
-</svg>`
-        },
-
-        {
-          name: 'Results',
-          routerlink: '/examinations/results',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M7.5 16.5l3-3 2.25 2.25L17.25 10.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M5.25 19.5V4.5h13.5v15"/>
-</svg>`
-        },
-
-        {
-          name: 'Student Achievers',
-          routerlink: '/examinations/student-achievers',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="8" r="3"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.5 13.5h7l-1 7-2.5-2-2.5 2-1-7z"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Student Life',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M4.5 20.25a7.5 7.5 0 0115 0"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Student Representative Council (SRC)',
-          routerlink: '/student-life/student-representative-council',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M17.25 18.75A2.25 2.25 0 0019.5 16.5V9.75L12 5.25 4.5 9.75v6.75a2.25 2.25 0 002.25 2.25h10.5z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 13.5h6"/>
-</svg>`
-        },
-
-        {
-          name: 'Library',
-          routerlink: '/student-life/library',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M6 4.5h10.5A1.5 1.5 0 0118 6v13.5H7.5A1.5 1.5 0 016 18V4.5z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 8.25h6"/>
-</svg>`
-        },
-
-        {
-          name: 'Student Club',
-          routerlink: '/student-life/student-club',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="9" cy="8" r="2.5"/>
-  <circle cx="15" cy="8" r="2.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M5 18a4 4 0 018 0m2 0a4 4 0 014-4"/>
-</svg>`
-        },
-
-        {
-          name: 'National Social Service (NSS)',
-          routerlink: '/student-life/national-social-service',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 21s-7-4.5-7-10a4 4 0 018-1 4 4 0 018 1c0 5.5-7 10-7 10z"/>
-</svg>`
-        },
-
-        {
-          name: 'National Cadet Corps (NCC)',
-          routerlink: '/student-life/national-cadet-corps',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3l6 3v5c0 4-2.5 7-6 10-3.5-3-6-6-6-10V6l6-3z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 8v6m-3-3h6"/>
-</svg>`
-        },
-
-        {
-          name: 'Medical Aid Cell',
-          routerlink: '/student-life/medical-aid-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="4" y="5" width="16" height="15" rx="2"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 9v6m-3-3h6"/>
-</svg>`
-        },
-
-        {
-          name: 'Internships',
-          routerlink: '/student-life/internships',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="3" y="7" width="18" height="12" rx="2"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 7V5h6v2"/>
-</svg>`
-        },
-
-        {
-          name: 'Scholarships',
-          routerlink: '/student-life/scholarships',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="8" r="3"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.5 13.5h7l-1 7-2.5-2-2.5 2-1-7z"/>
-</svg>`
-        },
-
-        {
-          name: 'Bus Service',
-          routerlink: '/student-life/bus-service',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="5" y="3.5" width="14" height="16" rx="2"/>
-  <circle cx="8" cy="18" r="1.5"/>
-  <circle cx="16" cy="18" r="1.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M5 8h14"/>
-</svg>`
-        },
-
-        {
-          name: 'Canteen',
-          routerlink: '/student-life/canteen',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8 3v8a3 3 0 003 3v7M5 3v5a3 3 0 006 0V3M16 3h1a2 2 0 012 2v16"/>
-</svg>`
-        },
-
-        {
-          name: 'Statistics',
-          routerlink: '/student-life/statistics',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M5 20V10m5 10V4m5 16v-7m5 7V7"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Compliance / Disclosures',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'BCI Compliance',
-          routerlink: '/compliance/bci-compliance',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>`
-        },
-
-        {
-          name: 'UGC Compliance',
-          routerlink: '/compliance/ugc-compliance',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>`
-        },
-
-        {
-          name: 'NIRF / IQAC',
-          routerlink: '/compliance/nirf-iqac',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 3v18M3 12h18"/>
-  <circle cx="12" cy="12" r="8"/>
-</svg>`
-        },
-
-        {
-          name: 'NIRF',
-          routerlink: '/compliance/nirf',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M5.25 5.25h13.5v13.5H5.25z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 15l2.25-3 2.25 2.25L15.75 9"/>
-</svg>`
-        },
-
-        {
-          name: 'AISHE',
-          routerlink: '/compliance/aishe',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M7.5 3.75h9L20.25 7.5v12.75H7.5A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M15.75 3.75V7.5h4.5"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Committee and Cell',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M17.25 6.75a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-9 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zM21 19.5a4.5 4.5 0 00-9 0m-3 0a4.5 4.5 0 00-9 0"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Internal Quality Assurance Cell (IQAC)',
-          routerlink: '/committee-and-cell/internal-quality-assurance-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3v18M3 12h18"/>
-  <circle cx="12" cy="12" r="8"/>
-</svg>`
-        },
-
-        {
-          name: 'College Management Committee',
-          routerlink: '/committee-and-cell/college-management-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M3 10.5L12 4l9 6.5M5.25 10.5v8.25h13.5V10.5"/>
-</svg>`
-        },
-
-        {
-          name: 'Admission Committee',
-          routerlink: '/committee-and-cell/admission-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 6v12m6-6H6"/>
-  <circle cx="12" cy="12" r="9"/>
-</svg>`
-        },
-
-        {
-          name: 'Examination Committee',
-          routerlink: '/committee-and-cell/examination-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="5" y="3.75" width="14" height="16.5" rx="2"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M8.5 8.25h7m-7 3h7m-7 3h4"/>
-</svg>`
-        },
-
-        {
-          name: 'Disciplinary Committee',
-          routerlink: '/committee-and-cell/disciplinary-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-</svg>`
-        },
-
-        {
-          name: 'Grievances Redressal Committee',
-          routerlink: '/committee-and-cell/grievances-redressal-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M8 10h8M8 14h5"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M6 4h12a2 2 0 012 2v12l-4-3H6a2 2 0 01-2-2V6a2 2 0 012-2z"/>
-</svg>`
-        },
-
-        {
-          name: 'Internal Committee (Sexual Harassment Inquiry Committee)',
-          routerlink: '/committee-and-cell/internal-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>`
-        },
-
-        {
-          name: 'Gender Sensitization Cell',
-          routerlink: '/committee-and-cell/gender-sensitization-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="8" r="3"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 11v8m-3-3h6"/>
-</svg>`
-        },
-
-        {
-          name: 'Anti Ragging Committee and Squad',
-          routerlink: '/committee-and-cell/anti-ragging-committee-and-squad',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="12" r="9"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M8 8l8 8M16 8l-8 8"/>
-</svg>`
-        },
-
-        {
-          name: 'Legal Research Development Cell',
-          routerlink: '/committee-and-cell/legal-research-development-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="11" cy="11" r="6"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M20 20l-4-4"/>
-</svg>`
-        },
-
-        {
-          name: 'Career Counselling & Placement Cell',
-          routerlink: '/committee-and-cell/career-counselling-and-placement-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="4" y="7" width="16" height="12" rx="2"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9 7V5h6v2"/>
-</svg>`
-        },
-
-        {
-          name: 'Moot Court Committee',
-          routerlink: '/committee-and-cell/moot-court-committee',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 4v14m-5 2h10M8 7l-3 4h6L8 7zm8 0l-3 4h6l-3-4z"/>
-</svg>`
-        },
-
-        {
-          name: 'Legal Aid Cell',
-          routerlink: '/committee-and-cell/legal-aid-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M9.5 12l2 2 4-4"/>
-</svg>`
-        },
-
-        {
-          name: 'SC/ST & Minority Cell',
-          routerlink: '/committee-and-cell/sc-st-minority-cell',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="9" cy="8" r="2.5"/>
-  <circle cx="15" cy="8" r="2.5"/>
-  <path stroke-linecap="round" stroke-linejoin="round"
-        d="M4 19a5 5 0 0110 0m-2 0a5 5 0 018 0"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'News & Events',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M19.5 6.75v10.5A2.25 2.25 0 0117.25 19.5H6.75A2.25 2.25 0 014.5 17.25V6.75A2.25 2.25 0 016.75 4.5h10.5A2.25 2.25 0 0119.5 6.75z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 9h7.5M8.25 12h7.5M8.25 15h4.5"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Announcements',
-          routerlink: '/news-events/announcements',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M10.5 6.75L18 4.5v10.5l-7.5-2.25H6.75A2.25 2.25 0 014.5 10.5V9a2.25 2.25 0 012.25-2.25h3.75z"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M10.5 12.75v4.5"/>
-</svg>`
-        },
-
-        {
-          name: 'Seminars & Webinars',
-          routerlink: '/news-events/seminars-webinars',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="3.75" y="5.25" width="16.5" height="10.5" rx="1.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 19.5h7.5M12 15.75v3.75"/>
-</svg>`
-        },
-
-        {
-          name: 'Moot Court Competitions',
-          routerlink: '/news-events/moot-court-competitions',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M12 4v14m-5 2h10M8 7l-3 4h6L8 7zm8 0l-3 4h6l-3-4z"/>
-</svg>`
-        },
-
-        {
-          name: 'News & Events Archives',
-          routerlink: '/news-events/news-events-archives',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="4.5" y="4.5" width="15" height="15" rx="2"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 9h7.5M8.25 12h7.5M8.25 15h4.5"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Alumni',
-      routerlink: '',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm5 13a7 7 0 00-14 0m14 0a7 7 0 00-3-5.74M3 20a7 7 0 013-5.74"/>
-</svg>
-`,
-      submenus: [
-
-        {
-          name: 'Governing Body',
-          routerlink: '/alumni/governing-body',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M3 10.5L12 4l9 6.5M5.25 10.5v8.25h13.5V10.5"/>
-</svg>`
-        },
-
-        {
-          name: 'Register / Join',
-          routerlink: '/alumni/register-join',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="9" cy="8" r="3"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M9 12v8m-4-4h8"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M16.5 6h4.5m-2.25-2.25v4.5"/>
-</svg>`
-        },
-
-        {
-          name: 'Notable Alumni',
-          routerlink: '/alumni/notable-alumni',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <circle cx="12" cy="8" r="3"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8 14l-1 7 5-3 5 3-1-7"/>
-</svg>`
-        },
-
-        {
-          name: 'Alumni Events',
-          routerlink: '/alumni/alumni-events',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 3v2.25M15.75 3v2.25M3.75 8.25h16.5"/>
-  <rect x="3.75" y="5.25" width="16.5" height="15" rx="2"/>
-</svg>`
-        },
-
-        {
-          name: 'Newsletters',
-          routerlink: '/alumni/newsletters',
-          svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <rect x="4.5" y="4.5" width="15" height="15" rx="2"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M8.25 9h7.5M8.25 12h7.5M8.25 15h4.5"/>
-</svg>`
-        }
-
-      ]
-    },
-
-    {
-      name: 'Media & Gallery',
-      routerlink: '/media-gallery',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M2.25 6.75A2.25 2.25 0 014.5 4.5h15A2.25 2.25 0 0121.75 6.75v10.5A2.25 2.25 0 0119.5 19.5h-15A2.25 2.25 0 012.25 17.25V6.75z"/>
-  <circle cx="8" cy="9" r="1.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M21.75 16.5l-6-6-5.25 5.25-2.25-2.25-6 6"/>
-</svg>`,
-      submenus: []
-    },
-
-    {
-      name: 'Contact Us',
-      routerlink: '/contact-us',
-      expanded: false,
-      svgicon: `
-<svg xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-     stroke-width="1.8"
-     stroke="currentColor"
-     class="w-5 h-5">
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M21.75 8.25v7.5A2.25 2.25 0 0119.5 18H4.5a2.25 2.25 0 01-2.25-2.25v-7.5"/>
-  <path stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M2.25 6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25L12 13.5 2.25 6.75z"/>
-</svg>`,
-      submenus: []
-    }
-   
-  ];
-
-
-  toggle(menu: any) {
-
-    this.menus.forEach((x: any) => {
-      if (x !== menu) {
-        x.expanded = false;
       }
+
+
+      // ------------------------------------------------
+      // Check child menu
+      // ------------------------------------------------
+
+      const hasActiveChild =
+        menu.submenus?.some(
+          (submenu: any) => {
+
+            return submenu.routerlink &&
+              this.router.isActive(
+                submenu.routerlink,
+                {
+                  paths: 'subset',
+                  queryParams: 'ignored',
+                  fragment: 'ignored',
+                  matrixParams: 'ignored'
+                }
+              );
+
+          }
+        );
+
+
+      // ------------------------------------------------
+      // Expand parent if child is active
+      // ------------------------------------------------
+
+      menu.expanded =
+        !!hasActiveChild;
+
     });
 
-    menu.expanded = !menu.expanded;
+  }
+
+
+  // ===================================================
+  // TOGGLE MENU
+  // ===================================================
+
+  toggle(menu: any): void {
+
+    this.menus.forEach((x: any) => {
+
+      if (x !== menu) {
+
+        x.expanded = false;
+
+      }
+
+    });
+
+
+    menu.expanded =
+      !menu.expanded;
 
   }
+
+
+  // ===================================================
+  // MOUSE ENTER
+  // ===================================================
 
   onMouseEnter(): void {
-    if (this.layout.sidebarCollapsed()) {
+
+    if (
+      this.layout.sidebarCollapsed()
+    ) {
+
       this.layout.openSidebar();
+
     }
+
   }
 
+
+  // ===================================================
+  // MOUSE LEAVE
+  // ===================================================
+
   onMouseLeave(): void {
-    if (!this.layout.sidebarCollapsed()) {
+
+    if (
+      !this.layout.sidebarCollapsed()
+    ) {
+
       this.layout.closeSidebar();
+
     }
+
   }
+
+
+  // ===================================================
+  // CHECK ACTIVE MENU
+  // ===================================================
 
   isMenuActive(menu: any): boolean {
 
     // Parent has its own route
-    if (menu.routerlink && this.router.isActive(menu.routerlink, {
-      paths: 'exact',
-      queryParams: 'ignored',
-      fragment: 'ignored',
-      matrixParams: 'ignored'
-    })) {
+    if (
+      menu.routerlink &&
+      this.router.isActive(
+        menu.routerlink,
+        {
+          paths: 'exact',
+          queryParams: 'ignored',
+          fragment: 'ignored',
+          matrixParams: 'ignored'
+        }
+      )
+    ) {
+
       return true;
+
     }
 
+
     // Check child routes
-    return menu.submenus?.some((submenu: any) =>
-      this.router.isActive(submenu.routerlink, {
-        paths: 'subset',
-        queryParams: 'ignored',
-        fragment: 'ignored',
-        matrixParams: 'ignored'
-      })
+    return menu.submenus?.some(
+      (submenu: any) => {
+
+        return submenu.routerlink &&
+          this.router.isActive(
+            submenu.routerlink,
+            {
+              paths: 'subset',
+              queryParams: 'ignored',
+              fragment: 'ignored',
+              matrixParams: 'ignored'
+            }
+          );
+
+      }
     ) ?? false;
 
   }
 
-
- 
 }
-
-

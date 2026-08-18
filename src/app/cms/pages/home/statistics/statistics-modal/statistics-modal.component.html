@@ -1,0 +1,259 @@
+<!-- ============================================= -->
+<!-- OVERLAY -->
+<!-- ============================================= -->
+
+<div class="fixed inset-0 z-50
+            flex items-center justify-center
+            bg-black/50
+            p-4
+            backdrop-blur-sm">
+
+
+  <!-- =========================================== -->
+  <!-- MODAL -->
+  <!-- =========================================== -->
+
+  <div class="flex max-h-[90vh]
+              w-full max-w-2xl
+              flex-col
+              overflow-hidden
+              rounded-2xl
+              border border-gray-200
+              bg-white
+              shadow-2xl
+              dark:border-slate-700
+              dark:bg-slate-900">
+
+
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
+
+    <div class="flex shrink-0
+                items-center
+                justify-between
+                border-b
+                border-gray-200
+                px-6 py-5
+                dark:border-slate-700">
+
+      <div>
+
+        <h2 class="text-xl font-bold
+                   text-gray-900
+                   dark:text-white">
+
+          {{
+            isEditMode
+              ? 'Edit Stastics'
+              : 'Add Stastics'
+          }}
+
+        </h2>
+
+
+        <p class="mt-1 text-sm
+                  text-gray-500
+                  dark:text-slate-400">
+
+          Configure a Stastics item.
+
+        </p>
+
+      </div>
+
+
+      <button type="button"
+              (click)="cancel()"
+              class="flex h-9 w-9
+               items-center
+               justify-center
+               rounded-lg
+               text-gray-400
+               transition
+               hover:bg-gray-100
+               hover:text-red-500
+               dark:hover:bg-slate-700">
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- CONTENT -->
+    <!-- ========================================= -->
+
+    <div class="overflow-y-auto">
+
+      <form [formGroup]="pageForm"
+            (ngSubmit)="submit()"
+            class="space-y-6 p-6">
+
+
+        <!-- ======================================= -->
+        <!-- TITLE -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                        text-sm font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            Title
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <input type="text"
+                 formControlName="title"
+                 placeholder="Enter title"
+                 class="w-full rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-4 py-3
+                   text-gray-800
+                   outline-none
+                   focus:border-indigo-500
+                   focus:ring-2
+                   focus:ring-indigo-200
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+
+          @if (
+          pageForm.get('title')?.invalid &&
+          pageForm.get('title')?.touched
+          ) {
+
+          <p class="mt-2 text-sm
+                      text-red-600">
+
+            Title is required.
+
+          </p>
+
+          }
+
+        </div>
+
+
+        <!-- ======================================= -->
+        <!-- DESCRIPTION -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                        text-sm font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            Count
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <input type="text"
+                 formControlName="count"
+                 placeholder="Enter count"
+                 class="w-full rounded-xl
+          border border-gray-300
+          bg-white
+          px-4 py-3
+          text-gray-800
+          outline-none
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-200
+          dark:border-slate-700
+          dark:bg-slate-800
+          dark:text-white">
+
+
+          @if (
+          pageForm.get('count')?.invalid &&
+          pageForm.get('count')?.touched
+          ) {
+
+          <p class="mt-2 text-sm
+                      text-red-600">
+
+            Count is required.
+
+          </p>
+
+          }
+
+        </div>
+
+        <!-- ======================================= -->
+        <!-- FOOTER -->
+        <!-- ======================================= -->
+
+        <div class="flex justify-end
+                    gap-3
+                    border-t
+                    border-gray-200
+                    pt-5
+                    dark:border-slate-700">
+
+
+          <button type="button"
+                  (click)="cancel()"
+                  class="rounded-xl
+                   border border-gray-300
+                   bg-white
+                   px-5 py-3
+                   text-sm
+                   font-medium
+                   text-gray-700
+                   transition
+                   hover:bg-gray-100
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white
+                   dark:hover:bg-slate-700">
+
+            Cancel
+
+          </button>
+
+
+          <button type="submit"
+                  class="rounded-xl
+                   bg-indigo-600
+                   px-5 py-3
+                   text-sm
+                   font-medium
+                   text-white
+                   transition
+                   hover:bg-indigo-700">
+
+
+            {{
+              isEditMode
+                ? 'Update'
+                : 'Create'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

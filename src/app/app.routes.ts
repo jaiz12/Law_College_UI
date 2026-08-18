@@ -48,6 +48,19 @@ export const routes: Routes = [
         import('./cms/pages/usermanagement/role-manager/role-manager.component')
           .then(m => m.RoleManagerComponent)
       },
+      // home
+      {
+        path: 'home/why-choose-us',
+        loadComponent: () =>
+          import('./cms/pages/home/why-choose-us/why-choose-us.component')
+            .then(m => m.WhyChooseUsComponent)
+      },
+      {
+        path: 'home/statistics',
+        loadComponent: () =>
+          import('./cms/pages/home/statistics/statistics.component')
+            .then(m => m.StatisticsComponent)
+      },
       // about us
       {
         path: 'about/general-overview',
@@ -103,16 +116,10 @@ export const routes: Routes = [
       // ===========================
 
       {
-        path: 'academics/5-years-integrated-ba-llb',
+        path: 'academics/our-program',
         loadComponent: () =>
-          import('./cms/pages/academics/five-years-integrated-ba-llb/five-years-integrated-ba-llb.component')
-            .then(m => m.FiveYearsIntegratedBaLlbComponent)
-      },
-      {
-        path: 'academics/2-year-llm',
-        loadComponent: () =>
-          import('./cms/pages/academics/two-year-llm/two-year-llm.component')
-            .then(m => m.TwoYearLlmComponent)
+          import('./cms/pages/academics/our-program/our-program.component')
+            .then(m => m.OurProgramComponent)
       },
       {
         path: 'academics/syllabus',
@@ -272,12 +279,6 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./cms/pages/student-life/canteen/canteen.component')
             .then(m => m.CanteenComponent)
-      },
-      {
-        path: 'student-life/statistics',
-        loadComponent: () =>
-          import('./cms/pages/student-life/statistics/statistics.component')
-            .then(m => m.StatisticsComponent)
       },
 
       // ===========================

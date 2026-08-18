@@ -7,7 +7,8 @@
   "menus": [
     {
       "name": "Dashboard",
-       "UIrouterlink": "/", "routerlink": "/dashboard",
+       "UIrouterlink": "/",
+       "routerlink": "/dashboard",
       "expanded": false,
       "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24' stroke-width='2'><path d='M3 10l9-7 9 7v10H3z'/></svg>",
       "submenus": []
@@ -35,11 +36,27 @@
     },
     {
       "name": "Home",
-       "UIrouterlink": "/home",
-       "routerlink": "/home",
+      "UIrouterlink": "/home",
+      "routerlink": "/home",
       "expanded": false,
       "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5' > <path stroke-linecap='round' stroke-linejoin='round' d='M2.25 12L12 3.75 21.75 12M4.5 10.5V20.25h15V10.5M9.75 20.25v-6h4.5v6' /> </svg>",
-      "submenus": []
+      "submenus": [
+
+        {
+          "name": "Why Choose Us?",
+          "UIrouterlink": "/",
+          "routerlink": "/home/why-choose-us",
+          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-4 h-4'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 6v6l4 2'/> <circle cx='12' cy='12' r='9'/> </svg>"
+        },
+
+        {
+          "name": "Statistics",
+          "UIrouterlink": "/",
+          "routerlink": "/home/statistics",
+          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M5 20V10m5 10V4m5 16v-7m5 7V7'/> </svg>"
+        }
+
+      ]
     },
 
     {
@@ -111,38 +128,37 @@
       "submenus": [
 
         {
-          "name": "5-Year Integrated BA LLB",
-           "UIrouterlink": "/", "routerlink": "/academics/5-years-integrated-ba-llb",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M4.5 5.25A2.25 2.25 0 016.75 3h10.5A2.25 2.25 0 0119.5 5.25v13.5A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V5.25zm3 3h9m-9 3h9m-9 3h6'/> </svg>"
-        },
-
-        {
-          "name": "2-Year LLM",
-           "UIrouterlink": "/", "routerlink": "/academics/2-year-llm",
+          "name": "Our Program",
+          "UIrouterlink": "/",
+          "routerlink": "/academics/our-program",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 4L2.5 9 12 14l9.5-5L12 4zm-5 7v4c0 1.5 2.24 3 5 3s5-1.5 5-3v-4'/> </svg>"
         },
 
         {
           "name": "Syllabus",
-           "UIrouterlink": "/", "routerlink": "/academics/syllabus",
+          "UIrouterlink": "/",
+          "routerlink": "/academics/syllabus",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M7.5 3.75h7.5L19.5 8.25v12H7.5A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9 9h6M9 12h6M9 15h4'/> </svg>"
         },
 
         {
           "name": "Academic Calendar",
-           "UIrouterlink": "/", "routerlink": "/academics/academic-calendar",
+          "UIrouterlink": "/",
+          "routerlink": "/academics/academic-calendar",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M8 2v3M16 2v3M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z'/> </svg>"
         },
 
         {
           "name": "Research & Publications",
-           "UIrouterlink": "/", "routerlink": "/academics/research-and-publications",
+          "UIrouterlink": "/",
+          "routerlink": "/academics/research-and-publications",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <circle cx='11' cy='11' r='6'/> <path stroke-linecap='round' stroke-linejoin='round' d='M20 20l-4.2-4.2'/> </svg>"
         },
 
         {
           "name": "Academic Policies",
-           "UIrouterlink": "/", "routerlink": "/academics/academic-policies",
+          "UIrouterlink": "/",
+          "routerlink": "/academics/academic-policies",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9.5 12l2 2 4-4'/> </svg>"
         }
 
@@ -294,12 +310,6 @@
           "name": "Canteen",
            "UIrouterlink": "/", "routerlink": "/student-life/canteen",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M8 3v8a3 3 0 003 3v7M5 3v5a3 3 0 006 0V3M16 3h1a2 2 0 012 2v16'/> </svg>"
-        },
-
-        {
-          "name": "Statistics",
-           "UIrouterlink": "/", "routerlink": "/student-life/statistics",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M5 20V10m5 10V4m5 16v-7m5 7V7'/> </svg>"
         }
 
       ]
