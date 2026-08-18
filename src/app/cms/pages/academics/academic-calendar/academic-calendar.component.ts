@@ -456,7 +456,7 @@ export class AcademicCalendarComponent
 
     formData.append(
       'IsActive',
-      String(calendar.isActive ?? false)
+      'false'
     );
 
 
