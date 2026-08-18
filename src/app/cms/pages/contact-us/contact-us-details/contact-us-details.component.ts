@@ -401,6 +401,28 @@ export class ContactUsDetailsComponent implements OnInit {
         return;
 
       }
+      console.log(contact)
+      const formData =
+        new FormData();
+
+
+      formData.append(
+
+        'Id',
+
+        contact.id.toString()
+
+      );
+
+      formData.append(
+
+        'SectionName',
+
+        this.SectionName
+
+      );
+
+
 
 
       // ---------------------------------------
@@ -409,9 +431,10 @@ export class ContactUsDetailsComponent implements OnInit {
 
       this.apiService
 
-        .DeleteRequest(
+        .DeleteFromFormRequest(
           'ContactUs',
-          contact.id
+          formData,
+          true
         )
 
         .subscribe({

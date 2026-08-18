@@ -467,6 +467,28 @@ export class SocialMediaComponent implements OnInit {
 
       }
 
+      const formData =
+        new FormData();
+
+
+      formData.append(
+
+        'Id',
+
+        item.id.toString()
+
+      );
+
+      formData.append(
+
+        'SectionName',
+
+        this.SectionName
+
+      );
+
+
+
 
       // ---------------------------------------
       // Delete API
@@ -474,9 +496,10 @@ export class SocialMediaComponent implements OnInit {
 
       this.apiService
 
-        .DeleteRequest(
+        .DeleteFromFormRequest(
           'ContactUs',
-          item.id
+          formData,
+          true
         )
 
         .subscribe({

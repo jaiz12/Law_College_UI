@@ -542,6 +542,28 @@ export class ImportantLinksComponent implements OnInit {
 
       }
 
+      const formData =
+        new FormData();
+
+
+      formData.append(
+
+        'Id',
+
+        link.id.toString()
+
+      );
+
+      formData.append(
+
+        'SectionName',
+
+        this.SectionName
+
+      );
+
+
+
 
       // ---------------------------------------
       // Delete API
@@ -549,12 +571,10 @@ export class ImportantLinksComponent implements OnInit {
 
       this.apiService
 
-        .DeleteRequest(
-
+        .DeleteFromFormRequest(
           'ContactUs',
-
-          link.id
-
+          formData,
+          true
         )
 
         .subscribe({
