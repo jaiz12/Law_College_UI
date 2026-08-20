@@ -39,9 +39,10 @@ export class PrincipalsMessageComponent {
   loggedInId = signal('')
   photo: string = '';
   pageName: string = "Principals Message";
-
+  editorConfig: any;
   constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
 
+    this.editorConfig = this.config.get('editorConfig') || {};
     this.pageForm = this.fb.group({
 
       id: [''],

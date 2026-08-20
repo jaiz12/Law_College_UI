@@ -32,3 +32,109 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+
+.toast-message {
+  text-transform: capitalize !important;
+}
+
+.ckeditor-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #374151;
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1.5rem 0 1rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1.4rem 0 1rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1.2rem 0 0.8rem;
+  }
+
+  ul {
+    list-style: disc;
+    padding-left: 2rem;
+    margin: 1rem 0;
+  }
+
+  ol {
+    list-style: decimal;
+    padding-left: 2rem;
+    margin: 1rem 0;
+  }
+
+  li {
+    margin-bottom: 0.4rem;
+  }
+
+  a {
+    color: #4f46e5;
+    text-decoration: underline;
+  }
+
+  blockquote {
+    border-left: 4px solid #6366f1;
+    background: #f5f7ff;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+  }
+
+  figure.table {
+    width: 100%;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+  }
+
+  th {
+    background: #f3f4f6;
+    font-weight: 600;
+  }
+
+  figure.image {
+    margin: 1.5rem auto;
+    text-align: center;
+  }
+
+  figure.image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+    margin: 2rem 0;
+  }
+}

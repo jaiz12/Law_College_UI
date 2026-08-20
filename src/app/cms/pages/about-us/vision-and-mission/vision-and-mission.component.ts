@@ -14,6 +14,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ValidationService } from '../../../../services/validation-service.service';
+import { ConfigService } from '../../../../services/config.service';
 
 @Component({
   selector: 'app-vision-and-mission',
@@ -31,10 +32,10 @@ export class VisionAndMissionComponent implements OnInit {
 
   loggedInId = signal('')
   pageName: string = "Vision and Mission";
-
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private validationService: ValidationService) {
+  editorConfig: any;
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
    
-    
+    this.editorConfig = this.config.get('editorConfig') || {};
 
     this.pageForm = this.fb.group({
       id: [''],

@@ -1,0 +1,221 @@
+<!-- Overlay -->
+
+<div class="fixed inset-0 z-50 flex items-center justify-center
+            bg-black/50 p-4 backdrop-blur-sm">
+
+
+  <!-- Modal -->
+
+  <div class="flex max-h-[90vh] w-full max-w-2xl flex-col
+              overflow-hidden rounded-2xl border border-gray-200
+              bg-white shadow-2xl
+              dark:border-slate-700 dark:bg-slate-900">
+
+
+    <!-- Header -->
+
+    <div class="flex shrink-0 items-center justify-between
+                border-b border-gray-200 px-6 py-5
+                dark:border-slate-700">
+
+      <div>
+
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+
+          {{
+            isEditMode
+              ? 'Edit Legal Aid Cell'
+              : 'Add Legal Aid Cell'
+          }}
+
+        </h2>
+
+
+        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+          Add legal aid cell resource details.
+
+        </p>
+
+      </div>
+
+
+      <button type="button"
+              (click)="cancel()"
+              class="rounded-lg p-2 text-slate-500 transition
+                     hover:bg-slate-100 hover:text-red-500
+                     dark:hover:bg-slate-800">
+
+        ✕
+
+      </button>
+
+    </div>
+
+
+    <!-- Form -->
+
+    <div class="overflow-y-auto">
+
+      <form [formGroup]="pageForm"
+            (ngSubmit)="submit()"
+            class="space-y-6 p-6">
+
+
+        <!-- Title -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium
+                        text-slate-700 dark:text-slate-300">
+
+            Title
+
+            <span class="text-red-500">*</span>
+
+          </label>
+
+
+          <input type="text"
+                 formControlName="title"
+                 placeholder="Enter library title"
+                 class="w-full rounded-xl border border-slate-300
+                        px-4 py-3 outline-none transition
+                        focus:border-indigo-500
+                        focus:ring-2 focus:ring-indigo-100
+                        dark:border-slate-700
+                        dark:bg-slate-800
+                        dark:text-white">
+
+
+          @if(
+          pageForm.get('title')?.touched &&
+          pageForm.get('title')?.invalid
+          ){
+
+          @if(
+          pageForm.get('title')?.hasError('required')
+          ){
+
+          <p class="mt-2 text-sm text-red-500">
+
+            Title is required.
+
+          </p>
+
+          }
+
+
+          @if(
+          pageForm.get('title')?.hasError('whitespace')
+          ){
+
+          <p class="mt-2 text-sm text-red-500">
+
+            Title cannot contain only spaces.
+
+          </p>
+
+          }
+
+          }
+
+        </div>
+
+
+        <!-- External Link -->
+
+        <div>
+
+          <label class="mb-2 block text-sm font-medium
+                        text-slate-700 dark:text-slate-300">
+
+            External Link
+
+            <span class="text-xs font-normal
+             text-gray-400">
+
+              (Optional)
+
+            </span>
+
+          </label>
+
+
+          <input type="url"
+                 formControlName="externalLink"
+                 placeholder="https://example.com"
+                 class="w-full rounded-xl border border-slate-300
+                        px-4 py-3 outline-none transition
+                        focus:border-indigo-500
+                        focus:ring-2 focus:ring-indigo-100
+                        dark:border-slate-700
+                        dark:bg-slate-800
+                        dark:text-white">
+
+
+          @if(
+          pageForm.get('externalLink')?.touched &&
+          pageForm.get('externalLink')?.hasError('maxlength')
+          ){
+
+          <p class="mt-2 text-sm text-red-500">
+
+            External link cannot exceed 500 characters.
+
+          </p>
+
+          }
+
+          <p class="mt-2 text-xs text-slate-400">
+
+            Example: https://example.com/library
+
+          </p>
+
+        </div>
+
+
+        <!-- Footer -->
+
+        <div class="flex justify-end gap-3
+                    border-t border-slate-200 pt-6
+                    dark:border-slate-700">
+
+
+          <button type="button"
+                  (click)="cancel()"
+                  class="rounded-xl border border-slate-300
+                         px-6 py-3 font-medium text-slate-700
+                         transition hover:bg-slate-100
+                         dark:border-slate-700
+                         dark:bg-slate-800
+                         dark:text-slate-300">
+
+            Cancel
+
+          </button>
+
+
+          <button type="submit"
+                  class="rounded-xl bg-indigo-600 px-6 py-3
+                         text-sm font-medium text-white
+                         transition hover:bg-indigo-700">
+
+            {{
+              isEditMode
+                ? 'Update'
+                : 'Create'
+            }}
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

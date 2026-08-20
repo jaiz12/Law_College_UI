@@ -34,9 +34,9 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 
 export class InfrastructureModalComponent implements OnChanges {
 
-
+  editorConfig: any;
   constructor(private config: ConfigService) {
-
+    this.editorConfig = this.config.get('editorConfig') || {};
   }
 
   public Editor: any = ClassicEditor;

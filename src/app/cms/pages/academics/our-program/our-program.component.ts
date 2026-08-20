@@ -14,6 +14,7 @@ import Swal from 'sweetalert2';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { OurProgramModalComponent } from './our-program-modal/our-program-modal.component';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 
 // =====================================================
@@ -41,7 +42,9 @@ export interface OurProgram {
 
     NgxPaginationModule,
 
-    OurProgramModalComponent
+    OurProgramModalComponent,
+
+    DescriptionModalComponent
   ],
   templateUrl: './our-program.component.html',
   styleUrl: './our-program.component.scss'
@@ -86,6 +89,12 @@ export class OurProgramComponent implements OnInit {
 
   loggedInId =
     signal('');
+
+  showDescriptionModal = signal(false);
+
+  selectedDescription = signal('');
+
+  selectedDescriptionTitle = signal('');
 
 
   // ===================================================
@@ -394,7 +403,7 @@ export class OurProgramComponent implements OnInit {
 
     formData.append(
       'Description',
-      item.shortDescription?.trim() || ''
+      item.description?.trim() || ''
     );
 
 
@@ -642,4 +651,26 @@ export class OurProgramComponent implements OnInit {
 
   }
 
+
+  viewDescription(item: OurProgram): void {
+
+    this.selectedDescriptionTitle.set(
+      item.title ?? 'Description'
+    );
+
+    this.selectedDescription.set(
+      item.description ?? ''
+    );
+
+    this.showDescriptionModal.set(true);
+  }
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
+  }
 }

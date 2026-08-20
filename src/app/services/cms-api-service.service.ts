@@ -57,6 +57,15 @@ export class CmsApiService {
     });
   }
 
+  PutRequestByValues(
+    url: string,
+  ): Observable<any> {
+    console.log(`${this.API_URL}/${url}`)
+    return this.http.put<any>(`${this.API_URL}/${url}`, {
+      headers: this.getHeaders(),
+    });
+  }
+
   GetRequest(url: string, params?: unknown): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/${url}`, {
       headers: this.getHeaders(),

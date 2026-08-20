@@ -61,15 +61,6 @@ export class AcademicCalendarModalComponent
 
 
   // ===================================================
-  // CONSTRUCTOR
-  // ===================================================
-
-  constructor(
-    private config: ConfigService
-  ) { }
-
-
-  // ===================================================
   // CKEDITOR
   // ===================================================
 
@@ -130,6 +121,11 @@ export class AcademicCalendarModalComponent
   dragging =
     false;
 
+  editorConfig: any;
+  constructor(private configService: ConfigService) {
+
+    this.editorConfig = this.configService.get('editorConfig') || {};
+  };
 
   // ===================================================
   // ALLOWED FILE TYPES

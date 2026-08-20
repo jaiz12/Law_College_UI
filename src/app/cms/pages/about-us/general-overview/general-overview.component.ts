@@ -39,6 +39,8 @@ export class GeneralOverviewComponent implements OnInit {
   loggedInId = signal('')
   bannerImage: string = '';
   pageName: string = "General Overview";
+
+  editorConfig: any;
   constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
     this.pageForm = this.fb.group({
       id: [''],
@@ -54,6 +56,7 @@ export class GeneralOverviewComponent implements OnInit {
       metaTitle: [''],
       metaDescription: ['']
     });
+      this.editorConfig = this.config.get('editorConfig') || {};
   }
 
 

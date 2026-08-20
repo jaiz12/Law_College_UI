@@ -1,1 +1,571 @@
-<app-under-construction></app-under-construction>
+<div class="space-y-6">
+
+
+  <!-- ============================================= -->
+  <!-- MAIN CARD -->
+  <!-- ============================================= -->
+
+  <div class="overflow-hidden rounded-2xl
+              border border-gray-200
+              bg-white shadow-sm
+              dark:border-slate-700
+              dark:bg-slate-900">
+
+
+    <!-- =========================================== -->
+    <!-- HEADER -->
+    <!-- =========================================== -->
+
+    <div class="flex flex-col gap-4
+                px-6 py-3
+                md:flex-row
+                md:items-center
+                md:justify-between">
+
+
+      <div>
+
+        <h1 class="text-2xl font-bold
+                   text-gray-900
+                   dark:text-white">
+
+          News & Events Archives
+
+        </h1>
+
+
+        <p class="mt-1 text-gray-500
+                  dark:text-slate-400">
+
+          Create, edit and manage  news & events archives .
+
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================================== -->
+    <!-- TOOLBAR -->
+    <!-- =========================================== -->
+
+    <div class="flex flex-col gap-4
+                border-b border-gray-200
+                p-6
+                md:flex-row
+                md:items-center
+                md:justify-between
+                dark:border-slate-700">
+
+
+      <!-- Search -->
+
+      <div class="relative w-full md:w-96">
+
+        <input [ngModel]="search()"
+               (ngModelChange)="search.set($event); page.set(1)"
+               type="text"
+               placeholder="Search News & Events Archives..."
+               class="w-full rounded-xl
+                 border border-gray-300
+                 bg-white py-3
+                 pl-11 pr-4
+                 text-sm
+                 text-gray-800
+                 outline-none
+                 transition
+                 placeholder:text-gray-400
+                 focus:border-indigo-500
+                 focus:ring-2
+                 focus:ring-indigo-200
+                 dark:border-slate-700
+                 dark:bg-slate-800
+                 dark:text-white
+                 dark:placeholder:text-slate-500
+                 dark:focus:ring-indigo-900">
+
+
+        <svg class="absolute left-4 top-3.5
+                 h-5 w-5
+                 text-gray-400
+                 dark:text-slate-500"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             viewBox="0 0 24 24">
+
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z" />
+
+        </svg>
+
+      </div>
+
+
+      <!-- Total -->
+
+      <span class="text-sm font-medium
+                   text-gray-600
+                   dark:text-slate-400">
+
+        Total Records :
+
+        <span class="font-semibold
+                     text-indigo-600
+                     dark:text-indigo-400">
+
+          {{ filteredAnnouncements().length }}
+
+        </span>
+
+      </span>
+
+    </div>
+
+
+    <!-- =========================================== -->
+    <!-- TABLE -->
+    <!-- =========================================== -->
+
+    <div class="overflow-x-auto">
+
+      <table class="w-full text-left">
+
+
+        <!-- HEADER -->
+
+        <thead class="bg-gray-50
+                       dark:bg-slate-800">
+
+          <tr>
+
+
+            <th class="px-6 py-4 text-xs
+                       font-semibold uppercase
+                       tracking-wider
+                       text-gray-500">
+
+              Title
+
+            </th>
+
+
+            <th class="px-6 py-4 text-xs
+                       font-semibold uppercase
+                       tracking-wider
+                       text-gray-500">
+
+              Category
+
+            </th>
+
+
+            <th class="px-6 py-4 text-xs
+                       font-semibold uppercase
+                       tracking-wider
+                       text-gray-500">
+
+              File
+
+            </th>
+
+            <th class="px-6 py-4 text-xs
+           font-semibold uppercase
+           tracking-wider
+           text-gray-500">
+
+              Start Date
+
+            </th>
+
+
+            <!-- END DATE -->
+
+            <th class="px-6 py-4 text-xs
+           font-semibold uppercase
+           tracking-wider
+           text-gray-500">
+
+              End Date
+
+            </th>
+
+            <th class="px-6 py-4 text-xs
+           font-semibold uppercase
+           tracking-wider
+           text-gray-500">
+
+              Status
+
+            </th>
+
+
+            <th class="px-6 py-4
+                       text-right
+                       text-xs
+                       font-semibold
+                       uppercase
+                       tracking-wider
+                       text-gray-500">
+
+              Actions
+
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <!-- BODY -->
+
+        <tbody class="divide-y
+                       divide-gray-200
+                       dark:divide-slate-700">
+          @for (
+          announcement of filteredAnnouncements()
+          | paginate: {
+          itemsPerPage: itemsPerPage(),
+          currentPage: page()
+          };
+          track announcement.id
+          ) {
+
+
+          <tr class="transition
+                       hover:bg-gray-50
+                       dark:hover:bg-slate-800">
+
+
+            <!-- TITLE -->
+
+            <td class="px-6 py-5">
+
+              <div class="font-semibold
+                            text-gray-900
+                            dark:text-white">
+
+                {{ announcement.title }}
+
+              </div>
+
+            </td>
+
+
+            <!-- CONTENT -->
+
+            <td class="px-6 py-5">
+              {{announcement.category}}
+
+            </td>
+
+
+            <!-- FILE -->
+
+            <td class="px-6 py-5">
+
+              @if (announcement.file) {
+
+              <a [href]="imageURL() + announcement.file"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="inline-flex
+                           items-center
+                           gap-2
+                           rounded-lg
+                           bg-indigo-50
+                           px-3 py-2
+                           text-sm
+                           font-medium
+                           text-indigo-600
+                           hover:bg-indigo-100
+                           dark:bg-indigo-900/30
+                           dark:text-indigo-400">
+
+                <i class="fa-solid fa-file-arrow-down"></i>
+
+                View File
+
+              </a>
+
+              }
+
+              @else {
+
+              <span class="text-sm
+                               text-gray-400
+                               dark:text-gray-500">
+
+                —
+
+              </span>
+
+              }
+
+            </td>
+            <!-- START DATE -->
+
+            <td class="px-6 py-5">
+
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+
+                {{ announcement.startDate | date:'dd MMM yyyy' }}
+
+              </span>
+
+            </td>
+
+
+            <!-- END DATE -->
+
+            <td class="px-6 py-5">
+
+              @if (announcement.endDate) {
+
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+
+                {{ announcement.endDate | date:'dd MMM yyyy' }}
+
+              </span>
+
+              }
+
+              @else {
+
+              <span class="text-sm text-gray-400 dark:text-gray-500">
+                —
+              </span>
+
+              }
+
+            </td>
+
+
+            <!-- STATUS -->
+            <td class="px-6 py-5">
+              <button type="button"
+                      (click)="setActive(announcement)"
+                      [disabled]="announcement.isActive"
+                      [attr.aria-pressed]="announcement.isActive"
+                      class="relative inline-flex h-6 w-11 shrink-0
+   items-center rounded-full
+   transition-colors
+   disabled:cursor-not-allowed"
+                      [class.bg-indigo-600]="announcement.isActive"
+                      [class.bg-gray-300]="!announcement.isActive"
+                      [class.dark:bg-slate-600]="!announcement.isActive">
+
+                <span class="inline-block h-4 w-4
+   transform rounded-full
+   bg-white transition-transform"
+                      [class.translate-x-6]="announcement.isActive"
+                      [class.translate-x-1]="!announcement.isActive">
+                </span>
+
+              </button>
+
+              <span class="ml-2 align-middle text-xs font-medium"
+                    [class.text-indigo-600]="announcement.isActive"
+                    [class.text-gray-400]="!announcement.isActive">
+
+                {{ announcement.isActive ? 'Active' : 'Inactive' }}
+
+              </span>
+
+
+            </td>
+
+            <!-- ACTIONS -->
+
+            <td class="px-6 py-5">
+
+              <div class="flex
+                justify-end
+                gap-3">
+
+
+                <!-- delete -->
+
+                <button type="button"
+                        (click)="delete(announcement)"
+                        class="rounded-lg
+                  border border-red-200
+                  bg-red-50
+                  p-2
+                  text-red-600
+                  transition
+                  hover:bg-red-100">
+
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       fill="none"
+                       viewBox="0 0 24 24"
+                       stroke-width="1.8"
+                       stroke="currentColor"
+                       class="h-5 w-5">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M6 7h12M9 7V4h6v3m-8 0l1 13h8l1-13" />
+
+                  </svg>
+
+                </button>
+
+              </div>
+
+            </td>
+          </tr>
+
+          }
+
+
+          <!-- ======================================= -->
+          <!-- EMPTY -->
+          <!-- ======================================= -->
+          @empty {
+
+          <tr>
+
+            <td colspan="7"
+                class="py-20
+                       text-center
+                       text-gray-500
+                       dark:text-slate-400">
+
+
+              <div class="flex flex-col
+                            items-center
+                            gap-4">
+
+
+                <svg class="h-14 w-14
+                           text-gray-300
+                           dark:text-slate-600"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     viewBox="0 0 24 24">
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z" />
+
+                </svg>
+
+
+                <div class="text-lg
+                              font-semibold">
+
+                  No News and Archives Found
+
+                </div>
+
+
+                <div class="text-sm
+                              text-gray-400
+                              dark:text-slate-500">
+
+                  Click "Add News and Archives"
+                  to create one.
+
+                </div>
+
+
+              </div>
+
+            </td>
+
+          </tr>
+
+          }
+
+
+        </tbody>
+
+      </table>
+
+
+      <!-- =========================================== -->
+      <!-- FOOTER -->
+      <!-- =========================================== -->
+
+      <div class="mt-6 flex
+                  flex-col
+                  justify-between
+                  gap-4
+                  border-t
+                  border-gray-200
+                  px-5
+                  pb-4
+                  pt-4
+                  md:flex-row
+                  md:items-center
+                  dark:border-slate-700">
+
+
+        <!-- PAGE SIZE -->
+
+        <div class="flex
+                    items-center
+                    gap-3">
+
+
+          <label class="text-sm
+                        font-medium
+                        text-gray-700
+                        dark:text-gray-300">
+
+            Items per page
+
+          </label>
+
+
+          <select [ngModel]="itemsPerPage()"
+                  (ngModelChange)="itemsPerPage.set(+$event); page.set(1)"
+                  class="rounded-lg
+                   border border-gray-300
+                   bg-white
+                   px-3 py-2
+                   text-sm
+                   text-gray-700
+                   shadow-sm
+                   focus:border-indigo-500
+                   focus:outline-none
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
+
+
+            @for (
+            size of pageSizeOptions;
+            track size
+            ) {
+
+            <option [value]="size">
+
+              {{ size }}
+
+            </option>
+
+            }
+
+          </select>
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        <pagination-controls (pageChange)="page.set($event)">
+        </pagination-controls>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

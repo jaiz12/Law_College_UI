@@ -19,6 +19,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 
 import { AcademicCalendarModalComponent } from './academic-calendar-modal/academic-calendar-modal.component';
 import { ConfigService } from '../../../../services/config.service';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
+import { OurProgram } from '../our-program/our-program.component';
 
 
 // =====================================================
@@ -63,7 +65,9 @@ export interface AcademicCalendar {
 
     NgxPaginationModule,
 
-    AcademicCalendarModalComponent
+    AcademicCalendarModalComponent,
+
+    DescriptionModalComponent
 
   ],
 
@@ -123,6 +127,12 @@ export class AcademicCalendarComponent
     signal('');
 
   imageURL = signal('');
+
+  showDescriptionModal = signal(false);
+
+  selectedDescription = signal('');
+
+  selectedDescriptionTitle = signal('');
   // ===================================================
   // INIT
   // ===================================================
@@ -964,6 +974,28 @@ export class AcademicCalendarComponent
 
       });
 
+  }
+
+  viewDescription(item: AcademicCalendar): void {
+
+    this.selectedDescriptionTitle.set(
+      item.title ?? 'Content'
+    );
+
+    this.selectedDescription.set(
+      item.content ?? ''
+    );
+
+    this.showDescriptionModal.set(true);
+  }
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
   }
 
 }

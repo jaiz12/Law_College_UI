@@ -6,6 +6,7 @@ import { ValidationService } from '../../../../../services/validation-service.se
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { OurProgram } from '../our-program.component';
+import { ConfigService } from '../../../../../services/config.service';
 
 @Component({
   selector: 'app-our-program-modal',
@@ -58,6 +59,13 @@ export class OurProgramModalComponent implements OnChanges {
       nonNullable: true
     });
 
+  editorConfig: any;
+  constructor(private configService: ConfigService) {
+
+    this.editorConfig = this.configService.get('editorConfig') || {};
+  };
+
+  
 
   // ===================================================
   // FORM

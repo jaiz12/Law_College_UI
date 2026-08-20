@@ -382,13 +382,7 @@ export class ImportantLinkModalComponent
     this.allMenus = [];
 
 
-    const excludedMenus = [
-
-      'Dashboard',
-
-      'User Management'
-
-    ];
+    const excludedMenus = this.configService.get("excludedMenus");
 
 
     this.menus

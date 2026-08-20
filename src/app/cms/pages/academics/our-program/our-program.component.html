@@ -150,7 +150,7 @@
                text-gray-600
                dark:text-slate-400">
 
-        Total Our Program :
+        Total Records :
 
         <span class="font-semibold
                  text-indigo-600
@@ -271,84 +271,68 @@
             ) {
 
 
-            <tr class="transition
-                       hover:bg-gray-50
-                       dark:hover:bg-slate-800">
+            <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
-
-              <!-- ================================= -->
               <!-- TITLE -->
-              <!-- ================================= -->
-
-              <td class="px-6 py-5">
-
-
-                <div class="font-semibold
-                           text-gray-900
-                           dark:text-white">
-
+              <td class="w-[30%] px-6 py-5 align-top">
+                <div class="truncate font-semibold text-gray-900 dark:text-white">
                   {{ item.title }}
-
                 </div>
-
               </td>
 
-
-              <!-- ================================= -->
               <!-- SHORT DESCRIPTION -->
-              <!-- ================================= -->
-
-              <td class="w-1/2
-                         px-6 py-5">
-
-
-                <div class="line-clamp-2
-                           text-sm
-                           text-gray-600
-                           dark:text-gray-300">
-
+              <td class="w-[40%] px-6 py-5 align-top">
+                <div class="line-clamp-2 text-sm text-gray-600 dark:text-gray-300">
                   {{ item.shortDescription }}
-
                 </div>
-
               </td>
 
-
-              <!-- ================================= -->
               <!-- DESCRIPTION -->
-              <!-- ================================= -->
+              <td class="w-[15%] px-6 py-5 align-top">
+                <button type="button"
+                        (click)="viewDescription(item)"
+                        class="shrink-0
+               rounded-lg
+               border border-indigo-200
+               bg-indigo-50
+               px-3 py-2
+               text-xs
+               font-medium
+               text-indigo-600
+               transition
+               hover:bg-indigo-100
+               dark:border-indigo-800
+               dark:bg-indigo-900/30
+               dark:text-indigo-400
+               dark:hover:bg-indigo-900/50">
 
-              <td class="w-1/2
-                         px-6 py-5">
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       fill="none"
+                       viewBox="0 0 24 24"
+                       stroke-width="1.8"
+                       stroke="currentColor"
+                       class="mr-1 inline-block h-4 w-4">
 
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
 
-                <div class="line-clamp-2
-                           text-sm
-                           text-gray-600
-                           dark:text-gray-300">
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 15.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z" />
 
-                  {{ item.description }}
+                  </svg>
 
-                </div>
+                  View
 
+                </button>
               </td>
 
-
-
-              <!-- ================================= -->
               <!-- ACTIONS -->
-              <!-- ================================= -->
-
-              <td class="px-6 py-5">
-
-
-                <div class="flex
-                           justify-end
-                           gap-3">
-
+              <td class="w-[15%] px-6 py-5 align-top">
+                <div class="flex justify-end gap-3">
 
                   <!-- Edit -->
-
                   <button type="button"
                           (click)="editItem(item)"
                           class="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100">
@@ -359,17 +343,16 @@
                          stroke-width="1.8"
                          stroke="currentColor"
                          class="h-5 w-5">
+
                       <path stroke-linecap="round"
                             stroke-linejoin="round"
                             d="M16.862 4.487a2.1 2.1 0 113.03 2.899L8.25 19.5 3 21l1.5-5.25L16.862 4.487z" />
-                    </svg>
 
+                    </svg>
 
                   </button>
 
-
                   <!-- Delete -->
-
                   <button type="button"
                           (click)="deleteItem(item)"
                           class="rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 transition hover:bg-red-100">
@@ -380,15 +363,16 @@
                          stroke-width="1.8"
                          stroke="currentColor"
                          class="h-5 w-5">
+
                       <path stroke-linecap="round"
                             stroke-linejoin="round"
                             d="M6 7h12M9 7V4h6v3m-8 0l1 13h8l1-13" />
+
                     </svg>
 
                   </button>
 
                 </div>
-
               </td>
 
             </tr>
@@ -553,9 +537,18 @@
 @if (showModal()) {
 
 <app-our-program-modal [item]="selectedItem()"
-                      (save)="saveItem($event)"
-                      (close)="closeModal()">
+                       (save)="saveItem($event)"
+                       (close)="closeModal()">
 
 </app-our-program-modal>
+
+}
+
+@if (showDescriptionModal()) {
+
+<app-description-modal [title]="selectedDescriptionTitle()"
+                       [content]="selectedDescription()"
+                       (close)="closeDescriptionModal()">
+</app-description-modal>
 
 }

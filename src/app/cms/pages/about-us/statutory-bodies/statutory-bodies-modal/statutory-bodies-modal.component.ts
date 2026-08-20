@@ -19,9 +19,9 @@ import { StatutoryBodiesBody } from '../statutory-bodies.component';
 })
 export class StatutoryBodiesModalComponent implements OnChanges {
 
-
+  editorConfig: any;
   constructor(private config: ConfigService) {
-
+    this.editorConfig = this.config.get('editorConfig') || {};
   }
 
   public Editor: any = ClassicEditor;
