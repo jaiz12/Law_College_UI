@@ -481,14 +481,14 @@ export const routes: Routes = [
       },
 
       // ===========================
-      // Contact Us
+      // Header and Footer
       // ===========================
 
       {
-        path: 'contact-us',
+        path: 'header-and-footer',
         loadComponent: () =>
-          import('./cms/pages/contact-us/contact-us.component')
-            .then(m => m.ContactUsComponent)
+          import('./cms/pages/header-and-footer/header-and-footer.component')
+            .then(m => m.HeaderAndFooterComponent)
       },
 
       {

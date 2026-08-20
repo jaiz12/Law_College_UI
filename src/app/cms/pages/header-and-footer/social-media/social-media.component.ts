@@ -136,7 +136,7 @@ export class SocialMediaComponent implements OnInit {
     this.apiService
 
       .GetRequest(
-        'ContactUs/0/' + this.SectionName
+        'HeaderAndFooter/0/' + this.SectionName
       )
 
       .subscribe({
@@ -340,13 +340,13 @@ export class SocialMediaComponent implements OnInit {
       isEdit
 
         ? this.apiService.PutRequest(
-          'ContactUs',
+          'HeaderAndFooter',
           formData,
           true
         )
 
         : this.apiService.PostRequest(
-          'ContactUs',
+          'HeaderAndFooter',
           formData,
           true
         );
@@ -497,7 +497,7 @@ export class SocialMediaComponent implements OnInit {
       this.apiService
 
         .DeleteFromFormRequest(
-          'ContactUs',
+          'HeaderAndFooter',
           formData,
           true
         )

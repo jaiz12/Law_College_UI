@@ -4,6 +4,15 @@
   <div class="flex overflow-x-auto border-b border-gray-200 dark:border-slate-700">
 
     <button type="button"
+            (click)="activeTab.set('logo-and-title')"
+            [ngClass]="activeTab() === 'logo-and-title'
+        ? 'border-b-2 border-indigo-600 text-indigo-600'
+        : 'text-gray-600 dark:text-gray-300'"
+            class="whitespace-nowrap px-6 py-4 font-medium transition">
+      Logo and Title
+    </button>
+
+    <button type="button"
             (click)="activeTab.set('contact')"
             [ngClass]="activeTab() === 'contact'
         ? 'border-b-2 border-indigo-600 text-indigo-600'
@@ -45,6 +54,10 @@
   <div>
 
     @switch (activeTab()) {
+    @case ('logo-and-title') {
+
+    <!-- Logo and Title Form -->
+    <app-logo-and-title></app-logo-and-title> }
 
     @case ('contact') {
 
@@ -68,7 +81,7 @@
     <app-social-media></app-social-media>
 
     }
-                      }
+    }
 
   </div>
 

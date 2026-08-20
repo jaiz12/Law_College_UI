@@ -6,21 +6,24 @@ import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
-import { ContactUsModalComponent } from './contact-us-modal/contact-us-modal.component';
+import { ImportantLinkModalComponent } from './important-link-modal/important-link-modal.component';
 
-export interface ContactDetail {
+export interface ImportantLink {
 
-  id: number ;
+  id: number;
 
-  icon: string;
+  type: 'internal' | 'external';
 
-  detail: string;
+  name: string;
+
+  link: string;
 
 }
 
+
 @Component({
 
-  selector: 'app-contact-us-details',
+  selector: 'app-important-links',
 
   standalone: true,
 
@@ -32,17 +35,19 @@ export interface ContactDetail {
 
     NgxPaginationModule,
 
-    ContactUsModalComponent
+    ImportantLinkModalComponent
 
   ],
 
-  templateUrl: './contact-us-details.component.html',
+  templateUrl: './important-links.component.html',
 
-  styleUrl: './contact-us-details.component.scss'
+  styleUrl: './important-links.component.scss'
 
 })
 
-export class ContactUsDetailsComponent implements OnInit {
+
+export class ImportantLinksComponent implements OnInit {
+
 
   constructor(
 
@@ -67,13 +72,23 @@ export class ContactUsDetailsComponent implements OnInit {
 
   showModal = signal(false);
 
-  selectedContact =
-    signal<ContactDetail | null>(null);
+  selectedLink =
+    signal<ImportantLink | null>(null);
 
-  contacts =
-    signal<ContactDetail[]>([]);
+  links =
+    signal<ImportantLink[]>([]);
 
-  SectionName = 'Contact Details';
+
+  // ---------------------------------------
+  // Section Name
+  // ---------------------------------------
+
+  SectionName = 'Important Links';
+
+
+  // ---------------------------------------
+  // Logged In User
+  // ---------------------------------------
 
   loggedInId = signal('');
 
@@ -84,15 +99,18 @@ export class ContactUsDetailsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.getContacts();
+    this.getLinks();
+
 
     const userString =
       localStorage.getItem('user');
+
 
     if (userString) {
 
       const currentUser =
         JSON.parse(userString);
+
 
       this.loggedInId.set(
         currentUser.id
@@ -107,31 +125,38 @@ export class ContactUsDetailsComponent implements OnInit {
   // Filter
   // ---------------------------------------
 
-  filteredContacts = computed(() => {
+  filteredLinks = computed(() => {
 
     const keyword =
       this.search()
         .trim()
         .toLowerCase();
 
+
     if (!keyword) {
 
-      return this.contacts();
+      return this.links();
 
     }
 
-    return this.contacts().filter(contact =>
 
-      contact.icon
+    return this.links().filter(link =>
+
+      link.name
         ?.toLowerCase()
         .includes(keyword)
 
       ||
 
-      contact.detail
+      link.link
         ?.toLowerCase()
         .includes(keyword)
 
+      ||
+
+      link.type
+        ?.toLowerCase()
+        .includes(keyword)
 
     );
 
@@ -139,28 +164,33 @@ export class ContactUsDetailsComponent implements OnInit {
 
 
   // ---------------------------------------
-  // Get Contacts
+  // Get Important Links
   // ---------------------------------------
 
-  getContacts(): void {
+  getLinks(): void {
 
     this.apiService
 
       .GetRequest(
-        'ContactUs/0/' + this.SectionName
+        'HeaderAndFooter/0/' + this.SectionName
       )
 
       .subscribe({
 
         next: (res: any) => {
 
+          console.log(
+            'Important Links API Response:',
+            res
+          );
+
 
           const data = Array.isArray(res)
             ? res
             : [res];
 
-          const contacts:
-            ContactDetail[] =
+
+          const links: ImportantLink[] =
 
             data.map((item: any) => ({
 
@@ -169,31 +199,36 @@ export class ContactUsDetailsComponent implements OnInit {
                 item.Id ??
                 0,
 
-              sectionName:
-                item.sectionName ??
-                item.SectionName ??
+
+              type:
+                item.type ??
+                item.Type ??
+                'internal',
+
+
+              name:
+                item.name ??
+                item.Name ??
                 '',
 
-              icon:
-                item.icon ??
-                item.Icon ??
-                '',
 
-              detail:
-                item.detail ??
-                item.Detail ??
+              link:
+                item.link ??
+                item.Link ??
                 ''
 
             }));
 
-          this.contacts.set(
-            contacts
-          );
 
+          this.links.set(links);
 
         },
 
+
         error: (err) => {
+
+          console.error(err);
+
 
           this.toastr.error(
 
@@ -201,7 +236,7 @@ export class ContactUsDetailsComponent implements OnInit {
 
             err?.message ||
 
-            'Unable to load contact details.'
+            'Unable to load important links.'
 
           );
 
@@ -213,12 +248,12 @@ export class ContactUsDetailsComponent implements OnInit {
 
 
   // ---------------------------------------
-  // Add Contact
+  // Add
   // ---------------------------------------
 
   openAddModal(): void {
 
-    this.selectedContact.set(null);
+    this.selectedLink.set(null);
 
     this.showModal.set(true);
 
@@ -226,18 +261,19 @@ export class ContactUsDetailsComponent implements OnInit {
 
 
   // ---------------------------------------
-  // Edit Contact
+  // Edit
   // ---------------------------------------
 
-  editContact(
-    contact: ContactDetail
+  editLink(
+    link: ImportantLink
   ): void {
 
-    this.selectedContact.set({
+    this.selectedLink.set({
 
-      ...contact
+      ...link
 
     });
+
 
     this.showModal.set(true);
 
@@ -252,105 +288,208 @@ export class ContactUsDetailsComponent implements OnInit {
 
     this.showModal.set(false);
 
-    this.selectedContact.set(null);
+    this.selectedLink.set(null);
 
   }
 
 
   // ---------------------------------------
-  // Save Contact
+  // Save
   // ---------------------------------------
 
-  saveContact(contact: ContactDetail): void {
+  saveLink(
+    link: ImportantLink
+  ): void {
 
-    const isEdit = contact.id > 0;
+    const isEdit =
+      link.id > 0;
 
-    const formData = new FormData();
+
+    const formData =
+      new FormData();
+
+
+    // ---------------------------------------
+    // ID
+    // ---------------------------------------
 
     if (isEdit) {
 
       formData.append(
+
         'Id',
-        contact.id.toString()
+
+        link.id.toString()
+
       );
 
+
       formData.append(
+
         'UpdatedBy',
-        this.loggedInId()
-      );
 
-    } else {
-
-      formData.append(
-        'CreatedBy',
         this.loggedInId()
+
       );
 
     }
 
+    else {
+
+      formData.append(
+
+        'CreatedBy',
+
+        this.loggedInId()
+
+      );
+
+    }
+
+
+    // ---------------------------------------
+    // Section Name
+    // ---------------------------------------
+
     formData.append(
+
       'SectionName',
+
       this.SectionName
+
     );
+
+
+    // ---------------------------------------
+    // Type
+    // ---------------------------------------
 
     formData.append(
-      'Icon',
-      contact.icon
+
+      'Type',
+
+      link.type
+
     );
+
+
+    // ---------------------------------------
+    // Name
+    // ---------------------------------------
 
     formData.append(
-      'Detail',
-      contact.detail
+
+      'Name',
+
+      link.name
+
     );
 
+
+    // ---------------------------------------
+    // Link
+    // ---------------------------------------
+
+    formData.append(
+
+      'Link',
+
+      link.link
+
+    );
+
+
+    console.log(
+      'Important Link FormData:',
+      formData
+    );
+
+
+    // ---------------------------------------
+    // API Request
+    // ---------------------------------------
 
     const request = isEdit
 
       ? this.apiService.PutRequest(
-        'ContactUs',
+
+        'HeaderAndFooter',
+
         formData,
+
         true
+
       )
 
       : this.apiService.PostRequest(
-        'ContactUs',
+
+        'HeaderAndFooter',
+
         formData,
+
         true
+
       );
+
 
     request.subscribe({
 
       next: (res: any) => {
 
+        console.log(
+          'Save Important Link Response:',
+          res
+        );
+
+
         if (res.isSucceeded) {
 
           this.toastr.success(
+
             res.message ||
-            `Contact detail ${isEdit ? 'updated' : 'created'
+
+            `Important link ${isEdit
+              ? 'updated'
+              : 'created'
             } successfully.`
+
           );
 
-          this.getContacts();
+
+          this.getLinks();
 
           this.closeModal();
 
-        } else {
+        }
+
+        else {
 
           this.toastr.warning(
+
             res.message ||
-            'Unable to save contact detail.'
+
+            'Unable to save important link.'
+
           );
 
         }
 
       },
 
+
       error: (err) => {
 
+        console.error(err);
+
+
         this.toastr.error(
+
           err?.error?.message ||
+
           err?.message ||
-          'Something went wrong while saving contact detail.'
+
+          'Something went wrong while saving important link.'
+
         );
 
       }
@@ -361,20 +500,20 @@ export class ContactUsDetailsComponent implements OnInit {
 
 
   // ---------------------------------------
-  // Delete Contact
+  // Delete
   // ---------------------------------------
 
-  deleteContact(
-    contact: ContactDetail
+  deleteLink(
+    link: ImportantLink
   ): void {
 
     Swal.fire({
 
       title:
-        'Delete Contact Detail?',
+        'Delete Important Link?',
 
       text:
-        `Are you sure you want to delete "${contact.detail}"?`,
+        `Are you sure you want to delete "${link.name}"?`,
 
       icon: 'warning',
 
@@ -396,12 +535,13 @@ export class ContactUsDetailsComponent implements OnInit {
 
     }).then(result => {
 
+
       if (!result.isConfirmed) {
 
         return;
 
       }
-      console.log(contact)
+
       const formData =
         new FormData();
 
@@ -410,7 +550,7 @@ export class ContactUsDetailsComponent implements OnInit {
 
         'Id',
 
-        contact.id.toString()
+        link.id.toString()
 
       );
 
@@ -432,7 +572,7 @@ export class ContactUsDetailsComponent implements OnInit {
       this.apiService
 
         .DeleteFromFormRequest(
-          'ContactUs',
+          'HeaderAndFooter',
           formData,
           true
         )
@@ -441,17 +581,24 @@ export class ContactUsDetailsComponent implements OnInit {
 
           next: (res: any) => {
 
+            console.log(
+              'Delete Important Link Response:',
+              res
+            );
+
+
             if (res.isSucceeded) {
 
               this.toastr.success(
 
                 res.message ||
 
-                'Contact detail deleted successfully.'
+                'Important link deleted successfully.'
 
               );
 
-              this.getContacts();
+
+              this.getLinks();
 
             }
 
@@ -461,7 +608,7 @@ export class ContactUsDetailsComponent implements OnInit {
 
                 res.message ||
 
-                'Unable to delete contact detail.'
+                'Unable to delete important link.'
 
               );
 
@@ -469,7 +616,11 @@ export class ContactUsDetailsComponent implements OnInit {
 
           },
 
+
           error: (err) => {
+
+            console.error(err);
+
 
             this.toastr.error(
 
@@ -477,7 +628,7 @@ export class ContactUsDetailsComponent implements OnInit {
 
               err?.message ||
 
-              'Unable to delete contact detail.'
+              'Unable to delete important link.'
 
             );
 

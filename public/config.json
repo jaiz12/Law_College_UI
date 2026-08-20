@@ -34,6 +34,16 @@
         }
       ]
     },
+
+    {
+      "name": "Header & Footer",
+      "UIrouterlink": "/header-and-footer",
+      "routerlink": "/header-and-footer",
+      "expanded": false,
+      "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='h-5 w-5'><path stroke-linecap='round' stroke-linejoin='round' d='M12 21a9 9 0 100-18 9 9 0 000 18z'/><path stroke-linecap='round' stroke-linejoin='round' d='M12 10v6'/><path stroke-linecap='round' stroke-linejoin='round' d='M12 7.5h.01'/></svg>",
+      "submenus": []
+    },
+
     {
       "name": "Home",
       "UIrouterlink": "/home",
@@ -592,15 +602,6 @@
       "expanded": false,
       "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M2.25 6.75A2.25 2.25 0 014.5 4.5h15A2.25 2.25 0 0121.75 6.75v10.5A2.25 2.25 0 0119.5 19.5h-15A2.25 2.25 0 012.25 17.25V6.75z'/> <circle cx='8' cy='9' r='1.5'/> <path stroke-linecap='round' stroke-linejoin='round' d='M21.75 16.5l-6-6-5.25 5.25-2.25-2.25-6 6'/> </svg>",
       "submenus": []
-    },
-
-    {
-      "name": "Contact Us",
-      "UIrouterlink": "/contact-us",
-      "routerlink": "/contact-us",
-      "expanded": false,
-      "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M21.75 8.25v7.5A2.25 2.25 0 0119.5 18H4.5a2.25 2.25 0 01-2.25-2.25v-7.5'/> <path stroke-linecap='round' stroke-linejoin='round' d='M2.25 6.75A2.25 2.25 0 014.5 4.5h15a2.25 2.25 0 012.25 2.25L12 13.5 2.25 6.75z'/> </svg>",
-      "submenus": []
     }
 
   ],
@@ -609,7 +610,7 @@
     "Dashboard",
     "User Management",
     "Home",
-    "Contact Us"
+    "Header & Footer"
   ],
 
   "editorConfig": {

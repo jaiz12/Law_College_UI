@@ -159,7 +159,7 @@ export class GoogleMapComponent implements OnInit {
 
       .GetRequest(
 
-        'ContactUs/0/' +
+        'HeaderAndFooter/0/' +
         this.SectionName
 
       )
@@ -420,7 +420,7 @@ export class GoogleMapComponent implements OnInit {
 
       ? this.apiService.PutRequest(
 
-        'ContactUs',
+        'HeaderAndFooter',
 
         formData,
 
@@ -430,7 +430,7 @@ export class GoogleMapComponent implements OnInit {
 
       : this.apiService.PostRequest(
 
-        'ContactUs',
+        'HeaderAndFooter',
 
         formData,
 
