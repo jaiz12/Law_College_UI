@@ -365,6 +365,10 @@ export class AlbumComponent
                 // File is only used when
                 // selecting a new image.
                 photo:
+                  item.photo ??
+                  item.Photo ??
+                  item.coverImage ??
+                  item.CoverImage ??
                   null
 
               })
@@ -611,6 +615,18 @@ export class AlbumComponent
 
         album.photo.name
 
+      );
+
+    }
+    // Existing image should be preserved
+    else if (
+      isEdit &&
+      album.coverImage
+    ) {
+
+      formData.append(
+        'CoverImage',
+        album.coverImage
       );
 
     }
