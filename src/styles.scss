@@ -6,6 +6,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@import 'ckeditor5/ckeditor5.css';
 
 ::ng-deep .ngx-pagination a {
   color: #374151 !important;

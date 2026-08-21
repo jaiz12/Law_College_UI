@@ -10,11 +10,11 @@ import {
 } from '@angular/forms';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ValidationService } from '../../../../services/validation-service.service';
 import { ConfigService } from '../../../../services/config.service';
+import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 
 @Component({
   selector: 'app-vision-and-mission',
@@ -26,16 +26,18 @@ import { ConfigService } from '../../../../services/config.service';
   styleUrl: './vision-and-mission.component.scss'
 })
 export class VisionAndMissionComponent implements OnInit {
- public Editor: any = ClassicEditor;
+ public Editor: any;
 
   pageForm: FormGroup;
 
   loggedInId = signal('')
   pageName: string = "Vision and Mission";
   editorConfig: any;
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
-   
-    this.editorConfig = this.config.get('editorConfig') || {};
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService, private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
 
     this.pageForm = this.fb.group({
       id: [''],

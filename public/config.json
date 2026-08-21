@@ -613,60 +613,76 @@
     "Header & Footer"
   ],
 
-  "editorConfig": {
-    "toolbar": [
-      "heading",
-      "|",
+  "toolbar": [
+    "heading",
+    "|",
+    "fontFamily",
+    "fontSize",
+    "fontColor",
+    "fontBackgroundColor",
+    "|",
+    "bold",
+    "italic",
+    "underline",
+    "strikethrough",
+    "|",
+    "alignment",
+    "|",
+    "bulletedList",
+    "numberedList",
+    "|",
+    "outdent",
+    "indent",
+    "|",
+    "link",
+    "insertTable",
+    "blockQuote",
+    "|",
+    "undo",
+    "redo"
+  ],
 
-      "fontFamily",
-      "fontSize",
-      "|",
-
-      "bold",
-      "italic",
-      "underline",
-      "link",
-      "|",
-
-      "bulletedList",
-      "numberedList",
-      "|",
-
-      "insertTable",
-      "blockQuote",
-      "|",
-
-      "undo",
-      "redo"
+  "fontFamily": {
+    "options": [
+      "default",
+      "Arial, Helvetica, sans-serif",
+      "Calibri, sans-serif",
+      "Courier New, Courier, monospace",
+      "Georgia, serif",
+      "Tahoma, Geneva, sans-serif",
+      "Times New Roman, Times, serif",
+      "Trebuchet MS, Helvetica, sans-serif",
+      "Verdana, Geneva, sans-serif"
     ],
+    "supportAllValues": true
+  },
 
-    "fontFamily": {
-      "options": [
-        "default",
-        "Arial, Helvetica, sans-serif",
-        "Georgia, serif",
-        "Times New Roman, Times, serif",
-        "Verdana, Geneva, sans-serif",
-        "Tahoma, Geneva, sans-serif",
-        "Trebuchet MS, Helvetica, sans-serif",
-        "Courier New, Courier, monospace"
-      ]
-    },
+  "fontSize": {
+    "options": [
+      8,
+      10,
+      12,
+      14,
+      "default",
+      18,
+      20,
+      24,
+      28,
+      32,
+      36
+    ],
+    "supportAllValues": true
+  },
 
-    "fontSize": {
-      "options": [
-        10,
-        12,
-        14,
-        "default",
-        16,
-        18,
-        20,
-        24,
-        28,
-        32
-      ]
-    }
+  "image": {
+    "toolbar": [
+      "imageTextAlternative",
+      "imageStyle:inline",
+      "imageStyle:block",
+      "imageStyle:side"
+    ]
   }
+
+
 
 }

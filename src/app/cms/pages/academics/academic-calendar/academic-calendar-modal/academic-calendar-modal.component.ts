@@ -24,12 +24,10 @@ import {
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 
-import ClassicEditor
-  from '@ckeditor/ckeditor5-build-classic';
-
 import {
   AcademicCalendar
 } from '../academic-calendar.component';
+import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
 
 @Component({
@@ -64,8 +62,7 @@ export class AcademicCalendarModalComponent
   // CKEDITOR
   // ===================================================
 
-  public Editor: any =
-    ClassicEditor;
+  public Editor: any;
 
 
   // ===================================================
@@ -122,9 +119,11 @@ export class AcademicCalendarModalComponent
     false;
 
   editorConfig: any;
-  constructor(private configService: ConfigService) {
-
-    this.editorConfig = this.configService.get('editorConfig') || {};
+  constructor(private configService: ConfigService, private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
   };
 
   // ===================================================

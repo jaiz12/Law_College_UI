@@ -4,9 +4,9 @@ import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from '@angu
 import { ValidationService } from '../../../../../services/validation-service.service';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { OurProgram } from '../our-program.component';
 import { ConfigService } from '../../../../../services/config.service';
+import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
 @Component({
   selector: 'app-our-program-modal',
@@ -52,7 +52,7 @@ export class OurProgramModalComponent implements OnChanges {
   close =
     new EventEmitter<void>();
 
-  public Editor: any = ClassicEditor;
+  public Editor: any;
 
   searchControl =
     new FormControl('', {
@@ -60,9 +60,11 @@ export class OurProgramModalComponent implements OnChanges {
     });
 
   editorConfig: any;
-  constructor(private configService: ConfigService) {
-
-    this.editorConfig = this.configService.get('editorConfig') || {};
+  constructor(private configService: ConfigService, private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
   };
 
   

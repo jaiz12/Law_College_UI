@@ -8,11 +8,11 @@ import {
 } from '@angular/forms';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ToastrService } from 'ngx-toastr';
 import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
+import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 
 @Component({
   selector: 'app-general-overview',
@@ -28,7 +28,7 @@ import { ValidationService } from '../../../../services/validation-service.servi
 export class GeneralOverviewComponent implements OnInit {
 
   // Use the editor type expected by the CKEditor Angular component
-  public Editor: any = ClassicEditor;
+  public Editor: any ;
 
   selectedFile: File | null = null;
 
@@ -41,7 +41,13 @@ export class GeneralOverviewComponent implements OnInit {
   pageName: string = "General Overview";
 
   editorConfig: any;
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
+    console.log(this.editorConfig)
     this.pageForm = this.fb.group({
       id: [''],
       pageName: [''],
@@ -56,7 +62,8 @@ export class GeneralOverviewComponent implements OnInit {
       metaTitle: [''],
       metaDescription: ['']
     });
-      this.editorConfig = this.config.get('editorConfig') || {};
+
+    
   }
 
 

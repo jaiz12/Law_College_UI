@@ -9,8 +9,8 @@ import {
 import { InfrastructureBody } from '../infrastructure.component';
 import { ConfigService } from '../../../../../services/config.service';
 import { ValidationService } from '../../../../../services/validation-service.service';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
 
 @Component({
@@ -35,11 +35,14 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 export class InfrastructureModalComponent implements OnChanges {
 
   editorConfig: any;
-  constructor(private config: ConfigService) {
-    this.editorConfig = this.config.get('editorConfig') || {};
+  constructor(private config: ConfigService, private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
   }
 
-  public Editor: any = ClassicEditor;
+  public Editor: any ;
 
   private fb = inject(FormBuilder);
 

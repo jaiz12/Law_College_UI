@@ -8,11 +8,11 @@ import {
 } from '@angular/forms';
 
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
+import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 
 @Component({
   selector: 'app-principals-message',
@@ -26,7 +26,7 @@ import { ValidationService } from '../../../../services/validation-service.servi
 })
 export class PrincipalsMessageComponent {
 
- public Editor: any = ClassicEditor;
+ public Editor: any;
 
   pageForm: FormGroup;
 
@@ -40,9 +40,11 @@ export class PrincipalsMessageComponent {
   photo: string = '';
   pageName: string = "Principals Message";
   editorConfig: any;
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService) {
-
-    this.editorConfig = this.config.get('editorConfig') || {};
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService,private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
     this.pageForm = this.fb.group({
 
       id: [''],

@@ -4,8 +4,8 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ConfigService } from '../../../../../services/config.service';
 import { ValidationService } from '../../../../../services/validation-service.service';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { StatutoryBodiesBody } from '../statutory-bodies.component';
+import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
 @Component({
   selector: 'app-statutory-bodies-modal',
@@ -20,11 +20,14 @@ import { StatutoryBodiesBody } from '../statutory-bodies.component';
 export class StatutoryBodiesModalComponent implements OnChanges {
 
   editorConfig: any;
-  constructor(private config: ConfigService) {
+  constructor(private config: ConfigService, private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
     this.editorConfig = this.config.get('editorConfig') || {};
   }
 
-  public Editor: any = ClassicEditor;
+  public Editor: any;
 
   private fb = inject(FormBuilder);
 
