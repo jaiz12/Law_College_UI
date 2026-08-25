@@ -41,10 +41,12 @@ export class LogoAndTitleComponent implements OnInit {
   LogoPath: string = '';
 
   pageName: string = 'Logo And Title';
-  private platformId = inject(PLATFORM_ID);
+
 
   editorConfig: any;
 
+
+  private platformId = inject(PLATFORM_ID);
   constructor(
     private fb: FormBuilder,
     private apiService: CmsApiService,
@@ -55,7 +57,7 @@ export class LogoAndTitleComponent implements OnInit {
     // CKEditor build
     this.Editor =
       this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
+      this.editorConfig = this.ckEditorConfig.getConfig();
 
     this.pageForm = this.fb.group({
 

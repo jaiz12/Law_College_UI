@@ -6,10 +6,10 @@ import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { AdministrativeStaffModalComponent } from './administrative-staff-modal/administrative-staff-modal.component';
 import { ViewStructureComponent } from '../../../shared/view-structure/view-structure.component';
+import { CmsApiService } from '../../../../services/cms-api-service.service';
 
 export interface OrganizationMember {
 
