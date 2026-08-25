@@ -1,5 +1,5 @@
 import {
-  CommonModule
+  CommonModule, isPlatformBrowser
 } from '@angular/common';
 
 import {
@@ -8,7 +8,7 @@ import {
   Input,
   OnInit,
   Output,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import {
@@ -144,6 +144,7 @@ export class MediaComponent
 
   loggedInId =
     signal('');
+  private platformId = inject(PLATFORM_ID);
 
   // ===================================================
   // INIT
@@ -165,40 +166,24 @@ export class MediaComponent
   // =====================================================
 
   private getLoggedInUser(): void {
-
-    const userString =
-      localStorage.getItem('user');
-
-
-    if (!userString) {
-
-      return;
-
-    }
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
 
-    try {
+      if (userString) {
 
-      const currentUser =
-        JSON.parse(userString);
+        const currentUser =
+          JSON.parse(userString);
 
 
-      this.loggedInId.set(
+        this.loggedInId.set(
 
-        currentUser?.id?.toString() ?? ''
+          currentUser?.id?.toString() ?? ''
 
-      );
+        );
 
-    }
-
-    catch (error) {
-
-      console.error(
-        'Unable to read logged in user.',
-        error
-      );
-
-      this.loggedInId.set('');
+      }
 
     }
 

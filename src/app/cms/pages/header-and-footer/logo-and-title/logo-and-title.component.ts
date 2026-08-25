@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
@@ -11,6 +11,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ToastrService } from 'ngx-toastr';
 import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 
 
 @Component({
@@ -18,12 +20,15 @@ import { ValidationService } from '../../../../services/validation-service.servi
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CKEditorModule
   ],
   templateUrl: './logo-and-title.component.html',
   styleUrl: './logo-and-title.component.scss'
 })
 export class LogoAndTitleComponent implements OnInit {
+  // Use the editor type expected by the CKEditor Angular component
+  public Editor: any;
 
   selectedFile: File | null = null;
 
@@ -36,14 +41,21 @@ export class LogoAndTitleComponent implements OnInit {
   LogoPath: string = '';
 
   pageName: string = 'Logo And Title';
+  private platformId = inject(PLATFORM_ID);
+
+  editorConfig: any;
 
   constructor(
     private fb: FormBuilder,
     private apiService: CmsApiService,
     private toastr: ToastrService,
     private config: ConfigService,
-    private validationService: ValidationService
-  ) {
+    private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService) {
+    // CKEditor build
+    this.Editor =
+      this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
 
     this.pageForm = this.fb.group({
 
@@ -73,19 +85,20 @@ export class LogoAndTitleComponent implements OnInit {
   ngOnInit(): void {
 
     this.get();
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
+      if (userString) {
 
-    if (userString) {
+        const currentUser =
+          JSON.parse(userString);
 
-      const currentUser =
-        JSON.parse(userString);
+        this.loggedInId.set(
+          currentUser.id
+        );
 
-      this.loggedInId.set(
-        currentUser.id
-      );
-
+      }
     }
 
   }

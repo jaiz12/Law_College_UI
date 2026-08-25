@@ -149,17 +149,10 @@
 
       </label>
 
-      <input type="text"
-             formControlName="name"
-             placeholder="Enter website title"
-             class="w-full rounded-xl border border-gray-300
-                    bg-white px-4 py-3
-                    outline-none transition
-                    focus:border-indigo-500
-                    focus:ring-2 focus:ring-indigo-100
-                    dark:border-slate-700
-                    dark:bg-slate-800
-                    dark:text-white">
+      <ckeditor [editor]="Editor"
+                [config]="editorConfig"
+                formControlName="name">
+      </ckeditor>
 
       @if(
       pageForm.get('name')?.invalid &&
@@ -185,6 +178,8 @@
       }
 
     </div>
+
+
 
 
     <!-- Buttons -->

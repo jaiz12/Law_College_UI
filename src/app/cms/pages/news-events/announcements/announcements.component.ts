@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -109,6 +109,7 @@ export class AnnouncementsComponent implements OnInit {
 
   imageURL = signal('');
 
+  private platformId = inject(PLATFORM_ID);
 
   // ===================================================
   // INIT
@@ -122,14 +123,12 @@ export class AnnouncementsComponent implements OnInit {
       this.config.get('IMAGE_API_URL') || ''
     );
 
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
 
-
-    if (userString) {
-
-      try {
+      if (userString) {
 
         const currentUser =
           JSON.parse(userString);
@@ -137,18 +136,7 @@ export class AnnouncementsComponent implements OnInit {
         this.loggedInId.set(
           currentUser.id ?? ''
         );
-
       }
-
-      catch (error) {
-
-        console.error(
-          'Unable to parse logged in user:',
-          error
-        );
-
-      }
-
     }
 
   }

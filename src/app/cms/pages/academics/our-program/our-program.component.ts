@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -105,6 +105,7 @@ export class OurProgramComponent implements OnInit {
     [5, 10, 20, 50];
 
 
+  private platformId = inject(PLATFORM_ID);
 
   // ===================================================
   // INIT
@@ -113,26 +114,17 @@ export class OurProgramComponent implements OnInit {
   ngOnInit(): void {
 
     this.getItems();
-
+    if (isPlatformBrowser(this.platformId)) {
     const userString =
       localStorage.getItem('user');
 
-    if (userString) {
+      if (userString) {
+          const currentUser =
+            JSON.parse(userString);
 
-      try {
-
-        const currentUser =
-          JSON.parse(userString);
-
-        this.loggedInId.set(
-          currentUser?.id ?? ''
-        );
-
-      }
-      catch {
-
-        this.loggedInId.set('');
-
+          this.loggedInId.set(
+            currentUser?.id ?? ''
+          );
       }
 
     }

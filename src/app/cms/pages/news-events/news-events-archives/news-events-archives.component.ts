@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -86,6 +86,7 @@ export class NewsEventsArchivesComponent implements OnInit {
   loggedInId = signal('');
 
   imageURL = signal('');
+  private platformId = inject(PLATFORM_ID);
 
   // ===================================================
   // INIT
@@ -99,29 +100,18 @@ export class NewsEventsArchivesComponent implements OnInit {
       this.config.get('IMAGE_API_URL') || ''
     );
 
+    if (isPlatformBrowser(this.platformId)) {
 
-    const userString =
-      localStorage.getItem('user');
+      const userString =
+        localStorage.getItem('user');
 
 
-    if (userString) {
-
-      try {
-
+      if (userString) {
         const currentUser =
           JSON.parse(userString);
 
         this.loggedInId.set(
           currentUser.id ?? ''
-        );
-
-      }
-
-      catch (error) {
-
-        console.error(
-          'Unable to parse logged in user:',
-          error
         );
 
       }
@@ -474,13 +464,13 @@ export class NewsEventsArchivesComponent implements OnInit {
 
         this.apiService.DeleteFromFormRequest(
 
-            'Announcements',
+          'Announcements',
 
-            formData,
+          formData,
 
-            true
+          true
 
-          )
+        )
 
           .subscribe({
 

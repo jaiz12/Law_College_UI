@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -94,7 +94,7 @@ export class StatisticsComponent implements OnInit {
 
   PageName = "Statistics";
 
-
+  private platformId = inject(PLATFORM_ID);
   // ===================================================
   // INIT
   // ===================================================
@@ -102,14 +102,11 @@ export class StatisticsComponent implements OnInit {
   ngOnInit(): void {
 
     this.getItems();
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
-
-    if (userString) {
-
-      try {
-
+      if (userString) {
         const currentUser =
           JSON.parse(userString);
 
@@ -118,12 +115,6 @@ export class StatisticsComponent implements OnInit {
         );
 
       }
-      catch {
-
-        this.loggedInId.set('');
-
-      }
-
     }
 
   }

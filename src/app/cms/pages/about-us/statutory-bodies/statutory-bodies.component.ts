@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, computed, signal, inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ToastrService } from 'ngx-toastr';
@@ -72,15 +72,18 @@ export class StatutoryBodiesComponent implements OnInit {
 
   loggedInId = signal('');
 
+  private platformId = inject(PLATFORM_ID);
+
   ngOnInit() {
     this.getStatutoryBodies();
     this.imageURL.set(this.config.get('IMAGE_API_URL'));
+    if (isPlatformBrowser(this.platformId)) {
+      const userString = localStorage.getItem('user');
 
-    const userString = localStorage.getItem('user');
-
-    if (userString) {
-      const currentUser = JSON.parse(userString);
-      this.loggedInId.set(currentUser.id);
+      if (userString) {
+        const currentUser = JSON.parse(userString);
+        this.loggedInId.set(currentUser.id);
+      }
     }
   }
 

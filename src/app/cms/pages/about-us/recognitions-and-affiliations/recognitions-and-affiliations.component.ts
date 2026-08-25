@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -93,6 +93,7 @@ export class RecognitionsAndAffiliationsComponent
   selectedRecognition =
     signal<RecognitionAffiliation | null>(null);
 
+  private platformId = inject(PLATFORM_ID);
 
   ngOnInit(): void {
 
@@ -102,17 +103,19 @@ export class RecognitionsAndAffiliationsComponent
 
     this.getRecognitions();
 
-    const user =
-      localStorage.getItem('user');
+    if (isPlatformBrowser(this.platformId)) {
+      const user =
+        localStorage.getItem('user');
 
-    if (user) {
+      if (user) {
 
-      this.loggedInId.set(
+        this.loggedInId.set(
 
-        JSON.parse(user).id
+          JSON.parse(user).id
 
-      );
+        );
 
+      }
     }
 
   }

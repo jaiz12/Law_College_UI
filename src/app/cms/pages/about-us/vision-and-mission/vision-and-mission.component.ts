@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
     AbstractControl,
   FormBuilder,
@@ -33,6 +33,7 @@ export class VisionAndMissionComponent implements OnInit {
   loggedInId = signal('')
   pageName: string = "Vision and Mission";
   editorConfig: any;
+  private platformId = inject(PLATFORM_ID);
   constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService, private ckEditorConfig: CKEditorConfigService) {
     // CKEditor build
     this.Editor =
@@ -58,11 +59,13 @@ export class VisionAndMissionComponent implements OnInit {
 
   ngOnInit() {
     this.get();
-    const userString = localStorage.getItem('user');
+    if (isPlatformBrowser(this.platformId)) {
+      const userString = localStorage.getItem('user');
 
-    if (userString) {
-      const currentUser = JSON.parse(userString);
-      this.loggedInId.set(currentUser.id);
+      if (userString) {
+        const currentUser = JSON.parse(userString);
+        this.loggedInId.set(currentUser.id);
+      }
     }
   }
 

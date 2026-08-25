@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -80,6 +80,7 @@ export class LibraryComponent
   selectedLibrary =
     signal<Library | null>(null);
 
+  private platformId = inject(PLATFORM_ID);
 
   // -------------------------------------------------
   // Init
@@ -89,18 +90,19 @@ export class LibraryComponent
 
     this.getLibraries();
 
+    if (isPlatformBrowser(this.platformId)) {
+      const user =
+        localStorage.getItem('user');
 
-    const user =
-      localStorage.getItem('user');
+      if (user) {
 
-    if (user) {
+        this.loggedInId.set(
 
-      this.loggedInId.set(
+          JSON.parse(user).id
 
-        JSON.parse(user).id
+        );
 
-      );
-
+      }
     }
 
   }

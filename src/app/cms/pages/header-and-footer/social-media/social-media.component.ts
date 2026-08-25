@@ -1,5 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
@@ -62,7 +70,7 @@ export class SocialMediaComponent implements OnInit {
 
   loggedInId = signal('');
 
-
+  private platformId = inject(PLATFORM_ID);
   // ---------------------------------------
   // On Init
   // ---------------------------------------
@@ -72,20 +80,21 @@ export class SocialMediaComponent implements OnInit {
     this.getSocialMedia();
 
 
-    const userString =
-      localStorage.getItem('user');
+    if (isPlatformBrowser(this.platformId)) {
+
+      const userString =
+        localStorage.getItem('user');
 
 
-    if (userString) {
+      if (userString) {
+          const currentUser =
+            JSON.parse(userString);
 
-      const currentUser =
-        JSON.parse(userString);
+          this.loggedInId.set(
+            currentUser?.id?.toString() ?? ''
+          );
 
-
-      this.loggedInId.set(
-        currentUser.id
-      );
-
+      }
     }
 
   }

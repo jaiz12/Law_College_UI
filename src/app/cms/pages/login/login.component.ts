@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
   Validators,
   ReactiveFormsModule
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../services/cms-api-service.service';
 import { Router, RouterModule } from '@angular/router';
@@ -26,33 +26,38 @@ export class LoginComponent implements OnInit {
   showPassword = false;
 
   submitted = false;
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private fb: FormBuilder, private apiService: CmsApiService, private toastr: ToastrService, private router: Router) { }
 
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const rememberEmail = localStorage.getItem('rememberEmail') || ''
+      const rememberMe = localStorage.getItem('rememberMe')
 
-    this.loginForm = this.fb.group({
-      email: [
-        localStorage.getItem('rememberEmail') || '',
-        [
-          Validators.required,
-          Validators.email
+      this.loginForm = this.fb.group({
+        email: [
+          rememberEmail,
+          [
+            Validators.required,
+            Validators.email
+          ]
+        ],
+        password: [
+          '',
+          [
+            Validators.required,
+            Validators.pattern(
+              /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+            )
+          ]
+        ],
+        remember: [
+          rememberMe === 'true'
         ]
-      ],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.pattern(
-            /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-          )
-        ]
-      ],
-      remember: [
-        localStorage.getItem('rememberMe') === 'true'
-      ]
-    });
+      });
+    }
 
   }
 
@@ -67,15 +72,16 @@ export class LoginComponent implements OnInit {
     const { email, password, remember } = this.loginForm.value;
 
     if (remember) {
-
-      localStorage.setItem('rememberEmail', email);
-      localStorage.setItem('rememberMe', 'true');
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('rememberEmail', email);
+        localStorage.setItem('rememberMe', 'true');
+      }
 
     } else {
-
-      localStorage.removeItem('rememberEmail');
-      localStorage.removeItem('rememberMe');
-
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.removeItem('rememberEmail');
+        localStorage.removeItem('rememberMe');
+      }
     }
 
     const request = {
@@ -86,11 +92,12 @@ export class LoginComponent implements OnInit {
     this.apiService.login(request).subscribe({
 
       next: (response) => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('token', response.token);
 
-        localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
 
-        localStorage.setItem('user', JSON.stringify(response.user));
-
+        }
         this.router.navigate(['/dashboard']);
         this.toastr.success(
           response.message,

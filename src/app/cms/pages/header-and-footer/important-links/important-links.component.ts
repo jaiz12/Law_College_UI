@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, computed, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
@@ -92,7 +92,7 @@ export class ImportantLinksComponent implements OnInit {
 
   loggedInId = signal('');
 
-
+  private platformId = inject(PLATFORM_ID);
   // ---------------------------------------
   // On Init
   // ---------------------------------------
@@ -101,21 +101,22 @@ export class ImportantLinksComponent implements OnInit {
 
     this.getLinks();
 
-
-    const userString =
-      localStorage.getItem('user');
-
-
-    if (userString) {
-
-      const currentUser =
-        JSON.parse(userString);
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
 
-      this.loggedInId.set(
-        currentUser.id
-      );
+      if (userString) {
 
+        const currentUser =
+          JSON.parse(userString);
+
+
+        this.loggedInId.set(
+          currentUser.id
+        );
+
+      }
     }
 
   }

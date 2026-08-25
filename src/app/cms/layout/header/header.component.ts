@@ -2,10 +2,11 @@ import {
   Component,
   HostListener,
   OnInit,
+  signal,
   inject,
-  signal
+  PLATFORM_ID
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LayoutService } from '../services/layout.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -36,6 +37,7 @@ export class HeaderComponent implements OnInit {
   isFullscreen = signal(false);
 
   search = '';
+  private platformId = inject(PLATFORM_ID);
 
   user = signal<UserInfo>({
     userName: '',
@@ -48,11 +50,12 @@ export class HeaderComponent implements OnInit {
   }
 
   loadUser(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const user = localStorage.getItem('user');
 
-    const user = localStorage.getItem('user');
-
-    if (user) {
-      this.user.set(JSON.parse(user));
+      if (user) {
+        this.user.set(JSON.parse(user));
+      }
     }
 
   }
@@ -114,11 +117,11 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    this.router.navigate(['/']);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      this.router.navigate(['/']);
+    }
 
   }
 

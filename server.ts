@@ -3,6 +3,18 @@ import { CommonEngine } from '@angular/ssr';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+// --- Polyfill localStorage for SSR (Node has no browser storage APIs) ---
+if (typeof (globalThis as any).localStorage === 'undefined') {
+  (globalThis as any).localStorage = {
+    getItem: (_key: string) => null,
+    setItem: (_key: string, _value: string) => { },
+    removeItem: (_key: string) => { },
+    clear: () => { },
+    key: (_index: number) => null,
+    length: 0,
+  };
+}
+// --- End polyfill ---
 import bootstrap from './src/main.server';
 
 // The Express app is exported so that it can be used by serverless Functions.

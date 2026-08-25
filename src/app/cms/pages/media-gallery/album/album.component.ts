@@ -1,12 +1,12 @@
 import {
-  CommonModule
+  CommonModule, isPlatformBrowser
 } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import {
@@ -149,6 +149,8 @@ export class AlbumComponent
 
   imageURL = signal('');
 
+  private platformId = inject(PLATFORM_ID);
+
   // =====================================================
   // INIT
   // =====================================================
@@ -169,40 +171,21 @@ export class AlbumComponent
   // =====================================================
 
   private getLoggedInUser(): void {
-
+    if (isPlatformBrowser(this.platformId)) {
     const userString =
       localStorage.getItem('user');
+      if (userString) {
+
+        const currentUser =
+          JSON.parse(userString);
 
 
-    if (!userString) {
+        this.loggedInId.set(
 
-      return;
+          currentUser?.id?.toString() ?? ''
 
-    }
-
-
-    try {
-
-      const currentUser =
-        JSON.parse(userString);
-
-
-      this.loggedInId.set(
-
-        currentUser?.id?.toString() ?? ''
-
-      );
-
-    }
-
-    catch (error) {
-
-      console.error(
-        'Unable to read logged in user.',
-        error
-      );
-
-      this.loggedInId.set('');
+        );
+      }
 
     }
 

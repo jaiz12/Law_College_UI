@@ -1,10 +1,10 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 import {
   Component,
   OnInit,
   computed,
-  signal
+  signal, inject, PLATFORM_ID
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -119,6 +119,7 @@ export class WhyChooseUsComponent
 
   PageName = "Why Choose Us";
 
+  private platformId = inject(PLATFORM_ID);
 
   // ===================================================
   // INIT
@@ -127,13 +128,11 @@ export class WhyChooseUsComponent
   ngOnInit(): void {
 
     this.getItems();
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
-
-    if (userString) {
-
-      try {
+      if (userString) {
 
         const currentUser =
           JSON.parse(userString);
@@ -141,11 +140,6 @@ export class WhyChooseUsComponent
         this.loggedInId.set(
           currentUser?.id ?? ''
         );
-
-      }
-      catch {
-
-        this.loggedInId.set('');
 
       }
 

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, computed, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import Swal from 'sweetalert2';
@@ -76,7 +76,7 @@ export class ContactUsDetailsComponent implements OnInit {
   SectionName = 'Contact Details';
 
   loggedInId = signal('');
-
+  private platformId = inject(PLATFORM_ID);
 
   // ---------------------------------------
   // On Init
@@ -85,19 +85,20 @@ export class ContactUsDetailsComponent implements OnInit {
   ngOnInit(): void {
 
     this.getContacts();
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
+      if (userString) {
 
-    if (userString) {
+        const currentUser =
+          JSON.parse(userString);
 
-      const currentUser =
-        JSON.parse(userString);
+        this.loggedInId.set(
+          currentUser.id
+        );
 
-      this.loggedInId.set(
-        currentUser.id
-      );
-
+      }
     }
 
   }

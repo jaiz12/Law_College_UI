@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -119,7 +119,7 @@ export class GoogleMapComponent implements OnInit {
 
   loggedInId = '';
 
-
+  private platformId = inject(PLATFORM_ID);
 
 
 
@@ -128,19 +128,20 @@ export class GoogleMapComponent implements OnInit {
   // ---------------------------------------
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const userString =
+        localStorage.getItem('user');
 
-    const userString =
-      localStorage.getItem('user');
 
+      if (userString) {
 
-    if (userString) {
+        const currentUser =
+          JSON.parse(userString);
 
-      const currentUser =
-        JSON.parse(userString);
+        this.loggedInId =
+          currentUser.id;
 
-      this.loggedInId =
-        currentUser.id;
-
+      }
     }
 
 

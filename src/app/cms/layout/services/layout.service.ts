@@ -1,9 +1,19 @@
-import { Injectable, signal, effect } from '@angular/core';
+import {
+  Injectable,
+  signal,
+  effect,
+  PLATFORM_ID,
+  inject
+} from '@angular/core';
+
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LayoutService {
+
+  private platformId = inject(PLATFORM_ID);
 
   /**
    * Desktop Sidebar
@@ -22,39 +32,54 @@ export class LayoutService {
 
   constructor() {
 
-    // Restore saved theme
-    const savedTheme = localStorage.getItem('theme');
+    // Browser-only code
+    if (isPlatformBrowser(this.platformId)) {
 
-    if (savedTheme) {
-      this.darkMode.set(savedTheme === 'dark');
-    } else {
-      // Optional: use system preference
-      this.darkMode.set(
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-      );
+      // Restore saved theme
+      const savedTheme = localStorage.getItem('theme');
+
+      if (savedTheme) {
+
+        this.darkMode.set(savedTheme === 'dark');
+
+      } else {
+
+        // Use system preference
+        this.darkMode.set(
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        );
+
+      }
+
+      // Apply theme whenever it changes
+      effect(() => {
+
+        const isDark = this.darkMode();
+
+        // Apply dark class
+        document.documentElement.classList.toggle(
+          'dark',
+          isDark
+        );
+
+        // Save theme
+        localStorage.setItem(
+          'theme',
+          isDark ? 'dark' : 'light'
+        );
+
+      });
+
     }
-
-    // Apply theme whenever it changes
-    effect(() => {
-
-      const isDark = this.darkMode();
-
-      document.documentElement.classList.toggle('dark', isDark);
-
-      localStorage.setItem(
-        'theme',
-        isDark ? 'dark' : 'light'
-      );
-
-    });
-
   }
 
   /**
    * Toggle Desktop Sidebar
    */
   toggleSidebar(): void {
-    this.sidebarCollapsed.update(value => !value);
+    this.sidebarCollapsed.update(
+      value => !value
+    );
   }
 
   /**
@@ -75,7 +100,9 @@ export class LayoutService {
    * Toggle Mobile Sidebar
    */
   toggleMobileSidebar(): void {
-    this.mobileSidebarOpen.update(value => !value);
+    this.mobileSidebarOpen.update(
+      value => !value
+    );
   }
 
   /**
@@ -96,7 +123,9 @@ export class LayoutService {
    * Toggle Dark Mode
    */
   toggleTheme(): void {
-    this.darkMode.update(value => !value);
+    this.darkMode.update(
+      value => !value
+    );
   }
 
   /**
