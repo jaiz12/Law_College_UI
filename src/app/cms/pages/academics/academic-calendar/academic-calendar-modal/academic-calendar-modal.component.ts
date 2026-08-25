@@ -131,9 +131,7 @@ export class AcademicCalendarModalComponent
   // ===================================================
 
   readonly allowedExtensions = [
-    '.pdf',
-    '.doc',
-    '.docx'
+    '.pdf'
   ];
 
 

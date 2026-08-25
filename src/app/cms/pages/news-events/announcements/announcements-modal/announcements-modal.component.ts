@@ -80,9 +80,7 @@ export class AnnouncementsModalComponent implements OnChanges {
   // ===================================================
 
   readonly allowedExtensions = [
-    '.pdf',
-    '.doc',
-    '.docx'
+    '.pdf'
   ];
 
 
