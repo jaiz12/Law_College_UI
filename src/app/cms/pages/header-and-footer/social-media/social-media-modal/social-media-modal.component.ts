@@ -349,7 +349,7 @@ export class SocialMediaModalComponent
   // ---------------------------------------
   // Submit
   // ---------------------------------------
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
@@ -359,6 +359,8 @@ export class SocialMediaModalComponent
       return;
 
     }
+
+    this.isSubmitting = true;
 
 
     const value =

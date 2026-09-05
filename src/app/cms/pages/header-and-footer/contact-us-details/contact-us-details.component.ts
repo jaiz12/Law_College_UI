@@ -154,7 +154,7 @@ export class ContactUsDetailsComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-
+          this.page.set(1);
 
           const data = Array.isArray(res)
             ? res
@@ -402,7 +402,7 @@ export class ContactUsDetailsComponent implements OnInit {
         return;
 
       }
-      console.log(contact)
+
       const formData =
         new FormData();
 

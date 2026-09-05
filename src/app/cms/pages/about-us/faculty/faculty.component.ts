@@ -207,7 +207,7 @@ export class FacultyComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-          console.log(res)
+          this.page.set(1);
 
           const data = Array.isArray(res)
 

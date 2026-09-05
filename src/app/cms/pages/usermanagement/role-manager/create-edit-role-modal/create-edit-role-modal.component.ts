@@ -73,6 +73,7 @@ export class CreateEditRoleModalComponent implements OnChanges {
 
   }
 
+  isSubmitting = false;
   submit() {
 
     if (this.roleForm.invalid) {
@@ -81,6 +82,9 @@ export class CreateEditRoleModalComponent implements OnChanges {
       return;
 
     }
+
+
+    this.isSubmitting = true;
 
     this.save.emit({
 

@@ -522,7 +522,7 @@ export class ImportantLinkModalComponent
   // ===========================================
   // Submit
   // ===========================================
-
+  isSubmitting = false;
   submit(): void {
 
     if (
@@ -534,6 +534,8 @@ export class ImportantLinkModalComponent
       return;
 
     }
+
+    this.isSubmitting = true;
 
 
     const value =

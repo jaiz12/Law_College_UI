@@ -1,7 +1,7 @@
 import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
-    AbstractControl,
+  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
@@ -15,29 +15,40 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ValidationService } from '../../../../services/validation-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vision-and-mission',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     ReactiveFormsModule,
-    CKEditorModule],
+    CKEditorModule
+  ],
   templateUrl: './vision-and-mission.component.html',
   styleUrl: './vision-and-mission.component.scss'
 })
 export class VisionAndMissionComponent implements OnInit {
- public Editor: any;
+  public Editor: any;
 
   pageForm: FormGroup;
 
-  loggedInId = signal('')
+  loggedInId = signal('');
   pageName: string = "Vision and Mission";
   editorConfig: any;
   private platformId = inject(PLATFORM_ID);
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService, private ckEditorConfig: CKEditorConfigService) {
+  isSubmitting = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private apiservice: CmsApiService,
+    private toastr: ToastrService,
+    private config: ConfigService,
+    private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService
+  ) {
     // CKEditor build
-    this.Editor =
-      this.ckEditorConfig.Editor;
+    this.Editor = this.ckEditorConfig.Editor;
     this.editorConfig = this.ckEditorConfig.getConfig();
 
     this.pageForm = this.fb.group({
@@ -53,9 +64,7 @@ export class VisionAndMissionComponent implements OnInit {
       metaTitle: [''],
       metaDescription: [''],
     });
-
   }
-
 
   ngOnInit() {
     this.get();
@@ -72,7 +81,6 @@ export class VisionAndMissionComponent implements OnInit {
   get(): void {
     this.apiservice.GetRequest('AboutUs/0/' + this.pageName).subscribe({
       next: (res: any) => {
-
         const data = Array.isArray(res) ? res[0] : res;
 
         if (!data) {
@@ -86,10 +94,7 @@ export class VisionAndMissionComponent implements OnInit {
           metaTitle: data.metaTitle ?? '',
           metaDescription: data.metaDescription ?? ''
         });
-
-        
       },
-
       error: (err) => {
         this.toastr.error(
           err?.error?.message ||
@@ -99,7 +104,6 @@ export class VisionAndMissionComponent implements OnInit {
         );
       }
     });
-
   }
 
   save(): void {
@@ -112,13 +116,10 @@ export class VisionAndMissionComponent implements OnInit {
     // CKEditor validation
     if (!plainText) {
       this.pageForm.get('description')?.setErrors({ required: true });
-    }
-    else {
+    } else {
       this.pageForm.get('description')?.setErrors(null);
     }
-    
 
-    // Banner validation only for CREATE
     const id = this.pageForm.get('id')?.value;
 
     // Stop if invalid
@@ -127,106 +128,74 @@ export class VisionAndMissionComponent implements OnInit {
       return;
     }
 
+    this.isSubmitting = true;
+
     const formData = new FormData();
-
     formData.append('PageName', this.pageName);
-
     formData.append('Description', description);
-
     formData.append('MetaTitle', this.pageForm.get('metaTitle')?.value ?? '');
-
     formData.append('MetaDescription', this.pageForm.get('metaDescription')?.value ?? '');
 
     if (id) {
       formData.append('Id', id.toString());
-
       formData.append('UpdatedBy', this.loggedInId());
-
       this.update(id, formData);
-
-    }
-    else {
+    } else {
       formData.append('CreatedBy', this.loggedInId());
-
       this.create(formData);
-
     }
-
   }
 
   private create(formData: FormData): void {
-    this.apiservice.PostRequest('AboutUs', formData, true).subscribe({
-      next: (res) => {
-        if (res.isSucceeded) {
+    this.apiservice.PostRequest('AboutUs', formData, true)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            // Clear form
+            this.pageForm.reset({
+              id: '',
+              pageName: '',
+              description: '',
+              metaTitle: '',
+              metaDescription: ''
+            });
 
-          this.toastr.success(res.message);
-          // Clear form
-          this.pageForm.reset({
-            id: '',
-            pageName: '',
-            description: '',
-            metaTitle: '',
-            metaDescription: ''
-          });
-
-          this.get();
-
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
+          );
         }
-        else {
-
-          this.toastr.warning(res.message);
-
-        }
-
-      },
-
-      error: (err) => {
-
-        this.toastr.error(
-          err?.error?.message ||
-          err?.message ||
-          'Something went wrong.'
-        );
-
-      }
-
-    });
+      });
   }
 
   private update(id: number, formData: FormData): void {
-
-    this.apiservice.PutRequest('AboutUs', formData, true).subscribe({
-
-      next: (res: any) => {
-
-        if (res.isSucceeded) {
-
-          this.toastr.success(res.message);
-
-          this.get();
-
-        }
-
-        else {
-
-          this.toastr.warning(
-            res.message
-
+    this.apiservice.PutRequest('AboutUs', formData, true)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: (res: any) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
           );
         }
-      },
-
-      error: (err) => {
-
-        this.toastr.error(
-          err?.error?.message ||
-          err?.message ||
-          'Something went wrong.'
-        );
-
-      }
-
-    });
-
+      });
   }
 }

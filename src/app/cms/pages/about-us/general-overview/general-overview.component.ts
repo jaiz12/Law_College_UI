@@ -13,6 +13,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-general-overview',
@@ -27,32 +28,32 @@ import { CKEditorConfigService } from '../../../../services/ckeditor-config.serv
 })
 export class GeneralOverviewComponent implements OnInit {
 
-  // Use the editor type expected by the CKEditor Angular component
-  public Editor: any ;
+  public Editor: any;
 
   selectedFile: File | null = null;
-
   imagePreview: string | null = null;
-
   pageForm: FormGroup;
-
-  loggedInId = signal('')
-  bannerImage: string = '';
+  loggedInId = signal('');
   pageName: string = "General Overview";
-
   editorConfig: any;
+  isSubmitting = false;
+
   private platformId = inject(PLATFORM_ID);
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService,
-    private ckEditorConfig: CKEditorConfigService) {
-    // CKEditor build
-    this.Editor =
-      this.ckEditorConfig.Editor;
+
+  constructor(
+    private fb: FormBuilder,
+    private apiservice: CmsApiService,
+    private toastr: ToastrService,
+    private config: ConfigService,
+    private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService
+  ) {
+    this.Editor = this.ckEditorConfig.Editor;
     this.editorConfig = this.ckEditorConfig.getConfig();
-    console.log(this.editorConfig)
+
     this.pageForm = this.fb.group({
       id: [''],
       pageName: [''],
-      banner: [''],
       description: ['', {
         validators: [
           Validators.required,
@@ -63,10 +64,7 @@ export class GeneralOverviewComponent implements OnInit {
       metaTitle: [''],
       metaDescription: ['']
     });
-
-    
   }
-
 
   ngOnInit() {
     this.get();
@@ -80,234 +78,121 @@ export class GeneralOverviewComponent implements OnInit {
     }
   }
 
-  onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-
-    if (!input.files?.length) {
-      return;
-    }
-
-    this.selectedFile =input.files[0];
-
-    // Clear banner validation error
-    this.pageForm.get('banner')?.setErrors(null);
-
-
-    const reader =new FileReader();
-
-    reader.onload = () => {
-      this.imagePreview =reader.result as string;
-    };
-
-    reader.readAsDataURL(this.selectedFile);
-
-  }
-
-  removeImage(): void {
-
-    this.selectedFile = null;
-
-    this.imagePreview = null;
-
-    this.bannerImage = '';
-
-    // Make banner invalid only when creating
-    const id = this.pageForm.get('id')?.value;
-
-    if (!id) {
-      this.pageForm.get('banner')?.setErrors({
-          required: true
-        });
-    }
-
-  }
-
   get(): void {
     this.apiservice.GetRequest('AboutUs/0/' + this.pageName).subscribe({
-       next: (res: any) => {
-
-          const data =Array.isArray(res) ? res[0] : res;
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res[0] : res;
 
         if (!data) {
-            return;
-          }
-
-          this.pageForm.patchValue({
-            id: data.id ?? '',
-            pageName: data.pageName ?? '',
-            banner: data.bannerImage ?? '',
-            description: data.description ?? '',
-            metaTitle: data.metaTitle ?? '',
-            metaDescription: data.metaDescription ?? ''
-          });
-
-          // Keep existing database image path
-          this.bannerImage = data.bannerImage ?? '';
-
-          if (this.bannerImage) {
-            this.imagePreview = this.config.get('IMAGE_API_URL') + this.bannerImage;
-          }
-        },
-
-        error: (err) => {
-          this.toastr.error(
-            err?.error?.message ||
-            err?.message ||
-            'Something went wrong. Please try again.',
-            'Error'
-          );
+          return;
         }
-      });
 
+        this.pageForm.patchValue({
+          id: data.id ?? '',
+          pageName: data.pageName ?? '',
+          description: data.description ?? '',
+          metaTitle: data.metaTitle ?? '',
+          metaDescription: data.metaDescription ?? ''
+        });
+      },
+      error: (err) => {
+        this.toastr.error(
+          err?.error?.message ||
+          err?.message ||
+          'Something went wrong. Please try again.',
+          'Error'
+        );
+      }
+    });
   }
 
   save(): void {
-    // Get CKEditor HTML
     const description = this.pageForm.get('description')?.value ?? '';
+    const plainText = description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
 
-    // Remove HTML tags and whitespace
-    const plainText =description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
-
-    // CKEditor validation
     if (!plainText) {
       this.pageForm.get('description')?.setErrors({ required: true });
-    }
-    else {
+    } else {
       this.pageForm.get('description')?.setErrors(null);
     }
 
-    // Banner validation only for CREATE
     const id = this.pageForm.get('id')?.value;
 
-    if (!id && !this.selectedFile) {
-      this.pageForm.get('banner')?.setErrors({ required: true });
-    }
-    else {
-      this.pageForm.get('banner')?.setErrors(null);
-    }
-
-    // Stop if invalid
     if (this.pageForm.invalid) {
       this.pageForm.markAllAsTouched();
       return;
     }
 
+    this.isSubmitting = true;
+
     const formData = new FormData();
-
-    // New image
-    if (this.selectedFile) {
-      formData.append('Banner',this.selectedFile,this.selectedFile.name);
-    }
-
-
     formData.append('PageName', this.pageName);
-    formData.append('Description',description);
+    formData.append('Description', description);
+    formData.append('MetaTitle', this.pageForm.get('metaTitle')?.value ?? '');
+    formData.append('MetaDescription', this.pageForm.get('metaDescription')?.value ?? '');
 
-    formData.append('MetaTitle',this.pageForm.get('metaTitle')?.value ?? '');
-
-    formData.append('MetaDescription',this.pageForm.get('metaDescription')?.value ?? '');
-
-    if (id) {formData.append('Id', id.toString());
-
-      formData.append('UpdatedBy',this.loggedInId());
-
+    if (id) {
+      formData.append('Id', id.toString());
+      formData.append('UpdatedBy', this.loggedInId());
       this.update(id, formData);
-
-    }
-    else {
-      formData.append('CreatedBy',this.loggedInId());
-
+    } else {
+      formData.append('CreatedBy', this.loggedInId());
       this.create(formData);
-
     }
-
   }
 
   private create(formData: FormData): void {
-    this.apiservice.PostRequest('AboutUs', formData, true).subscribe({
+    this.apiservice.PostRequest('AboutUs', formData, true)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
         next: (res) => {
-          if (res.isSucceeded) {            
-
+          if (res.isSucceeded) {
             this.toastr.success(res.message);
-            // Clear form
             this.pageForm.reset({
               id: '',
               pageName: 'General Overview',
-              banner: '',
               description: '',
               metaTitle: '',
               metaDescription: ''
             });
 
-            // Clear selected image
             this.selectedFile = null;
-
-            // Clear image preview
             this.imagePreview = null;
-
-            // Clear stored image path
-            this.bannerImage ='';
-
             this.get();
-
-          }
-          else {
-
+          } else {
             this.toastr.warning(res.message);
-
           }
-
         },
-
         error: (err) => {
-
           this.toastr.error(
             err?.error?.message ||
             err?.message ||
             'Something went wrong.'
           );
-
         }
-
       });
   }
 
-  private update(id: number,formData: FormData): void {
-
-    this.apiservice.PutRequest('AboutUs',formData,true).subscribe({
-
-      next: (res: any) => {
-
+  private update(id: number, formData: FormData): void {
+    this.apiservice.PutRequest('AboutUs', formData, true)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: (res: any) => {
           if (res.isSucceeded) {
-
             this.toastr.success(res.message);
-
-            this.selectedFile =null;
-
+            this.selectedFile = null;
             this.get();
-
-          }
-
-          else {
-
-            this.toastr.warning(
-              res.message
-
-            );
+          } else {
+            this.toastr.warning(res.message);
           }
         },
-
         error: (err) => {
-
           this.toastr.error(
             err?.error?.message ||
             err?.message ||
             'Something went wrong.'
           );
-
         }
-
       });
-
   }
 }

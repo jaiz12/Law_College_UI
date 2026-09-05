@@ -180,10 +180,7 @@ export class ImportantLinksComponent implements OnInit {
 
         next: (res: any) => {
 
-          console.log(
-            'Important Links API Response:',
-            res
-          );
+          this.page.set(1);
 
 
           const data = Array.isArray(res)

@@ -58,7 +58,8 @@
 <!-- ===================================================== -->
 
 <form [formGroup]="pageForm"
-      (ngSubmit)="submit()">
+      (ngSubmit)="submit()"
+            (keydown.enter)="$event.preventDefault()">
 
 
   <!-- =================================================== -->
@@ -123,7 +124,7 @@
       ) {
 
       <p class="mt-1.5 text-xs text-red-500">
-        Album name cannot contain only spaces.
+        Album name cannot contain leading, trailing, or only whitespace.
       </p>
 
       }
@@ -173,7 +174,7 @@
       ) {
 
       <p class="mt-1.5 text-xs text-red-500">
-        Description cannot contain only spaces.
+        Description cannot contain leading, trailing, or only whitespace.
       </p>
 
       }
@@ -302,7 +303,7 @@
                      text-gray-400
                      dark:text-gray-500">
 
-            JPG, PNG, WEBP
+            JPG, JPEG, PNG, WEBP
 
           </p>
 

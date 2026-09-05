@@ -48,6 +48,15 @@ export const routes: Routes = [
         import('./cms/pages/usermanagement/role-manager/role-manager.component')
           .then(m => m.RoleManagerComponent)
       },
+
+      //banner
+      {
+        path: 'banner',
+        loadComponent: () =>
+          import('./cms/pages/banner/banner.component')
+            .then(m => m.BannerComponent)
+      },
+
       // home
       {
         path: 'home/why-choose-us',

@@ -140,7 +140,7 @@ export class LegalAidCellComponent implements OnInit {
 
         next: (res: any) => {
 
-          console.log(res);
+          this.page.set(1);
 
           const data =
             Array.isArray(res)

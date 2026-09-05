@@ -8,42 +8,52 @@ import {
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { ToastrService } from 'ngx-toastr';
-import Swal from 'sweetalert2';
 
-import { CmsApiService } from '../../../../services/cms-api-service.service';
-import { StatisticsModalComponent } from './statistics-modal/statistics-modal.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+
+import { ToastrService } from 'ngx-toastr';
+
+import Swal from 'sweetalert2';
+import { BannerModalComponent } from './banner-modal/banner-modal.component';
+import { CmsApiService } from '../../../services/cms-api-service.service';
+import { ConfigService } from '../../../services/config.service';
+import { DescriptionModalComponent } from '../../shared/description-modal/description-modal.component';
 
 
 // =====================================================
 // INTERFACE
 // =====================================================
 
-export interface Statistics {
-
+export interface Banner {
   id: number;
+  pageName: string;
+  content: string | null;
 
-  title: string;
+  // Existing image path from database
+  image: string | null;
 
-  count: string;
-
+  // Newly selected image file
+  imagePath?: File | null;
 }
+
 @Component({
-  selector: 'app-statistics',
+  selector: 'app-banner',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
 
     FormsModule,
 
     NgxPaginationModule,
 
-    StatisticsModalComponent
-  ],
-  templateUrl: './statistics.component.html',
-  styleUrl: './statistics.component.scss'
+    BannerModalComponent,
+
+    DescriptionModalComponent],
+  templateUrl: './banner.component.html',
+  styleUrl: './banner.component.scss'
 })
-export class StatisticsComponent implements OnInit {
+export class BannerComponent
+  implements OnInit {
 
 
   // ===================================================
@@ -52,9 +62,12 @@ export class StatisticsComponent implements OnInit {
 
   constructor(
 
-    private apiService: CmsApiService,
+    private apiService:
+      CmsApiService,
 
-    private toastr: ToastrService
+    private toastr:
+      ToastrService,
+    private config: ConfigService
 
   ) { }
 
@@ -72,28 +85,28 @@ export class StatisticsComponent implements OnInit {
   itemsPerPage =
     signal(5);
 
+  pageSizeOptions =
+    [5, 10, 20, 50];
+
   showModal =
     signal(false);
 
-  selectedItem =
-    signal<Statistics | null>(null);
+  selectedBanner =
+    signal<Banner | null>(null);
 
-  items =
-    signal<Statistics[]>([]);
+  banner =
+    signal<Banner[]>([]);
 
   loggedInId =
     signal('');
 
+  imageURL = signal('');
 
-  // ===================================================
-  // PAGE SIZE OPTIONS
-  // ===================================================
+  showDescriptionModal = signal(false);
 
-  pageSizeOptions =
-    [5, 10, 20, 50];
+  selectedDescription = signal('');
 
-  PageName = "Statistics";
-
+  selectedDescriptionTitle = signal('');
   private platformId = inject(PLATFORM_ID);
   // ===================================================
   // INIT
@@ -101,17 +114,22 @@ export class StatisticsComponent implements OnInit {
 
   ngOnInit(): void {
 
-    this.getItems();
+    this.getBanner();
+
+    this.imageURL.set(this.config.get('IMAGE_API_URL'));
+
     if (isPlatformBrowser(this.platformId)) {
       const userString =
         localStorage.getItem('user');
 
+
       if (userString) {
+
         const currentUser =
           JSON.parse(userString);
 
         this.loggedInId.set(
-          currentUser?.id ?? ''
+          currentUser.id ?? ''
         );
 
       }
@@ -121,10 +139,10 @@ export class StatisticsComponent implements OnInit {
 
 
   // ===================================================
-  // FILTERED ITEMS
+  // FILTER
   // ===================================================
 
-  filteredItems =
+  filteredBanners =
     computed(() => {
 
       const keyword =
@@ -132,24 +150,26 @@ export class StatisticsComponent implements OnInit {
           .trim()
           .toLowerCase();
 
+
       if (!keyword) {
 
-        return this.items();
+        return this.banner();
 
       }
 
-      return this.items().filter(item =>
 
-        item.title
-          ?.toLowerCase()
-          .includes(keyword)
+      return this.banner().filter(
+        banner =>
 
-        ||
+          banner.pageName
+            ?.toLowerCase()
+            .includes(keyword)
 
-        item.count
-          ?.toLowerCase()
-          .includes(keyword)
+          ||
 
+          banner.content
+            ?.toLowerCase()
+            .includes(keyword)
 
       );
 
@@ -157,14 +177,18 @@ export class StatisticsComponent implements OnInit {
 
 
   // ===================================================
-  // ADD
+  // CREATE
   // ===================================================
 
-  addItem(): void {
+  createBanner(): void {
 
-    this.selectedItem.set(null);
+    this.selectedBanner.set(
+      null
+    );
 
-    this.showModal.set(true);
+    this.showModal.set(
+      true
+    );
 
   }
 
@@ -173,17 +197,22 @@ export class StatisticsComponent implements OnInit {
   // EDIT
   // ===================================================
 
-  editItem(
-    item: Statistics
+  edit(
+    calendar: Banner
   ): void {
 
-    this.selectedItem.set({
+    this.selectedBanner.set({
 
-      ...item
+      ...calendar,
+
+      imagePath:
+        null
 
     });
 
-    this.showModal.set(true);
+    this.showModal.set(
+      true
+    );
 
   }
 
@@ -194,23 +223,27 @@ export class StatisticsComponent implements OnInit {
 
   closeModal(): void {
 
-    this.showModal.set(false);
+    this.showModal.set(
+      false
+    );
 
-    this.selectedItem.set(null);
+    this.selectedBanner.set(
+      null
+    );
 
   }
 
 
   // ===================================================
-  // GET ITEMS
+  // GET
   // ===================================================
 
-  getItems(): void {
+  getBanner(): void {
 
     this.apiService
 
       .GetRequest(
-        'Home/' + this.PageName
+        'Banner'
       )
 
       .subscribe({
@@ -219,18 +252,13 @@ export class StatisticsComponent implements OnInit {
           this.page.set(1);
           const data =
             Array.isArray(res)
-
               ? res
-
-              : Array.isArray(res?.data)
-
-                ? res.data
-
-                : [];
+              : res?.data || [];
 
 
-          const items:
-            Statistics[] =
+          const banner:
+            Banner[] =
+
             data.map(
               (item: any) => ({
 
@@ -239,29 +267,43 @@ export class StatisticsComponent implements OnInit {
                   item.Id ??
                   0,
 
-                title:
-                  item.title ??
-                  item.Title ??
+                pageName:
+                  item.pageName ??
+                  item.PageName ??
                   '',
 
-                count:
-                  item.count ??
-                  item.Count ??
-                  '',
+                content:
+                  item.content ??
+                  item.Content ??
+                  null,
+
+                image:
+                  item.image ??
+                  item.Iamge ??
+                  item.imagePath ??
+                  item.ImagePath ??
+                  null,
+
+                imagePath:
+                  null,
+
               })
             );
 
 
-          this.items.set(items);
+          this.banner.set(
+            banner
+          );
 
         },
 
         error: (err) => {
 
           console.error(
-            'Statistics Error:',
+            'Banner Error:',
             err
           );
+
 
           this.toastr.error(
 
@@ -269,7 +311,7 @@ export class StatisticsComponent implements OnInit {
 
             err?.message ||
 
-            'Unable to load Statistics.'
+            'Unable to load Banner.'
 
           );
 
@@ -284,24 +326,18 @@ export class StatisticsComponent implements OnInit {
   // SAVE
   // ===================================================
 
-  saveItem(item: Statistics): void {
-
-    console.log('SAVE ITEM RECEIVED:', item);
+  saveBanner(
+    banner: Banner
+  ): void {
 
 
     // =================================================
-    // CHECK EDIT / CREATE
+    // DETERMINE CREATE / EDIT
     // =================================================
 
     const isEdit =
-      Number(item.id) > 0;
-
-
-    console.log(
-      'Is Edit:',
-      isEdit
-    );
-
+      !!banner.id;
+      console.log(isEdit, banner.id)
 
     // =================================================
     // FORM DATA
@@ -312,27 +348,46 @@ export class StatisticsComponent implements OnInit {
 
 
     // =================================================
-    // PAGE NAME
-    // =================================================
-
-    formData.append(
-      'PageName',
-      this.PageName
-    );
-
-
-    // =================================================
     // ID
     // =================================================
 
     if (isEdit) {
 
       formData.append(
+
         'Id',
-        item.id.toString()
+
+        banner.id.toString()
+
       );
 
     }
+
+
+    // =================================================
+    // PageName
+    // =================================================
+
+    formData.append(
+
+      'PageName',
+
+      banner.pageName?.trim() ?? ''
+
+    );
+
+
+    // =================================================
+    // CONTENT
+    // =================================================
+
+    formData.append(
+
+      'Content',
+
+      banner.content ?? ''
+
+    );
 
 
     // =================================================
@@ -342,72 +397,83 @@ export class StatisticsComponent implements OnInit {
     if (isEdit) {
 
       formData.append(
+
         'UpdatedBy',
-        this.loggedInId() || ''
+
+        this.loggedInId()
+
       );
 
     }
+
     else {
 
       formData.append(
+
         'CreatedBy',
-        this.loggedInId() || ''
+
+        this.loggedInId()
+
       );
 
     }
 
 
-    // =================================================
-    // TITLE
-    // =================================================
-
-    formData.append(
-      'Title',
-      item.title?.trim() || ''
-    );
-
 
     // =================================================
-    // Count
+    // FILE
     // =================================================
 
-    formData.append(
-      'Count',
-      item.count?.trim() || ''
-    );
+    /*
+     * Only send a file when the user selected
+     * a NEW file.
+     *
+     * During edit, if no new file is selected,
+     * the backend should keep the existing FilePath.
+     */
 
+    if (banner.imagePath) {
 
-    // =================================================
-    // DEBUG FORMDATA
-    // =================================================
+      formData.append(
 
-    formData.forEach((value, key) => {
+        'Image',
 
-      console.log(
-        `${key}:`,
-        value
+        banner.imagePath,
+
+        banner.imagePath.name
+
       );
 
-    });
+    }
 
 
     // =================================================
     // API REQUEST
     // =================================================
 
-    const request = isEdit
+    const request =
 
-      ? this.apiService.PutRequest(
-        'Home',
-        formData,
-        true
-      )
+      isEdit
 
-      : this.apiService.PostRequest(
-        'Home',
-        formData,
-        true
-      );
+        ? this.apiService.PutRequest(
+
+          'Banner',
+
+          formData,
+
+          true
+
+        )
+
+        : this.apiService.PostRequest(
+
+          'Banner',
+
+          formData,
+
+          true
+
+        );
 
 
     // =================================================
@@ -418,19 +484,15 @@ export class StatisticsComponent implements OnInit {
 
       next: (res: any) => {
 
-        console.log(
-          'Home API Response:',
-          res
-        );
-
-
-        if (res?.isSucceeded) {
+        if (
+          res?.isSucceeded
+        ) {
 
           this.toastr.success(
 
-            res?.message ||
+            res.message ||
 
-            `Statistics ${isEdit
+            `Banner ${isEdit
               ? 'updated'
               : 'created'
             } successfully.`
@@ -438,11 +500,8 @@ export class StatisticsComponent implements OnInit {
           );
 
 
-          // Reload data
-          this.getItems();
+          this.getBanner();
 
-
-          // Close modal
           this.closeModal();
 
         }
@@ -453,10 +512,7 @@ export class StatisticsComponent implements OnInit {
 
             res?.message ||
 
-            `Unable to ${isEdit
-              ? 'update'
-              : 'create'
-            } Statistics.`
+            'Unable to save Banner.'
 
           );
 
@@ -464,12 +520,14 @@ export class StatisticsComponent implements OnInit {
 
       },
 
-
       error: (err) => {
 
         console.error(
-          'Home API Error:',
+
+          'Save Banner Error:',
+
           err
+
         );
 
 
@@ -494,17 +552,17 @@ export class StatisticsComponent implements OnInit {
   // DELETE
   // ===================================================
 
-  deleteItem(
-    item: Statistics
+  delete(
+    banner: Banner
   ): void {
 
     Swal.fire({
 
       title:
-        'Delete Statistics?',
+        'Delete Banner?',
 
       text:
-        `Are you sure you want to delete "${item.title}"?`,
+        `Are you sure you want to delete "${banner.pageName}"?`,
 
       icon:
         'warning',
@@ -531,6 +589,7 @@ export class StatisticsComponent implements OnInit {
         true
 
     })
+
       .then(result => {
 
         if (
@@ -542,30 +601,59 @@ export class StatisticsComponent implements OnInit {
         }
 
 
+        // =================================================
+        // FORM DATA
+        // =================================================
+
         const formData =
           new FormData();
 
-        // =================================================
-        // PAGE NAME
-        // =================================================
 
         formData.append(
-          'PageName',
-          this.PageName
-        );
 
-        formData.append(
           'Id',
-          item.id.toString()
+
+          banner.id.toString()
+
         );
 
+
+        /*
+         * Existing file path.
+         *
+         * Your backend can use this to physically
+         * delete the file if required.
+         */
+
+        if (
+          banner.image
+        ) {
+
+          formData.append(
+
+            'Image',
+
+            banner.image
+
+          );
+
+        }
+
+
+        // =================================================
+        // API
+        // =================================================
 
         this.apiService
 
           .DeleteFromFormRequest(
-            'Home',
+
+            'Banner',
+
             formData,
+
             true
+
           )
 
           .subscribe({
@@ -578,22 +666,24 @@ export class StatisticsComponent implements OnInit {
 
                 this.toastr.success(
 
-                  res?.message ||
+                  res.message ||
 
-                  'Statistics deleted successfully.'
+                  'Banner deleted successfully.'
 
                 );
 
-                this.getItems();
+
+                this.getBanner();
 
               }
+
               else {
 
                 this.toastr.warning(
 
                   res?.message ||
 
-                  'Unable to delete item.'
+                  'Unable to delete Banner.'
 
                 );
 
@@ -604,9 +694,13 @@ export class StatisticsComponent implements OnInit {
             error: (err) => {
 
               console.error(
-                'Delete Statistics Error:',
+
+                'Delete Banner Error:',
+
                 err
+
               );
+
 
               this.toastr.error(
 
@@ -614,7 +708,7 @@ export class StatisticsComponent implements OnInit {
 
                 err?.message ||
 
-                'Unable to delete item.'
+                'Unable to delete Banner.'
 
               );
 
@@ -626,18 +720,26 @@ export class StatisticsComponent implements OnInit {
 
   }
 
+  viewDescription(item: Banner): void {
 
-  // ===================================================
-  // TRACK BY
-  // ===================================================
+    this.selectedDescriptionTitle.set(
+      item.pageName ?? 'Content'
+    );
 
-  trackById(
-    index: number,
-    item: Statistics
-  ): number {
+    this.selectedDescription.set(
+      item.content ?? ''
+    );
 
-    return item.id;
+    this.showDescriptionModal.set(true);
+  }
 
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
   }
 
 }

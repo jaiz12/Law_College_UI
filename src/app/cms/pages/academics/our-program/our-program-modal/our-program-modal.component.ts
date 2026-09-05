@@ -196,7 +196,7 @@ export class OurProgramModalComponent implements OnChanges {
   // ===================================================
   // SUBMIT
   // ===================================================
-
+  isSubmitting = false;
   submit(): void {
 
     
@@ -205,6 +205,8 @@ export class OurProgramModalComponent implements OnChanges {
       this.pageForm.markAllAsTouched();
       return;
     }
+
+    this.isSubmitting = true;
 
     const value = this.pageForm.getRawValue();
 

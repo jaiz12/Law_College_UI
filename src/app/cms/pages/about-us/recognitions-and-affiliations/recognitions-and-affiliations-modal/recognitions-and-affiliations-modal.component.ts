@@ -8,7 +8,6 @@ import {
   SimpleChanges,
   inject
 } from '@angular/core';
-
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -29,21 +28,15 @@ import { ConfigService } from '../../../../../services/config.service';
   templateUrl: './recognitions-and-affiliations-modal.component.html',
   styleUrl: './recognitions-and-affiliations-modal.component.scss'
 })
-export class RecognitionsAndAffiliationsModalComponent
-  implements OnChanges {
+export class RecognitionsAndAffiliationsModalComponent implements OnChanges {
 
-  constructor(private config: ConfigService) {
-
-  }
+  constructor(private config: ConfigService) { }
 
   private fb = inject(FormBuilder);
-
-  private validationService = inject(
-    ValidationService
-  );
+  private validationService = inject(ValidationService);
 
   // ---------------------------------------
-  // Inputs
+  // Inputs / Outputs
   // ---------------------------------------
 
   @Input()
@@ -55,10 +48,6 @@ export class RecognitionsAndAffiliationsModalComponent
   @Input()
   imageURL = '';
 
-  // ---------------------------------------
-  // Outputs
-  // ---------------------------------------
-
   @Output()
   save = new EventEmitter<RecognitionAffiliation>();
 
@@ -66,19 +55,20 @@ export class RecognitionsAndAffiliationsModalComponent
   close = new EventEmitter<void>();
 
   // ---------------------------------------
-  // Variables
+  // Image & Drag-and-Drop Variables
   // ---------------------------------------
 
   imagePreview: string | ArrayBuffer | null = null;
-
   selectedFile: File | null = null;
+  dragging = false;
+
+  readonly allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
 
   // ---------------------------------------
-  // Form
+  // Form Configuration
   // ---------------------------------------
 
   pageForm = this.fb.group({
-
     id: this.fb.control<number | null>(null),
 
     title: this.fb.control('', {
@@ -100,10 +90,9 @@ export class RecognitionsAndAffiliationsModalComponent
 
     externalUrl: this.fb.control(''),
 
-    image: this.fb.control<string | null>(
-      null,
-      Validators.required
-    ),
+    image: this.fb.control<string | null>(null, {
+      validators: [Validators.required]
+    }),
 
     displayOrder: this.fb.control(1, {
       validators: [
@@ -112,7 +101,6 @@ export class RecognitionsAndAffiliationsModalComponent
       ],
       nonNullable: true
     })
-
   });
 
   // ---------------------------------------
@@ -120,174 +108,135 @@ export class RecognitionsAndAffiliationsModalComponent
   // ---------------------------------------
 
   get isEditMode(): boolean {
-
     return !!this.recognition;
-
   }
 
   // ---------------------------------------
-  // Load Data
+  // Lifecycle / Changes
   // ---------------------------------------
 
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
-
+  ngOnChanges(changes: SimpleChanges): void {
     if (this.recognition) {
-
       this.pageForm.patchValue({
-
         id: this.recognition.id,
-
         title: this.recognition.title,
-
         description: this.recognition.description,
-
-        externalUrl:
-          this.recognition.externalUrl ?? '',
-
-        image:
-          this.recognition.image,
-
-        displayOrder:
-          this.recognition.displayOrder
-
+        externalUrl: this.recognition.externalUrl ?? '',
+        image: this.recognition.image,
+        displayOrder: this.recognition.displayOrder
       });
 
-      const photoPath =
-        this.recognition.image;
-
+      const photoPath = this.recognition.image;
 
       if (photoPath) {
-
-        this.imagePreview =
-          this.config.get('IMAGE_API_URL') +
-          photoPath;
-
-      }
-
-      else {
-
+        this.imagePreview = this.config.get('IMAGE_API_URL') + photoPath;
+        this.pageForm.get('image')?.setErrors(null);
+      } else {
         this.imagePreview = null;
-
+        this.pageForm.get('image')?.setErrors({ required: true });
       }
 
-      
-
-    }
-
-    else {
-
+      this.selectedFile = null;
+    } else {
       this.pageForm.reset({
-
         id: null,
-
         title: '',
-
         description: '',
-
         externalUrl: '',
-
         image: null,
-
-        displayOrder: 0
-
+        displayOrder: 1
       });
 
       this.imagePreview = null;
-
+      this.selectedFile = null;
+      this.pageForm.get('image')?.setErrors(null);
     }
-
-    this.selectedFile = null;
-
-    // Existing image is valid in edit mode
-    this.pageForm
-      .get('photo')
-      ?.setErrors(null);
-
   }
 
   // ---------------------------------------
-  // Image Upload
+  // File Validation & Change Handlers
   // ---------------------------------------
 
-  onFileChange(
-    event: Event
-  ): void {
-
-    const input =
-      event.target as HTMLInputElement;
+  onFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
     if (!input.files?.length) {
-
       return;
-
     }
 
-    const file =
-      input.files[0];
+    const file = input.files[0];
 
-    const allowedTypes = [
+    if (!this.isAllowedFile(file)) {
+      this.selectedFile = null;
+      this.imagePreview = null;
 
-      'image/jpeg',
-
-      'image/png',
-
-      'image/webp',
-
-      'image/gif'
-
-    ];
-
-    if (
-      !allowedTypes.includes(file.type)
-    ) {
-
-      alert(
-        'Only JPG, PNG, WEBP and GIF images are allowed.'
-      );
+      this.pageForm.get('image')?.setErrors({
+        invalidFileType: true
+      });
+      this.pageForm.get('image')?.markAsTouched();
 
       input.value = '';
-
       return;
-
     }
 
-    if (
-      file.size >
-      2 * 1024 * 1024
-    ) {
+    this.loadFile(file);
+    input.value = '';
+  }
 
-      alert(
-        'Maximum image size is 2 MB.'
-      );
+  private isAllowedFile(file: File): boolean {
+    const fileName = file.name.toLowerCase();
+    const extension = fileName.substring(fileName.lastIndexOf('.'));
+    return this.allowedExtensions.includes(extension);
+  }
 
-      input.value = '';
-
-      return;
-
-    }
-
+  private loadFile(file: File): void {
     this.selectedFile = file;
 
-    this.pageForm.patchValue({
-
-      image: file.name
-
-    });
-
-    const reader =
-      new FileReader();
+    const reader = new FileReader();
 
     reader.onload = () => {
+      this.imagePreview = reader.result as string;
 
-      this.imagePreview =
-        reader.result;
-
+      this.pageForm.get('image')?.setValue(this.imagePreview);
+      this.pageForm.get('image')?.setErrors(null);
     };
 
     reader.readAsDataURL(file);
+  }
 
+  // ---------------------------------------
+  // Drag and Drop Handlers
+  // ---------------------------------------
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.dragging = false;
+
+    const file = event.dataTransfer?.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isAllowedFile(file)) {
+      this.pageForm.get('image')?.setErrors({
+        invalidFileType: true
+      });
+      this.pageForm.get('image')?.markAsTouched();
+      return;
+    }
+
+    this.loadFile(file);
   }
 
   // ---------------------------------------
@@ -295,71 +244,56 @@ export class RecognitionsAndAffiliationsModalComponent
   // ---------------------------------------
 
   removeImage(): void {
-
     this.selectedFile = null;
-
     this.imagePreview = null;
 
-    this.pageForm.patchValue({
+    const imageControl = this.pageForm.get('image');
+    imageControl?.setValue(null);
 
-      image: null
-
-    });
-
-  }
-
-  // ---------------------------------------
-  // Submit
-  // ---------------------------------------
-
-  submit(): void {
-
-    if (this.pageForm.invalid) {
-
-      this.pageForm.markAllAsTouched();
-
-      return;
-
+    if (!this.isEditMode) {
+      imageControl?.setErrors({
+        required: true
+      });
     }
 
-    const value =
-      this.pageForm.getRawValue();
+    imageControl?.markAsTouched();
+    imageControl?.updateValueAndValidity();
+  }
+
+  // ---------------------------------------
+  // Submit & Cancel
+  // ---------------------------------------
+  isSubmitting = false;
+  submit(): void {
+    const imageControl = this.pageForm.get('image');
+
+    if (!this.isEditMode && !this.selectedFile && !this.imagePreview) {
+      imageControl?.setErrors({
+        required: true
+      });
+    }
+
+    if (this.pageForm.invalid) {
+      this.pageForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const value = this.pageForm.getRawValue();
 
     this.save.emit({
-
-      id:
-        value.id ?? 0,
-
-      title:
-        value.title,
-
-      description:
-        value.description,
-
-      externalUrl:
-        value.externalUrl || null,
-
-      image:
-        this.recognition?.image ?? null,
-
-      imageFile:
-        this.selectedFile,
-
-      displayOrder:
-        value.displayOrder
-
+      id: value.id ?? 0,
+      title: value.title,
+      description: value.description,
+      externalUrl: value.externalUrl || null,
+      image: this.recognition?.image ?? null,
+      imageFile: this.selectedFile,
+      displayOrder: value.displayOrder
     });
-
   }
-
-  // ---------------------------------------
-  // Close
-  // ---------------------------------------
 
   cancel(): void {
-
     this.close.emit();
-
   }
-
 }

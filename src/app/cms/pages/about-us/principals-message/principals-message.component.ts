@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
+import { Component, signal, inject, PLATFORM_ID, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -13,6 +13,7 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-principals-message',
@@ -24,33 +25,42 @@ import { CKEditorConfigService } from '../../../../services/ckeditor-config.serv
   ],
   templateUrl: './principals-message.component.html'
 })
-export class PrincipalsMessageComponent {
+export class PrincipalsMessageComponent implements OnInit {
 
- public Editor: any;
+  public Editor: any;
+  editorConfig: any;
 
   pageForm: FormGroup;
 
   imagePreview: string | ArrayBuffer | null = null;
-
   selectedFile: File | null = null;
-
   isDragging = false;
+  isSubmitting = false;
 
-  loggedInId = signal('')
+  loggedInId = signal('');
   photo: string = '';
-  pageName: string = "Principals Message";
-  editorConfig: any;
-  private platformId = inject(PLATFORM_ID);
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService, private config: ConfigService, private validationService: ValidationService,private ckEditorConfig: CKEditorConfigService) {
-    // CKEditor build
-    this.Editor =
-      this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
-    this.pageForm = this.fb.group({
+  pageName: string = 'Principals Message';
 
+  readonly allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
+
+  private platformId = inject(PLATFORM_ID);
+
+  constructor(
+    private fb: FormBuilder,
+    private apiservice: CmsApiService,
+    private toastr: ToastrService,
+    private config: ConfigService,
+    private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService
+  ) {
+    // CKEditor build
+    this.Editor = this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
+
+    this.pageForm = this.fb.group({
       id: [''],
       pageName: [''],
-      photo: [''],
+      photo: ['', Validators.required],
       description: ['', {
         validators: [
           Validators.required,
@@ -60,13 +70,10 @@ export class PrincipalsMessageComponent {
       }],
       metaTitle: [''],
       metaDescription: ['']
-
     });
-
   }
 
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.get();
     if (isPlatformBrowser(this.platformId)) {
       const userString = localStorage.getItem('user');
@@ -78,6 +85,9 @@ export class PrincipalsMessageComponent {
     }
   }
 
+  // ===================================================
+  // FILE CHANGE & VALIDATION
+  // ===================================================
 
   onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -86,43 +96,104 @@ export class PrincipalsMessageComponent {
       return;
     }
 
-    this.selectedFile = input.files[0];
+    const file = input.files[0];
 
-    // Clear banner validation error
-    this.pageForm.get('photo')?.setErrors(null);
+    if (!this.isAllowedFile(file)) {
+      this.selectedFile = null;
+      this.imagePreview = null;
+
+      this.pageForm.get('photo')?.setErrors({
+        invalidFileType: true
+      });
+      this.pageForm.get('photo')?.markAsTouched();
+
+      input.value = '';
+      return;
+    }
+
+    this.loadFile(file);
+    input.value = '';
+  }
+
+  private isAllowedFile(file: File): boolean {
+    const fileName = file.name.toLowerCase();
+    const extension = fileName.substring(fileName.lastIndexOf('.'));
+    return this.allowedExtensions.includes(extension);
+  }
+
+  private loadFile(file: File): void {
+    this.selectedFile = file;
 
     const reader = new FileReader();
 
     reader.onload = () => {
       this.imagePreview = reader.result as string;
+
+      this.pageForm.get('photo')?.setValue(this.imagePreview);
+      this.pageForm.get('photo')?.setErrors(null);
     };
 
-    reader.readAsDataURL(this.selectedFile);
-
+    reader.readAsDataURL(file);
   }
+
+  // ===================================================
+  // DRAG AND DROP HANDLERS
+  // ===================================================
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+
+    const file = event.dataTransfer?.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isAllowedFile(file)) {
+      this.pageForm.get('photo')?.setErrors({
+        invalidFileType: true
+      });
+      this.pageForm.get('photo')?.markAsTouched();
+      return;
+    }
+
+    this.loadFile(file);
+  }
+
+  // ===================================================
+  // REMOVE IMAGE
+  // ===================================================
 
   removeImage(): void {
     this.selectedFile = null;
-
     this.imagePreview = null;
-
     this.photo = '';
 
-    // Make banner invalid only when creating
-    const id = this.pageForm.get('id')?.value;
-
-    if (!id) {
-      this.pageForm.get('photo')?.setErrors({
-        required: true
-      });
-    }
-
+    const photoControl = this.pageForm.get('photo');
+    photoControl?.setValue('');
+    photoControl?.setErrors({ required: true });
+    photoControl?.markAsTouched();
+    photoControl?.updateValueAndValidity();
   }
+
+  // ===================================================
+  // API DATA FETCH & SUBMISSION
+  // ===================================================
 
   get(): void {
     this.apiservice.GetRequest('AboutUs/0/' + this.pageName).subscribe({
       next: (res: any) => {
-
         const data = Array.isArray(res) ? res[0] : res;
 
         if (!data) {
@@ -132,17 +203,20 @@ export class PrincipalsMessageComponent {
         this.pageForm.patchValue({
           id: data.id ?? '',
           pageName: data.pageName ?? '',
-          photo: data.image ?? '', 
+          photo: data.image ?? '',
           description: data.description ?? '',
           metaTitle: data.metaTitle ?? '',
           metaDescription: data.metaDescription ?? ''
         });
 
-        // Keep existing database image path
         this.photo = data.image ?? '';
 
         if (this.photo) {
           this.imagePreview = this.config.get('IMAGE_API_URL') + this.photo;
+          this.pageForm.get('photo')?.setErrors(null);
+        } else {
+          this.imagePreview = null;
+          this.pageForm.get('photo')?.setErrors({ required: true });
         }
       },
 
@@ -155,157 +229,113 @@ export class PrincipalsMessageComponent {
         );
       }
     });
-
   }
 
   save(): void {
-    // Get CKEditor HTML
     const description = this.pageForm.get('description')?.value ?? '';
-
-    // Remove HTML tags and whitespace
     const plainText = description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
 
-    // CKEditor validation
     if (!plainText) {
       this.pageForm.get('description')?.setErrors({ required: true });
-    }
-    else {
+    } else {
       this.pageForm.get('description')?.setErrors(null);
     }
 
-    // Banner validation only for CREATE
-    const id = this.pageForm.get('id')?.value;
-
-    if (!id && !this.selectedFile) {
+    if (!this.selectedFile && !this.photo) {
       this.pageForm.get('photo')?.setErrors({ required: true });
-    }
-    else {
+      this.toastr.error('Please upload an image.', 'Validation Error');
+    } else if (this.pageForm.get('photo')?.hasError('invalidFileType')) {
+      this.toastr.error('Invalid image format.', 'Validation Error');
+    } else {
       this.pageForm.get('photo')?.setErrors(null);
     }
 
-    // Stop if invalid
     if (this.pageForm.invalid) {
       this.pageForm.markAllAsTouched();
       return;
     }
 
-    const formData = new FormData();
+    this.isSubmitting = true;
 
-    // New image
+    const formData = new FormData();
+    const id = this.pageForm.get('id')?.value;
+
     if (this.selectedFile) {
       formData.append('Photo', this.selectedFile, this.selectedFile.name);
     }
 
     formData.append('PageName', this.pageName);
-
     formData.append('Description', description);
-
     formData.append('MetaTitle', this.pageForm.get('metaTitle')?.value ?? '');
-
     formData.append('MetaDescription', this.pageForm.get('metaDescription')?.value ?? '');
 
     if (id) {
       formData.append('Id', id.toString());
-
       formData.append('UpdatedBy', this.loggedInId());
-
       this.update(id, formData);
-
-    }
-    else {
+    } else {
       formData.append('CreatedBy', this.loggedInId());
-
       this.create(formData);
-
     }
-
   }
 
   private create(formData: FormData): void {
-    this.apiservice.PostRequest('AboutUs', formData, true).subscribe({
-      next: (res) => {
-        if (res.isSucceeded) {
-
-          this.toastr.success(res.message);
-          // Clear form
-          this.pageForm.reset({
-            id: '',
-            photo: '',
-            description: '',
-            metaTitle: '',
-            metaDescription: ''
-          });
-
-          // Clear selected image
-          this.selectedFile = null;
-
-          // Clear image preview
-          this.imagePreview = null;
-
-          // Clear stored image path
-          this.photo = '';
-
-          this.get();
-
+    this.apiservice.PostRequest('AboutUs', formData, true)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: (res) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            this.resetForm();
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
+          );
         }
-        else {
-
-          this.toastr.warning(res.message);
-
-        }
-
-      },
-
-      error: (err) => {
-
-        this.toastr.error(
-          err?.error?.message ||
-          err?.message ||
-          'Something went wrong.'
-        );
-
-      }
-
-    });
+      });
   }
 
   private update(id: number, formData: FormData): void {
-
-    this.apiservice.PutRequest('AboutUs', formData, true).subscribe({
-
-      next: (res: any) => {
-
-        if (res.isSucceeded) {
-
-          this.toastr.success(res.message);
-
-          this.selectedFile = null;
-
-          this.get();
-
-        }
-
-        else {
-
-          this.toastr.warning(
-            res.message
-
+    this.apiservice.PutRequest('AboutUs', formData, true)
+      .pipe(finalize(() => (this.isSubmitting = false)))
+      .subscribe({
+        next: (res: any) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            this.selectedFile = null;
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
           );
         }
-      },
-
-      error: (err) => {
-
-        this.toastr.error(
-          err?.error?.message ||
-          err?.message ||
-          'Something went wrong.'
-        );
-
-      }
-
-    });
-
+      });
   }
 
+  resetForm(): void {
+    this.pageForm.reset({
+      id: '',
+      pageName: '',
+      photo: '',
+      description: '',
+      metaTitle: '',
+      metaDescription: ''
+    });
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.photo = '';
+  }
 }

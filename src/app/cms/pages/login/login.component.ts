@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
         }
         this.router.navigate(['/dashboard']);
         this.toastr.success(
-          response.message,
+          response.messageDescription,
           'Success'
         );
       },
@@ -108,8 +108,8 @@ export class LoginComponent implements OnInit {
       error: (err) => {
 
         this.toastr.error(
-          err?.error?.message ||
-          err?.message ||
+          err?.error?.messageDescription ||
+          err?.messageDescription ||
           'Something went wrong. Please try again.',
           'Error'
         );

@@ -92,7 +92,7 @@ export class RoleManagerComponent {
 
   getRoles() {
     this.apiService.GetRequest("RoleManagment/GetRoles").subscribe((res: any[]) => {
-      console.log(res)
+      this.page.set(1);
       this.roles.set(res);
     });
   }

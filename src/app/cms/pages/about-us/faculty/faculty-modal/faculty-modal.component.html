@@ -55,6 +55,7 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
+            (keydown.enter)="$event.preventDefault()"
             class="space-y-6 p-6">
 
 
@@ -89,6 +90,13 @@
 
             Name is required and cannot contain leading or trailing spaces.
 
+          </p>
+
+          }
+          @if (pageForm.get('name')?.hasError('whitespace')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Name cannot contain leading, trailing, or only whitespace.
           </p>
 
           }
@@ -127,6 +135,13 @@
 
             Designation is required.
 
+          </p>
+
+          }
+          @if (pageForm.get('designation')?.hasError('whitespace')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Designation cannot contain leading, trailing, or only whitespace.
           </p>
 
           }
@@ -358,6 +373,14 @@
                 or click to browse
 
               </div>
+              <div class="mt-2
+             text-xs
+             text-gray-400
+             dark:text-gray-500">
+
+                JPG, JPEG, PNG, WEBP
+
+              </div>
 
             </div>
 
@@ -375,6 +398,12 @@
 
           </p>
 
+          }
+          @if (pageForm.get('photo')?.hasError('invalidFileType')) {
+          <p class="mt-2 text-sm text-red-600">
+            Invalid image format.
+            Only PNG, JPG, JPEG and WEBP are allowed.
+          </p>
           }
 
         </div>
@@ -398,22 +427,17 @@
 
 
           <button type="submit"
-                  class="rounded-xl
-         bg-indigo-600
-         px-5 py-3
-         text-sm
-         font-medium
-         text-white
-         transition
-         hover:bg-indigo-700">
-
-
-            {{
-    isEditMode
-      ? 'Update'
-      : 'Create'
-            }}
-
+                  [disabled]="isSubmitting"
+                  class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+            @if (isSubmitting) {
+            <svg class="h-4 w-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Saving...</span>
+            } @else {
+            <span>{{ isEditMode ? 'Update' : 'Create' }}</span>
+            }
           </button>
 
         </div>

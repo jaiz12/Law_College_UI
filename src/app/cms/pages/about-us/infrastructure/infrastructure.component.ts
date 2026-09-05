@@ -141,7 +141,7 @@ export class InfrastructureComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-
+          this.page.set(1);
           const data = Array.isArray(res)
             ? res
             : [res];
@@ -240,77 +240,39 @@ export class InfrastructureComponent implements OnInit {
   // ---------------------------------------
 
   saveInfrastructure(formData: FormData): void {
-
-
     const id = formData.get('Id');
 
     if (id) {
-      formData.append('Id', id.toString());
-
+      // Prevent duplicate appending if the child modal already appended 'Id'
+      formData.set('Id', id.toString());
       formData.append('UpdatedBy', this.loggedInId());
-
-    }
-    else {
+    } else {
       formData.append('CreatedBy', this.loggedInId());
-
     }
-
-
 
     const request = id
-
-      ? this.apiService.PutRequest(
-        'Infrastructure',
-        formData,
-        true
-      )
-
-      : this.apiService.PostRequest(
-        'Infrastructure',
-        formData,
-        true
-      );
+      ? this.apiService.PutRequest('Infrastructure', formData, true)
+      : this.apiService.PostRequest('Infrastructure', formData, true);
 
     request.subscribe({
-
       next: (res: any) => {
-        console.log(res)
-
-        if (res.isSucceeded) {
-
-          this.toastr.success(res.message);
-
+        if (res?.isSucceeded) {
+          this.toastr.success(res.message || 'Operation successful');
           this.getInfrastructures();
-
           this.closeModal();
-
+        } else {
+          this.toastr.warning(res?.message || 'Warning occurred');
         }
-        else {
-
-          this.toastr.warning(
-            res.message
-          );
-
-        }
-
       },
-
       error: (err) => {
+        // Safely access error response text
+        const errorMessage = typeof err?.error === 'string'
+          ? err.error
+          : err?.error?.message || err?.message || 'Something went wrong.';
 
-        this.toastr.error(
-
-          err?.error?.message ||
-
-          err?.message ||
-
-          'Something went wrong.'
-
-        );
-
+        this.toastr.error(errorMessage);
       }
-
     });
-
   }
 
   // ---------------------------------------

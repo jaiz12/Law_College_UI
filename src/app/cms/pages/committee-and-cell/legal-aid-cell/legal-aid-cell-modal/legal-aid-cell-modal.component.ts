@@ -162,7 +162,7 @@ export class LegalAidCellModalComponent implements OnChanges {
   // -------------------------------------------------
   // Submit
   // -------------------------------------------------
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
@@ -172,6 +172,8 @@ export class LegalAidCellModalComponent implements OnChanges {
       return;
 
     }
+
+    this.isSubmitting = true;
 
 
     const value =

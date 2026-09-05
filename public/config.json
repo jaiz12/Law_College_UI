@@ -36,6 +36,15 @@
     },
 
     {
+      "name": "Banner",
+      "UIrouterlink": "/banner",
+      "routerlink": "/banner",
+      "expanded": false,
+      "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='h-5 w-5'><path stroke-linecap='round' stroke-linejoin='round' d='M3 5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25v13.5A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75V5.25z'/><path stroke-linecap='round' stroke-linejoin='round' d='M3 16l5-5 4 4 2.5-2.5L21 17'/><path stroke-linecap='round' stroke-linejoin='round' d='M16.5 8.25h.01'/></svg>",
+      "submenus": []
+    },
+
+    {
       "name": "Header & Footer",
       "UIrouterlink": "/header-and-footer",
       "routerlink": "/header-and-footer",
@@ -609,13 +618,12 @@
   "excludedMenus": [
     "Dashboard",
     "User Management",
+    "Banner",
     "Home",
     "Header & Footer"
   ],
 
   "toolbar": [
-    "heading",
-    "|",
     "fontFamily",
     "fontSize",
     "fontColor",

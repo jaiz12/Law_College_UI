@@ -152,10 +152,7 @@ export class SocialMediaComponent implements OnInit {
 
         next: (res: any) => {
 
-          console.log(
-            'Social Media API Response:',
-            res
-          );
+          this.page.set(1);
 
 
           const data = Array.isArray(res)

@@ -160,7 +160,7 @@ export class UserManagerComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-
+          this.page.set(1);
           const users = res.data.map((x: any) => ({
 
             id: String(x.id ?? x.Id),

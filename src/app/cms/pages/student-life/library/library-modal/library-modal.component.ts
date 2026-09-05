@@ -178,7 +178,7 @@ export class LibraryModalComponent
   // -------------------------------------------------
   // Submit
   // -------------------------------------------------
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
@@ -188,6 +188,8 @@ export class LibraryModalComponent
       return;
 
     }
+
+    this.isSubmitting = true;
 
 
     const value =

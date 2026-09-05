@@ -90,6 +90,7 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
+            (keydown.enter)="$event.preventDefault()"
             class="space-y-6 p-6">
 
 
@@ -138,6 +139,13 @@
 
             Title is required.
 
+          </p>
+
+          }
+          @if (pageForm.get('title')?.hasError('whitespace')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Title cannot contain leading, trailing, or only whitespace.
           </p>
 
           }
@@ -190,6 +198,13 @@
 
             Count is required.
 
+          </p>
+
+          }
+          @if (pageForm.get('count')?.hasError('whitespace')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Count cannot contain leading, trailing, or only whitespace.
           </p>
 
           }

@@ -441,7 +441,7 @@ export class AnnouncementsModalComponent implements OnChanges {
   // ===================================================
   // SUBMIT
   // ===================================================
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
@@ -451,6 +451,8 @@ export class AnnouncementsModalComponent implements OnChanges {
       return;
 
     }
+
+    this.isSubmitting = true;
 
 
     const value =

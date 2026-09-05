@@ -237,7 +237,7 @@ export class AnnouncementsComponent implements OnInit {
       .subscribe({
 
         next: (res: any) => {
-
+          this.page.set(1);
           const data =
             Array.isArray(res)
               ? res

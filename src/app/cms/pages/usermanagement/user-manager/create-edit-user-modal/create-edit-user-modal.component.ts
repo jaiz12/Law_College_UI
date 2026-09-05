@@ -143,12 +143,17 @@ export class CreateEditUserModalComponent implements OnChanges {
 
   }
 
+
+  isSubmitting = false;
   submit() {
 
     this.submitted = true;
 
     if (this.userForm.invalid)
       return;
+
+
+    this.isSubmitting = true;
 
     this.save.emit({
 

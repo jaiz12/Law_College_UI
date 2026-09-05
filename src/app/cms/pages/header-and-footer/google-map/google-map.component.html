@@ -1,75 +1,80 @@
 <form [formGroup]="pageForm" class="space-y-6">
-
-  <div class="grid grid-cols-1 gap-4 px-6 py-3  md:grid-cols-3">
+  <div class="grid grid-cols-1 gap-4 px-6 py-3 md:grid-cols-3">
 
     <!-- Latitude -->
     <div>
-
       <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
-        Latitude
+        Latitude <span class="text-red-500">*</span>
       </label>
 
       <input type="number"
              step="any"
              formControlName="latitude"
-             class="w-full rounded-lg border border-gray-300 px-4 py-2
-                    focus:border-indigo-500 focus:outline-none">
+             (keydown)="preventInvalidChars($event)"
+             class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
-      @if (pageForm.get('latitude')?.touched &&
-      pageForm.get('latitude')?.invalid) {
-
+      @if (pageForm.get('latitude')?.touched && pageForm.get('latitude')?.invalid) {
+      @if (pageForm.get('latitude')?.hasError('required')) {
       <p class="mt-1 text-sm text-red-500">
-        Latitude must be between -90 and 90.
+        Latitude is required.
       </p>
-
+      } @else {
+      <p class="mt-1 text-sm text-red-500">
+        Latitude must be greater then 0.
+      </p>
       }
-
+      }
     </div>
 
     <!-- Longitude -->
     <div>
-
       <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
-        Longitude
+        Longitude <span class="text-red-500">*</span>
       </label>
 
       <input type="number"
              step="any"
              formControlName="longitude"
-             class="w-full rounded-lg border border-gray-300 px-4 py-2
-                    focus:border-indigo-500 focus:outline-none">
+             (keydown)="preventInvalidChars($event)"
+             class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
-      @if (pageForm.get('longitude')?.touched &&
-      pageForm.get('longitude')?.invalid) {
-
+      @if (pageForm.get('longitude')?.touched && pageForm.get('longitude')?.invalid) {
+      @if (pageForm.get('longitude')?.hasError('required')) {
       <p class="mt-1 text-sm text-red-500">
-        Longitude must be between -180 and 180.
+        Longitude is required.
       </p>
-
+      } @else {
+      <p class="mt-1 text-sm text-red-500">
+        Longitude must be greater then 0.
+      </p>
       }
-
+      }
     </div>
 
     <!-- Button -->
-    <div class="flex items-end">
-
+    <div class="flex items-end gap-2">
       <button type="button"
               (click)="setLocation()"
-              class="w-full rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white hover:bg-indigo-700">
-
-        Set Location
-
+              [disabled]="isSubmitting"
+              class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+        @if (isSubmitting) {
+        <svg class="h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Saving...</span>
+        } @else {
+        <span>Set Location</span>
+        }
       </button>
-
     </div>
 
   </div>
-
 </form>
 
 <!-- Map -->
-<div class="mt-6 h-[500px] w-full px-6   overflow-hidden rounded-xl shadow-lg">
-
+<div class="mt-6 h-[500px] w-full px-6 overflow-hidden rounded-xl shadow-lg">
+  @if (mapUrl) {
   <iframe [src]="mapUrl"
           width="100%"
           height="100%"
@@ -77,5 +82,9 @@
           loading="lazy"
           allowfullscreen>
   </iframe>
-
+  } @else {
+  <div class="flex h-full w-full items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400">
+    Please set valid coordinates to display the map.
+  </div>
+  }
 </div>

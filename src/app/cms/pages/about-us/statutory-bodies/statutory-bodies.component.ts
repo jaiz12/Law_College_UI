@@ -4,85 +4,67 @@ import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { StatutoryBodiesModalComponent } from './statutory-bodies-modal/statutory-bodies-modal.component';
 
-
 export interface StatutoryBodiesBody {
-
   id: string | null;
-
   title: string;
-
   content: string;
-
   photo: string;
-
 }
 
 @Component({
   selector: 'app-statutory-bodies',
   standalone: true,
   imports: [
-
     CommonModule,
-
     FormsModule,
-
     NgxPaginationModule,
-
     StatutoryBodiesModalComponent
-
   ],
   templateUrl: './statutory-bodies.component.html',
   styleUrl: './statutory-bodies.component.scss'
 })
 export class StatutoryBodiesComponent implements OnInit {
 
-
   constructor(
-
     private apiService: CmsApiService,
-
     private toastr: ToastrService,
-
     private config: ConfigService
-
   ) { }
 
   // ---------------------------------------
   // Signals
   // ---------------------------------------
-
   search = signal('');
-
   page = signal(1);
-
   itemsPerPage = signal(5);
-
   pageSizeOptions = [5, 10, 20, 50];
 
   showModal = signal(false);
-
   selectedStatutoryBodies = signal<StatutoryBodiesBody | null>(null);
-
   StatutoryBodies = signal<StatutoryBodiesBody[]>([]);
   imageURL = signal('');
-
   loggedInId = signal('');
 
   private platformId = inject(PLATFORM_ID);
 
   ngOnInit() {
     this.getStatutoryBodies();
-    this.imageURL.set(this.config.get('IMAGE_API_URL'));
+    this.imageURL.set(this.config.get('IMAGE_API_URL') ?? '');
+
     if (isPlatformBrowser(this.platformId)) {
       const userString = localStorage.getItem('user');
-
       if (userString) {
-        const currentUser = JSON.parse(userString);
-        this.loggedInId.set(currentUser.id);
+        try {
+          const currentUser = JSON.parse(userString);
+          this.loggedInId.set(currentUser.id ?? '');
+        } catch (e) {
+          console.error('Error parsing user session', e);
+        }
       }
     }
   }
@@ -90,311 +72,146 @@ export class StatutoryBodiesComponent implements OnInit {
   // ---------------------------------------
   // Filter
   // ---------------------------------------
-
   filteredStatutoryBodies = computed(() => {
-
-    const keyword = this.search()
-      .trim()
-      .toLowerCase();
+    const keyword = this.search().trim().toLowerCase();
 
     if (!keyword) {
       return this.StatutoryBodies();
     }
 
-    return this.StatutoryBodies().filter(StatutoryBodies =>
-
-      StatutoryBodies.title
-        ?.toLowerCase()
-        .includes(keyword) ||
-
-      StatutoryBodies.content
-        ?.toLowerCase()
-        .includes(keyword) ||
-      StatutoryBodies.photo
-        ?.toLowerCase()
-        .includes(keyword)
-
+    return this.StatutoryBodies().filter(item =>
+      item.title?.toLowerCase().includes(keyword) ||
+      item.content?.toLowerCase().includes(keyword) ||
+      item.photo?.toLowerCase().includes(keyword)
     );
-
   });
 
-
-
   // ---------------------------------------
-  // Load StatutoryBodies
+  // Load Statutory Bodies
   // ---------------------------------------
-
   getStatutoryBodies(): void {
+    this.apiService.GetRequest('StatutoryBodies').subscribe({
+      next: (res: any) => {
+        this.page.set(1);
+        const data = Array.isArray(res) ? res : [res];
 
-    this.apiService
-      .GetRequest('StatutoryBodies')
-      .subscribe({
+        const statutoryBodiesList: StatutoryBodiesBody[] = data.map((item: any) => ({
+          id: item.id ?? item.Id ?? null,
+          title: item.title ?? item.Title ?? '',
+          content: item.content ?? item.Content ?? '',
+          photo: item.photo ?? item.Photo ?? item.image ?? item.Image ?? ''
+        }));
 
-        next: (res: any) => {
-
-          const data = Array.isArray(res)
-            ? res
-            : [res];
-
-          const StatutoryBodies: StatutoryBodiesBody[] =
-            data.map((item: any) => ({
-
-              id:
-                item.id ??
-                item.Id ??
-                null,
-
-              title:
-                item.title ??
-                item.Title ??
-                '',
-
-              content:
-                item.content ??
-                item.Content ??
-                '',
-
-              photo:
-                item.photo ??
-                item.Photo ??
-                item.image ??
-                item.Image ??
-                ''
-            }));
-
-          this.StatutoryBodies.set(StatutoryBodies);
-
-          console.log(this.StatutoryBodies())
-        },
-
-        error: (err) => {
-
-          this.toastr.error(
-
-            err?.error?.message ||
-
-            err?.message ||
-
-            'Unable to load Statutory Bodies.'
-
-          );
-
-        }
-
-      });
-
+        this.StatutoryBodies.set(statutoryBodiesList);
+      },
+      error: (err) => {
+        this.toastr.error(this.getErrorMessage(err, 'Unable to load Statutory Bodies.'));
+      }
+    });
   }
 
   // ---------------------------------------
   // Create
   // ---------------------------------------
-
   createStatutoryBodies(): void {
-
     this.selectedStatutoryBodies.set(null);
-
     this.showModal.set(true);
-
   }
 
   // ---------------------------------------
   // Edit
   // ---------------------------------------
-
-  edit(StatutoryBodies: StatutoryBodiesBody): void {
-
-    this.selectedStatutoryBodies.set({
-
-      ...StatutoryBodies
-
-    });
-
+  edit(statutoryBody: StatutoryBodiesBody): void {
+    this.selectedStatutoryBodies.set({ ...statutoryBody });
     this.showModal.set(true);
-
   }
 
   // ---------------------------------------
   // Close Modal
   // ---------------------------------------
-
   closeModal(): void {
-
     this.showModal.set(false);
-
     this.selectedStatutoryBodies.set(null);
-
   }
 
   // ---------------------------------------
   // Save
   // ---------------------------------------
-
   saveStatutoryBodies(formData: FormData): void {
-
-
-
     const id = formData.get('Id');
 
-    if (id) {
-      formData.append('Id', id.toString());
-
-      formData.append('UpdatedBy', this.loggedInId());
-
+    // Safe handling: avoid appending duplicate 'Id', set audit metadata safely
+    if (id && id.toString().trim() !== '') {
+      formData.set('Id', id.toString());
+      formData.set('UpdatedBy', this.loggedInId());
+    } else {
+      formData.delete('Id');
+      formData.set('CreatedBy', this.loggedInId());
     }
-    else {
-      formData.append('CreatedBy', this.loggedInId());
-
-    }
-
-    const data: any = {};
-
-    formData.forEach((value, key) => {
-      data[key] = value;
-    });
-
-    console.log("formData", data);
 
     const request = id
-
-      ? this.apiService.PutRequest(
-        'StatutoryBodies',
-        formData,
-        true
-      )
-
-      : this.apiService.PostRequest(
-        'StatutoryBodies',
-        formData,
-        true
-      );
+      ? this.apiService.PutRequest('StatutoryBodies', formData, true)
+      : this.apiService.PostRequest('StatutoryBodies', formData, true);
 
     request.subscribe({
-
       next: (res: any) => {
-        console.log(res)
-
-        if (res.isSucceeded) {
-
-          this.toastr.success(res.message);
-
+        if (res?.isSucceeded) {
+          this.toastr.success(res.message || 'Saved successfully.');
           this.getStatutoryBodies();
-
           this.closeModal();
-
+        } else {
+          this.toastr.warning(res?.message || 'Warning occurred during save.');
         }
-        else {
-
-          this.toastr.warning(
-            res.message
-          );
-
-        }
-
       },
-
       error: (err) => {
-
-        this.toastr.error(
-
-          err?.error?.message ||
-
-          err?.message ||
-
-          'Something went wrong.'
-
-        );
-
+        this.toastr.error(this.getErrorMessage(err, 'Something went wrong.'));
       }
-
     });
-
   }
 
   // ---------------------------------------
   // Delete
   // ---------------------------------------
-
-  delete(StatutoryBodies: StatutoryBodiesBody): void {
-
+  delete(statutoryBody: StatutoryBodiesBody): void {
     Swal.fire({
-
       title: 'Delete Statutory Body?',
-
-      text:
-        `Are you sure you want to delete "${StatutoryBodies.title}"?`,
-
+      text: `Are you sure you want to delete "${statutoryBody.title}"?`,
       icon: 'warning',
-
       showCancelButton: true,
-
       confirmButtonColor: '#dc2626',
-
       cancelButtonColor: '#6b7280',
-
       confirmButtonText: 'Yes, Delete',
-
       cancelButtonText: 'Cancel',
-
       reverseButtons: true,
-
       focusCancel: true
-
     }).then(result => {
+      if (!result.isConfirmed) return;
 
-      if (!result.isConfirmed) {
-
-        return;
-
-      }
       const formData = new FormData();
-      formData.append('Id', StatutoryBodies.id ?? '');
-      formData.append('Image', StatutoryBodies.photo);
+      formData.append('Id', statutoryBody.id ?? '');
+      formData.append('Image', statutoryBody.photo);
 
       this.apiService
-
-        .DeleteFromFormRequest(
-          'StatutoryBodies',
-          formData,
-          true
-        )
-
+        .DeleteFromFormRequest('StatutoryBodies', formData, true)
         .subscribe({
-
           next: (res: any) => {
-
-            if (res.isSucceeded) {
-
-              this.toastr.success(res.message);
-
+            if (res?.isSucceeded) {
+              this.toastr.success(res.message || 'Deleted successfully.');
               this.getStatutoryBodies();
-
+            } else {
+              this.toastr.warning(res?.message || 'Unable to complete deletion.');
             }
-            else {
-
-              this.toastr.warning(
-                res.message
-              );
-
-            }
-
           },
-
           error: (err) => {
-
-            this.toastr.error(
-
-              err?.error?.message ||
-
-              'Unable to delete Statutory Body.'
-
-            );
-
+            this.toastr.error(this.getErrorMessage(err, 'Unable to delete Statutory Body.'));
           }
-
         });
-
     });
-
   }
 
+  // Helper method to resolve network/API error strings cleanly
+  private getErrorMessage(err: any, fallback: string): string {
+    if (typeof err?.error === 'string') return err.error;
+    return err?.error?.message || err?.message || fallback;
+  }
 }

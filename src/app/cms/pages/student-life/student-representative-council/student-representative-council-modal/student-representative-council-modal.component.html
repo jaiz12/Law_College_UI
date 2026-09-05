@@ -55,6 +55,7 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
+            (keydown.enter)="$event.preventDefault()"
             class="space-y-6 p-6">
 
 

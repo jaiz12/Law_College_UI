@@ -331,7 +331,7 @@ export class ContactUsModalComponent implements OnChanges {
   // ---------------------------------------
   // Submit
   // ---------------------------------------
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
@@ -341,6 +341,8 @@ export class ContactUsModalComponent implements OnChanges {
       return;
 
     }
+
+    this.isSubmitting = true;
 
     const value = this.pageForm.getRawValue();
 

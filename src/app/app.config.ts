@@ -31,7 +31,8 @@ export const appConfig: ApplicationConfig = {
       timeOut: 3000,
       progressBar: true,
       closeButton: true,
-      preventDuplicates: true
+      preventDuplicates: true,
+      resetTimeoutOnDuplicate: true
     })
   ]
 };
