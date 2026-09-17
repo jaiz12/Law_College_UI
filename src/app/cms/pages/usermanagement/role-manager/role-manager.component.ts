@@ -45,6 +45,13 @@ export class RoleManagerComponent {
 
   roles = signal<Role[]>([]);
 
+  modalRoles = computed(() =>
+    this.roles().map(role => ({
+      Id: role.id,
+      Name: role.roleName
+    }))
+  );
+
   filteredRoles = computed(() => {
 
     const keyword = this.search().trim().toLowerCase();
@@ -99,8 +106,6 @@ export class RoleManagerComponent {
 
 
   saveRole(role: any) {
-    console.log(role);
-
 
     const model = {
       id: role.Id,
@@ -108,30 +113,31 @@ export class RoleManagerComponent {
     };
 
     const apiCall = role.Id
-      ? this.apiService.PutRequest('RoleManagment/EditRole', model)
-      : this.apiService.PostRequest('RoleManagment/CreateRole', model);
+      ? this.apiService.PutRequest(
+        'RoleManagment/EditRole',
+        model
+      )
+      : this.apiService.PostRequest(
+        'RoleManagment/CreateRole',
+        model
+      );
 
     apiCall.subscribe({
 
       next: (res: any) => {
 
-        console.log(res);
+        if (res.messageType === 'success') {
 
-
-        if (res.messageType === "success") {
-
-          // show toast
           this.toastr.success(
             res.message,
             res.messageType
           );
 
-          this.getRoles(); // reload role list
+          this.getRoles();
 
           this.closeModal();
 
-        }
-        else {
+        } else {
 
           this.toastr.warning(
             res.message,
@@ -141,7 +147,6 @@ export class RoleManagerComponent {
         }
 
       },
-
 
       error: (err: any) => {
 
@@ -156,9 +161,7 @@ export class RoleManagerComponent {
 
     });
 
-
-    this.showModal.set(false);
-
+  
   }
 
 

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-description-modal',
@@ -18,6 +19,15 @@ export class DescriptionModalComponent {
 
   @Output()
   close = new EventEmitter<void>();
+
+  constructor(
+    private sanitizer: DomSanitizer
+
+  ) { }
+
+  getSafeHtml(content: string | null | undefined): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(content ?? '');
+  }
 
 
   closeModal(): void {

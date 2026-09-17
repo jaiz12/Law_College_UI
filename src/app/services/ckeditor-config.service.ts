@@ -108,7 +108,6 @@ export class CKEditorConfigService {
   ];
 
   getConfig(): any {
-
     return {
       licenseKey: 'GPL',
 
@@ -120,7 +119,20 @@ export class CKEditorConfigService {
 
       fontSize: this.config.get("fontSize"),
 
-      image: this.config.get("image")
+      image: this.config.get("image"),
+
+      link: {
+        decorators: {
+          openInNewTab: {
+            mode: 'manual',
+            label: 'Open in new tab',
+            attributes: {
+              target: '_blank',
+              rel: 'noopener noreferrer'
+            }
+          }
+        }
+      }
     };
   }
 }

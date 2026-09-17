@@ -49,15 +49,14 @@
 
     </div>
 
-
     <!-- Content -->
     <div class="overflow-y-auto px-6 py-6">
 
       <div class="prose prose-sm max-w-none
                text-gray-700
                dark:prose-invert
-               dark:text-gray-300 ckeditor-content"
-           [innerHTML]="content">
+               dark:text-gray-300 ckeditor-content rich-content"
+           [innerHTML]="getSafeHtml(content)">
       </div>
 
     </div>

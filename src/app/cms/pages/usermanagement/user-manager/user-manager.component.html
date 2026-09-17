@@ -127,7 +127,7 @@
           <tr>
 
             <th  class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Name
+              User Id
             </th>
 
             <th  class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -368,6 +368,7 @@
 @if(showModal()){
 
 <app-create-edit-user-modal [user]="selectedUser()"
+                            [users]="users()"
                             [roles]="roles()"
                             (save)="saveUser($event)"
                             (close)="closeModal()">

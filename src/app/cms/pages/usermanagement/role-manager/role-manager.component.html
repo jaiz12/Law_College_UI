@@ -117,21 +117,21 @@
 
           <tr>
 
-            <th  class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
               Role
             </th>
 
-            <th  class="px-6 py-4 text-xs font-semibold uppercase
+            <th class="px-6 py-4 text-xs font-semibold uppercase
                        tracking-wider text-gray-500">
               Users
             </th>
 
-            <th  class="px-6 py-4 text-xs font-semibold uppercase
+            <th class="px-6 py-4 text-xs font-semibold uppercase
                 tracking-wider text-gray-500">
               Status
             </th>
 
-            <th  class="px-6 py-4 text-xs  text-right font-semibold uppercase
+            <th class="px-6 py-4 text-xs  text-right font-semibold uppercase
                 tracking-wider text-gray-500">
               Action
             </th>
@@ -149,7 +149,7 @@
           <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
 
-              <!-- Role -->
+            <!-- Role -->
 
             <td class="px-6 py-5">
 
@@ -332,15 +332,15 @@
 
 
 
-@if(showModal()){
+@if (showModal()) {
 
 <app-create-edit-role-modal [role]="selectedRole() ? {
-    Id: selectedRole()!.id,
-    Name: selectedRole()!.roleName
-} : null"
+      Id: selectedRole()!.id,
+      Name: selectedRole()!.roleName
+    } : null"
+                            [roles]="modalRoles()"
                             (save)="saveRole($event)"
                             (close)="closeModal()">
-
 </app-create-edit-role-modal>
 
 }
