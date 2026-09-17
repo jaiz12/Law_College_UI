@@ -122,7 +122,6 @@
             <!-- =========================================== -->
             <!-- DROPDOWN -->
             <!-- =========================================== -->
-           
             @if(showMenus) {
 
             <div class="absolute z-50 mt-2 max-h-80 w-full
@@ -192,15 +191,39 @@
           <!-- =========================================== -->
           <!-- VALIDATION -->
           <!-- =========================================== -->
-          @if (
-          pageForm.get('pageName')?.touched
-          ) {
+          @if (pageForm.get('pageName')?.touched) {
+
+          @if (pageForm.get('pageName')?.hasError('required')) {
 
           <p class="mt-2 text-sm text-red-600">
-
-            Please select a page.
-
+            Page Name is required.
           </p>
+
+          }
+
+          @else if (pageForm.get('pageName')?.hasError('whitespace')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Page Name cannot contain leading, trailing, or only whitespace.
+          </p>
+
+          }
+
+          @else if (pageForm.get('pageName')?.hasError('duplicate')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            This Page Name already exists. Please select a different page.
+          </p>
+
+          }
+
+          @else if (pageForm.get('pageName')?.hasError('maxlength')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Page Name cannot exceed 100 characters.
+          </p>
+
+          }
 
           }
 
@@ -367,15 +390,15 @@
           <!-- VALIDATION -->
           <!-- =========================================== -->
           @if (
-          pageForm.get('image')?.touched &&
-          pageForm.get('image')?.hasError('required')
+          pageForm.get('image')?.touched){
+          @if( pageForm.get('image')?.hasError('required')
           ) {
           <p class="mt-2 text-sm text-red-600">
             Image is required.
           </p>
           }
 
-          @if (
+          @else if (
           pageForm.get('image')?.touched &&
           pageForm.get('image')?.hasError('invalidFileType')
           ) {
@@ -384,13 +407,14 @@
           </p>
           }
 
-          @if (
+          @else if (
           pageForm.get('image')?.touched &&
           pageForm.get('image')?.hasError('fileTooLarge')
           ) {
           <p class="mt-2 text-sm text-red-600">
             Image size must not exceed 1 MB.
           </p>
+          }
           }
 
         </div>

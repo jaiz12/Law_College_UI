@@ -22,9 +22,9 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { ConfigService } from '../../../../services/config.service';
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
+import { DublicateValidationService } from '../../../../services/dublicate-validation.-service.service';
 
 import { Banner } from '../banner.component';
-import { DublicateValidationService } from '../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -58,16 +58,19 @@ export class BannerModalComponent
   private dublicateValidationService =
     inject(DublicateValidationService);
 
-  @Input()
-  isSubmitted = false;
+
+  // ===================================================
+  // CONSTRUCTOR
+  // ===================================================
+
   constructor(
     private config: ConfigService,
     private ckEditorConfig: CKEditorConfigService
   ) {
 
-    // ===============================================
+    // =================================================
     // CKEDITOR
-    // ===============================================
+    // =================================================
 
     this.Editor =
       this.ckEditorConfig.Editor;
@@ -76,9 +79,9 @@ export class BannerModalComponent
       this.ckEditorConfig.getConfig();
 
 
-    // ===============================================
+    // =================================================
     // LOAD MENUS
-    // ===============================================
+    // =================================================
 
     this.menus =
       this.config.get('menus') || [];
@@ -114,7 +117,6 @@ export class BannerModalComponent
 
   UI_URL = '';
 
-
   searchControl =
     new FormControl(
       '',
@@ -143,10 +145,16 @@ export class BannerModalComponent
   save =
     new EventEmitter<Banner>();
 
-
   @Output()
   close =
     new EventEmitter<void>();
+
+
+  // ===================================================
+  // SUBMITTING
+  // ===================================================
+
+  isSubmitting = false;
 
 
   // ===================================================
@@ -169,53 +177,78 @@ export class BannerModalComponent
   pageForm =
     this.fb.group({
 
+      // -----------------------------------------------
+      // ID
+      // -----------------------------------------------
+
       id:
         this.fb.control<number | null>(
           null
         ),
 
-      pageName: this.fb.control<string>(
-        '',
-        {
-          validators: [
-            Validators.required,
 
-            this.validationService.noWhitespaceValidator(),
+      // -----------------------------------------------
+      // PAGE NAME
+      // -----------------------------------------------
 
-            this.dublicateValidationService
-              .duplicateValidator(
-                () => this.items,
-                ['pageName']
-              )
-          ],
-          nonNullable: true
-        }
-      ),
+      pageName:
+        this.fb.control<string>(
+          '',
+          {
+            validators: [
+
+              Validators.required,
+
+              Validators.maxLength(100),
+
+              this.validationService
+                .noWhitespaceValidator(),
+
+              this.dublicateValidationService
+                .duplicateValidator(
+                  () => this.items,
+                  ['pageName']
+                )
+
+            ],
+
+            nonNullable: true
+          }
+        ),
+
+
+      // -----------------------------------------------
+      // CONTENT
+      // -----------------------------------------------
 
       content:
         this.fb.control(
           '',
           {
-
             nonNullable: true
-
           }
         ),
 
+
+      // -----------------------------------------------
+      // IMAGE
+      // -----------------------------------------------
+
       image:
         this.fb.control<string | null>(
-          null, {
-          validators: [
-            Validators.required
-          ]
-        }
+          null,
+          {
+            validators: [
+              Validators.required
+            ]
+          }
         )
 
     });
 
 
   // ===================================================
-  // ALLOWED FILE TYPES
+  // FILE VALIDATION
   // ===================================================
 
   readonly allowedExtensions = [
@@ -231,7 +264,8 @@ export class BannerModalComponent
     'image/webp'
   ];
 
-  readonly maxFileSize = 1 * 1024 * 1024; // 1 MB
+  readonly maxFileSize =
+    1 * 1024 * 1024; // 1 MB
 
 
   // ===================================================
@@ -249,7 +283,9 @@ export class BannerModalComponent
   // INPUT CHANGES
   // ===================================================
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(
+    changes: SimpleChanges
+  ): void {
 
     // =================================================
     // EDIT MODE
@@ -265,14 +301,18 @@ export class BannerModalComponent
         pageName:
           this.banner.pageName ?? '',
 
+        content:
+          this.banner.content ?? '',
+
         image:
           this.banner.image ?? ''
 
       });
 
-      // ===============================================
+
+      // -----------------------------------------------
       // EXISTING IMAGE
-      // ===============================================
+      // -----------------------------------------------
 
       if (this.banner.image) {
 
@@ -280,7 +320,8 @@ export class BannerModalComponent
           this.config.get('IMAGE_API_URL') +
           this.banner.image;
 
-        // Existing image satisfies required validation
+        this.selectedFile = null;
+
         this.pageForm
           .get('image')
           ?.setErrors(null);
@@ -291,6 +332,8 @@ export class BannerModalComponent
 
         this.imagePreview = null;
 
+        this.selectedFile = null;
+
         this.pageForm
           .get('image')
           ?.setErrors({
@@ -298,9 +341,6 @@ export class BannerModalComponent
           });
 
       }
-
-      // No new file selected initially
-      this.selectedFile = null;
 
     }
 
@@ -316,7 +356,9 @@ export class BannerModalComponent
 
         pageName: '',
 
-        image: ''
+        content: '',
+
+        image: null
 
       });
 
@@ -324,7 +366,6 @@ export class BannerModalComponent
 
       this.selectedFile = null;
 
-      // Image is required during create
       this.pageForm
         .get('image')
         ?.setErrors({
@@ -333,123 +374,32 @@ export class BannerModalComponent
 
     }
 
+
     // =================================================
-    // REVALIDATE FORM
+    // RESET MENU
     // =================================================
 
-    this.pageForm.updateValueAndValidity({
-      emitEvent: false
-    });
-
-  }
-
-
-  // ===================================================
-  // FILE VALIDATION
-  // ===================================================
-
-  private validateFile(
-    file: File
-  ): 'invalidFileType' | 'fileTooLarge' | null {
-
-    const fileName =
-      file.name.toLowerCase();
-
-    const extension =
-      fileName.substring(
-        fileName.lastIndexOf('.')
-      );
-
-    const validExtension =
-      this.allowedExtensions.includes(
-        extension
-      );
-
-    const validMimeType =
-      this.allowedMimeTypes.includes(
-        file.type
-      );
-
-    // ===============================================
-    // FILE TYPE
-    // ===============================================
-
-    if (
-      !validExtension ||
-      !validMimeType
-    ) {
-
-      return 'invalidFileType';
-
-    }
-
-    // ===============================================
-    // FILE SIZE
-    // ===============================================
-
-    if (
-      file.size > this.maxFileSize
-    ) {
-
-      return 'fileTooLarge';
-
-    }
-
-    return null;
-  }
-
-  // ===================================================
-  // SELECT MENU
-  // ===================================================
-
-  selectMenu(
-    menu: any
-  ): void {
-
-    // ===============================================
-    // SET SELECTED MENU
-    // ===============================================
-
-    this.selectedMenu =
-      menu;
-
-
-    // ===============================================
-    // SET PAGE NAME
-    // ===============================================
-
-    this.pageForm.patchValue({
-
-      pageName:
-        menu.name
-
-    });
-
-
-    // ===============================================
-    // CLOSE DROPDOWN
-    // ===============================================
-
-    this.showMenus =
-      false;
-
-
-    // ===============================================
-    // CLEAR SEARCH
-    // ===============================================
+    this.selectedMenu = null;
 
     this.searchControl.setValue(
-      ''
+      '',
+      {
+        emitEvent: false
+      }
     );
 
+    this.showMenus = false;
 
-    // ===============================================
-    // CLEAR PAGE NAME VALIDATION
-    // ===============================================
+
+    // =================================================
+    // REVALIDATE PAGE NAME
+    // =================================================
 
     this.pageForm
       .get('pageName')
-      ?.setErrors(null);
+      ?.updateValueAndValidity({
+        emitEvent: false
+      });
 
   }
 
@@ -488,9 +438,12 @@ export class BannerModalComponent
           this.allMenus.push({
 
             name:
-              "Home"
+              "Home",
+            routerlink:
+              this.UI_URL
 
           })
+
           if (
             menu.submenus?.length
           ) {
@@ -498,12 +451,20 @@ export class BannerModalComponent
             menu.submenus.forEach(
               (sub: any) => {
 
-                this.allMenus.push({
+                if (sub.name) {
 
-                  name:
-                    sub.name
+                  this.allMenus.push({
 
-                });
+                    name:
+                      sub.name,
+
+                    routerlink:
+                      this.UI_URL +
+                      (sub.UIrouterlink || '')
+
+                  });
+
+                }
 
               }
             );
@@ -521,13 +482,15 @@ export class BannerModalComponent
             this.allMenus.push({
 
               name:
-                menu.name
+                menu.name,
+
+              routerlink:
+                this.UI_URL +
+                (menu.UIrouterlink || '')
 
             });
 
           }
-
-
 
         }
       );
@@ -557,17 +520,179 @@ export class BannerModalComponent
     return this.allMenus.filter(
       menu =>
 
-        menu.name
+        (menu.name || '')
           .toLowerCase()
           .includes(search)
 
         ||
 
-        menu.routerlink
+        (menu.routerlink || '')
           .toLowerCase()
           .includes(search)
 
     );
+
+  }
+
+
+  // ===================================================
+  // SELECT MENU
+  // ===================================================
+
+  selectMenu(
+    menu: any
+  ): void {
+
+    this.selectedMenu =
+      menu;
+
+
+    this.pageForm.patchValue({
+
+      pageName:
+        menu.name
+
+    });
+
+
+    this.showMenus = false;
+
+    this.searchControl.setValue('');
+
+
+    // Re-run duplicate validation
+    this.pageForm
+      .get('pageName')
+      ?.updateValueAndValidity();
+
+
+    this.pageForm
+      .get('pageName')
+      ?.markAsTouched();
+
+  }
+
+
+  // ===================================================
+  // VALIDATE FILE
+  // ===================================================
+
+  private validateFile(
+    file: File
+  ):
+    'invalidFileType'
+    | 'fileTooLarge'
+    | null {
+
+    const fileName =
+      file.name.toLowerCase();
+
+
+    const lastDot =
+      fileName.lastIndexOf('.');
+
+
+    const extension =
+      lastDot >= 0
+        ? fileName.substring(lastDot)
+        : '';
+
+
+    // ===============================================
+    // EXTENSION
+    // ===============================================
+
+    const validExtension =
+      this.allowedExtensions.includes(
+        extension
+      );
+
+
+    // ===============================================
+    // MIME TYPE
+    // ===============================================
+
+    const validMimeType =
+      this.allowedMimeTypes.includes(
+        file.type
+      );
+
+
+    // ===============================================
+    // FILE TYPE
+    // ===============================================
+
+    if (
+      !validExtension ||
+      !validMimeType
+    ) {
+
+      return 'invalidFileType';
+
+    }
+
+
+    // ===============================================
+    // FILE SIZE
+    // ===============================================
+
+    if (
+      file.size > this.maxFileSize
+    ) {
+
+      return 'fileTooLarge';
+
+    }
+
+
+    return null;
+
+  }
+
+
+  // ===================================================
+  // PROCESS VALID FILE
+  // ===================================================
+
+  private processValidFile(
+    file: File
+  ): void {
+
+    this.selectedFile =
+      file;
+
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = () => {
+
+      this.imagePreview =
+        reader.result as string;
+
+
+      const imageControl =
+        this.pageForm.get('image');
+
+
+      imageControl?.setValue(
+        this.imagePreview
+      );
+
+
+      imageControl?.setErrors(null);
+
+      imageControl?.markAsTouched();
+
+      imageControl?.updateValueAndValidity({
+        emitEvent: false
+      });
+
+    };
+
+
+    reader.readAsDataURL(file);
 
   }
 
@@ -584,7 +709,9 @@ export class BannerModalComponent
       event.target as HTMLInputElement;
 
 
-    if (!input.files?.length) {
+    if (
+      !input.files?.length
+    ) {
 
       return;
 
@@ -595,9 +722,15 @@ export class BannerModalComponent
       input.files[0];
 
 
-    if (
-      !this.isAllowedFile(file)
-    ) {
+    const error =
+      this.validateFile(file);
+
+
+    // ===============================================
+    // INVALID FILE
+    // ===============================================
+
+    if (error) {
 
       this.selectedFile =
         null;
@@ -606,18 +739,18 @@ export class BannerModalComponent
         null;
 
 
-      this.pageForm
-        .get('image')
-        ?.setErrors({
-
-          invalidFileType: true
-
-        });
+      const imageControl =
+        this.pageForm.get('image');
 
 
-      this.pageForm
-        .get('image')
-        ?.markAsTouched();
+      imageControl?.setErrors({
+
+        [error]: true
+
+      });
+
+
+      imageControl?.markAsTouched();
 
 
       input.value = '';
@@ -627,64 +760,14 @@ export class BannerModalComponent
     }
 
 
-    this.selectedFile =
-      file;
+    // ===============================================
+    // VALID FILE
+    // ===============================================
 
-
-    const reader =
-      new FileReader();
-
-
-    reader.onload = () => {
-
-      this.imagePreview =
-        reader.result as string;
-
-
-      this.pageForm
-        .get('image')
-        ?.setValue(
-          this.imagePreview
-        );
-
-
-      this.pageForm
-        .get('image')
-        ?.setErrors(null);
-
-    };
-
-
-    reader.readAsDataURL(
-      file
-    );
+    this.processValidFile(file);
 
 
     input.value = '';
-
-  }
-
-
-  // ===================================================
-  // FILE VALIDATION
-  // ===================================================
-
-  private isAllowedFile(
-    file: File
-  ): boolean {
-
-    const fileName =
-      file.name.toLowerCase();
-
-
-    const extension =
-      fileName.substring(
-        fileName.lastIndexOf('.')
-      );
-
-
-    return this.allowedExtensions
-      .includes(extension);
 
   }
 
@@ -699,8 +782,7 @@ export class BannerModalComponent
 
     event.preventDefault();
 
-    this.dragging =
-      true;
+    this.dragging = true;
 
   }
 
@@ -715,8 +797,7 @@ export class BannerModalComponent
 
     event.preventDefault();
 
-    this.dragging =
-      false;
+    this.dragging = false;
 
   }
 
@@ -733,15 +814,21 @@ export class BannerModalComponent
 
     this.dragging = false;
 
+
     const file =
       event.dataTransfer?.files?.[0];
 
+
     if (!file) {
+
       return;
+
     }
+
 
     const error =
       this.validateFile(file);
+
 
     // ===============================================
     // INVALID FILE
@@ -753,48 +840,31 @@ export class BannerModalComponent
 
       this.imagePreview = null;
 
+
       const imageControl =
         this.pageForm.get('image');
 
+
       imageControl?.setErrors({
+
         [error]: true
+
       });
+
 
       imageControl?.markAsTouched();
 
       return;
+
     }
+
 
     // ===============================================
     // VALID FILE
     // ===============================================
 
-    this.selectedFile = file;
+    this.processValidFile(file);
 
-    const reader =
-      new FileReader();
-
-    reader.onload = () => {
-
-      this.imagePreview =
-        reader.result as string;
-
-      const imageControl =
-        this.pageForm.get('image');
-
-      imageControl?.setValue(
-        this.imagePreview
-      );
-
-      imageControl?.setErrors(null);
-
-      imageControl?.updateValueAndValidity({
-        emitEvent: false
-      });
-
-    };
-
-    reader.readAsDataURL(file);
   }
 
 
@@ -804,31 +874,23 @@ export class BannerModalComponent
 
   removeImage(): void {
 
-    this.selectedFile =
-      null;
+    this.selectedFile = null;
 
-    this.imagePreview =
-      null;
+    this.imagePreview = null;
 
 
     const imageControl =
       this.pageForm.get('image');
 
 
-    imageControl?.setValue(
-      null
-    );
+    imageControl?.setValue(null);
 
 
-    if (!this.isEditMode) {
+    imageControl?.setErrors({
 
-      imageControl?.setErrors({
+      required: true
 
-        required: true
-
-      });
-
-    }
+    });
 
 
     imageControl?.markAsTouched();
@@ -841,41 +903,28 @@ export class BannerModalComponent
   // ===================================================
   // SUBMIT
   // ===================================================
-  isSubmitting = false;
+
   submit(): void {
 
     const pageNameControl =
-      this.pageForm.get(
-        'pageName'
-      );
+      this.pageForm.get('pageName');
 
 
     const imageControl =
-      this.pageForm.get(
-        'image'
-      );
+      this.pageForm.get('image');
 
 
-    // ===============================================
-    // PAGE REQUIRED
-    // ===============================================
+    // =================================================
+    // PAGE NAME
+    // =================================================
 
-    if (
-      !this.selectedMenu
-    ) {
-
-      pageNameControl?.setErrors({
-
-        required: true
-
-      });
-
-    }
+    pageNameControl
+      ?.updateValueAndValidity();
 
 
-    // ===============================================
+    // =================================================
     // IMAGE REQUIRED
-    // ===============================================
+    // =================================================
 
     if (
       !this.isEditMode &&
@@ -885,6 +934,8 @@ export class BannerModalComponent
 
       imageControl?.setErrors({
 
+        ...(imageControl.errors || {}),
+
         required: true
 
       });
@@ -892,9 +943,9 @@ export class BannerModalComponent
     }
 
 
-    // ===============================================
-    // FORM VALIDATION
-    // ===============================================
+    // =================================================
+    // FORM INVALID
+    // =================================================
 
     if (
       this.pageForm.invalid
@@ -906,48 +957,50 @@ export class BannerModalComponent
 
     }
 
+
+    // =================================================
+    // SUBMITTING
+    // =================================================
+
     this.isSubmitting = true;
 
 
-    // ===============================================
-    // VALUES
-    // ===============================================
+    const value =
+      this.pageForm.getRawValue();
 
-      const value =
-        this.pageForm.getRawValue();
 
-      console.log(value)
-      // ===============================================
-      // SAVE
-      // ===============================================
+    // =================================================
+    // SAVE
+    // =================================================
 
-      this.save.emit({
+    this.save.emit({
 
-        id:
-          value.id ?? 0,
+      id:
+        value.id ?? 0,
 
-        pageName:
-          value.pageName,
+      pageName:
+        value.pageName.trim(),
 
-        content:
-          value.content,
+      content:
+        value.content,
 
-        image:
-          this.banner?.image ?? null,
+      image:
+        this.banner?.image ?? null,
 
-        imagePath:
-          this.selectedFile
+      imagePath:
+        this.selectedFile
 
-      });
+    });
 
-      
 
+    // Keep your existing behavior.
+    // Parent can close the modal after save.
 
     setTimeout(() => {
-      this.isSubmitting = false;
-    }, 5000);
 
-    
+      this.isSubmitting = false;
+
+    }, 5000);
 
   }
 

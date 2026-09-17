@@ -280,6 +280,7 @@
             <!-- CONTENT -->
 
             <td class="px-6 py-5">
+              @if(banner.content){
               <button type="button"
                       (click)="viewDescription(banner)"
                       class="shrink-0
@@ -317,15 +318,27 @@ dark:hover:bg-indigo-900/50">
                 View Description
 
               </button>
+              }
+
+              @else{
+
+              <div class="flex h-14 w-14 items-center justify-center text-gray-900
+dark:text-white">
+
+                —
+
+              </div>
+
+              }
 
               <!--<div class="truncate-html
-                 max-w-xl
-                 text-sm
-                 text-gray-600
-                 dark:text-gray-300"
-           [innerHTML]="banner.content">
+             max-w-xl
+             text-sm
+             text-gray-600
+             dark:text-gray-300"
+       [innerHTML]="banner.content">
 
-      </div>-->
+  </div>-->
 
             </td>
 

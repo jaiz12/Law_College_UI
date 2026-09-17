@@ -8,9 +8,7 @@ import {
   inject
 } from '@angular/core';
 
-import {
-  CommonModule
-} from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import {
   FormBuilder,
@@ -33,17 +31,12 @@ import {
 
 
 @Component({
-
   selector: 'app-important-link-modal',
-
   standalone: true,
 
   imports: [
-
     CommonModule,
-
     ReactiveFormsModule
-
   ],
 
   templateUrl:
@@ -51,91 +44,203 @@ import {
 
   styleUrl:
     './important-link-modal.component.scss'
-
 })
-
-
 export class ImportantLinkModalComponent
   implements OnChanges {
 
 
-  // ---------------------------------------
+  // ===========================================
   // Services
-  // ---------------------------------------
+  // ===========================================
 
-  private fb =
-    inject(FormBuilder);
-
+  private fb = inject(FormBuilder);
 
   private validationService =
     inject(ValidationService);
-
 
   private configService =
     inject(ConfigService);
 
 
-  // ---------------------------------------
+  // ===========================================
   // Input / Output
-  // ---------------------------------------
+  // ===========================================
 
   @Input()
   link: ImportantLink | null = null;
 
+  @Input()
+  items: ImportantLink[] = [];
 
   @Output()
   save =
     new EventEmitter<ImportantLink>();
-
 
   @Output()
   close =
     new EventEmitter<void>();
 
 
-  // ---------------------------------------
+  // ===========================================
   // Menu Variables
-  // ---------------------------------------
+  // ===========================================
 
   showMenus = false;
 
-
   selectedMenu: any = null;
 
-
   searchControl =
-    new FormControl(
-      '',
-      {
-        nonNullable: true
-      }
-    );
+    new FormControl('', {
+      nonNullable: true
+    });
 
 
-  // ---------------------------------------
+  // ===========================================
   // Menu Configuration
-  // ---------------------------------------
+  // ===========================================
 
   menus: any[] = [];
 
-
   allMenus: any[] = [];
-
 
   UI_URL = '';
 
-
-  // ---------------------------------------
-  // Section
-  // ---------------------------------------
-
-  section =
-    'Important Links';
+  section = 'Important Links';
 
 
-  // ---------------------------------------
+  // ===========================================
+  // URL Validator
+  // ===========================================
+
+  private urlValidator() {
+
+    return (control: any) => {
+
+      const value =
+        control.value?.trim();
+
+      // Empty value is handled by required validator
+      if (!value) {
+        return null;
+      }
+
+      // URL cannot contain whitespace
+      if (/\s/.test(value)) {
+        return {
+          urlWhitespace: true
+        };
+      }
+
+      // HTTP / HTTPS URL
+      const urlPattern =
+        /^https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?::\d+)?(?:[/?#][^\s]*)?$/;
+
+      if (!urlPattern.test(value)) {
+        return {
+          invalidUrl: true
+        };
+      }
+
+      return null;
+    };
+  }
+
+
+  // ===========================================
+  // Duplicate Validator
+  // ===========================================
+  //
+  // Internal:
+  //   name  -> duplicate internal page name
+  //   link  -> duplicate internal page URL
+  //
+  // External:
+  //   name  -> duplicate external Link Name
+  //   link  -> duplicate external URL
+  //
+  // Current record is ignored during edit.
+  // ===========================================
+
+  private duplicateValidator(
+    field: 'name' | 'link'
+  ) {
+
+    return (control: any) => {
+
+      const value =
+        control.value
+          ?.trim()
+          .toLowerCase();
+
+      if (!value) {
+        return null;
+      }
+
+      const currentId =
+        Number(
+          this.pageForm
+            ?.get('id')
+            ?.value || 0
+        );
+
+      const currentType =
+        this.pageForm
+          ?.get('type')
+          ?.value;
+
+
+      const duplicate =
+        this.items.some(item => {
+
+          // ---------------------------------------
+          // Ignore current record while editing
+          // ---------------------------------------
+
+          if (
+            currentId > 0 &&
+            Number(item.id) === currentId
+          ) {
+            return false;
+          }
+
+
+          // ---------------------------------------
+          // Only compare same link type
+          // ---------------------------------------
+
+          if (
+            item.type !== currentType
+          ) {
+            return false;
+          }
+
+
+          // ---------------------------------------
+          // Compare field
+          // ---------------------------------------
+
+          const itemValue =
+            item[field]
+              ?.trim()
+              .toLowerCase();
+
+          return itemValue === value;
+
+        });
+
+
+      return duplicate
+        ? {
+          duplicate: true
+        }
+        : null;
+    };
+  }
+
+
+  // ===========================================
   // Form
-  // ---------------------------------------
+  // ===========================================
 
   pageForm =
     this.fb.group({
@@ -170,8 +275,12 @@ export class ImportantLinkModalComponent
 
               Validators.required,
 
+              Validators.maxLength(100),
+
               this.validationService
-                .noWhitespaceValidator()
+                .noWhitespaceValidator(),
+
+              this.duplicateValidator('name')
 
             ],
 
@@ -191,7 +300,11 @@ export class ImportantLinkModalComponent
               Validators.required,
 
               this.validationService
-                .noWhitespaceValidator()
+                .noWhitespaceValidator(),
+
+              this.duplicateValidator('link'),
+
+              this.urlValidator()
 
             ],
 
@@ -203,9 +316,9 @@ export class ImportantLinkModalComponent
     });
 
 
-  // ---------------------------------------
+  // ===========================================
   // Edit Mode
-  // ---------------------------------------
+  // ===========================================
 
   get isEditMode(): boolean {
 
@@ -214,75 +327,108 @@ export class ImportantLinkModalComponent
   }
 
 
-  // ---------------------------------------
+  // ===========================================
   // Constructor
-  // ---------------------------------------
+  // ===========================================
 
   constructor() {
 
     this.menus =
       this.configService.get('menus') || [];
 
-
     this.UI_URL =
       this.configService.get('UI_URL') || '';
-
 
     this.loadMenus();
 
 
-    // ---------------------------------------
+    // ===========================================
     // Type Change
-    // ---------------------------------------
+    // ===========================================
 
     this.pageForm
       .get('type')
       ?.valueChanges
-      .subscribe(type => {
+      .subscribe(() => {
 
-        this.showMenus = false;
-
-
-        this.selectedMenu = null;
-
-
-        if (type === 'internal') {
-
-          // Clear fields when switching
-          // to internal
-
-          this.pageForm.patchValue({
-
-            name: '',
-
-            link: ''
-
-          });
-
-        }
-
-        else {
-
-          // External link
-
-          this.pageForm.patchValue({
-
-            name: '',
-
-            link: ''
-
-          });
-
-        }
+        this.clearFormOnTypeChange();
 
       });
 
   }
 
 
-  // ---------------------------------------
+  // ===========================================
+  // Clear Form On Type Change
+  // ===========================================
+
+  private clearFormOnTypeChange(): void {
+
+    const nameControl =
+      this.pageForm.get('name');
+
+    const linkControl =
+      this.pageForm.get('link');
+
+
+    // -----------------------------------------
+    // Clear values
+    // -----------------------------------------
+
+    nameControl?.setValue('', {
+      emitEvent: false
+    });
+
+    linkControl?.setValue('', {
+      emitEvent: false
+    });
+
+
+    // -----------------------------------------
+    // Clear validation errors/state
+    // -----------------------------------------
+
+    nameControl?.setErrors(null);
+    linkControl?.setErrors(null);
+
+    nameControl?.markAsPristine();
+    nameControl?.markAsUntouched();
+
+    linkControl?.markAsPristine();
+    linkControl?.markAsUntouched();
+
+
+    // -----------------------------------------
+    // Clear selected internal page
+    // -----------------------------------------
+
+    this.selectedMenu = null;
+
+    this.showMenus = false;
+
+    this.searchControl.setValue('', {
+      emitEvent: false
+    });
+
+
+    // -----------------------------------------
+    // Recalculate validators
+    // -----------------------------------------
+
+    nameControl?.updateValueAndValidity({
+      emitEvent: false
+    });
+
+    linkControl?.updateValueAndValidity({
+      emitEvent: false
+    });
+
+  }
+
+
+  // ===========================================
   // Input Changes
-  // ---------------------------------------
+  // ===========================================
 
   ngOnChanges(
     changes: SimpleChanges
@@ -304,31 +450,31 @@ export class ImportantLinkModalComponent
         link:
           this.link.link
 
+      }, {
+        emitEvent: false
       });
 
 
-      this.searchControl.setValue('');
-
+      this.searchControl.setValue('', {
+        emitEvent: false
+      });
 
       this.showMenus = false;
 
 
-      // ---------------------------------------
+      // -----------------------------------------
       // Existing Internal Link
-      // ---------------------------------------
+      // -----------------------------------------
 
       if (
-        this.link.type ===
-        'internal'
+        this.link.type === 'internal'
       ) {
 
         this.selectedMenu =
           this.allMenus.find(
-
             x =>
               x.routerlink ===
               this.link!.link
-
           ) ?? null;
 
       }
@@ -343,15 +489,15 @@ export class ImportantLinkModalComponent
 
     else {
 
-      // ---------------------------------------
+      // -----------------------------------------
       // Add Mode
-      // ---------------------------------------
+      // -----------------------------------------
 
       this.selectedMenu = null;
 
-
-      this.searchControl.setValue('');
-
+      this.searchControl.setValue('', {
+        emitEvent: false
+      });
 
       this.showMenus = false;
 
@@ -366,9 +512,32 @@ export class ImportantLinkModalComponent
 
         link: ''
 
+      }, {
+        emitEvent: false
       });
 
+
+      this.pageForm.get('name')?.setErrors(null);
+      this.pageForm.get('link')?.setErrors(null);
+
     }
+
+
+    // -----------------------------------------
+    // Refresh validators
+    // -----------------------------------------
+
+    this.pageForm
+      .get('name')
+      ?.updateValueAndValidity({
+        emitEvent: false
+      });
+
+    this.pageForm
+      .get('link')
+      ?.updateValueAndValidity({
+        emitEvent: false
+      });
 
   }
 
@@ -381,8 +550,10 @@ export class ImportantLinkModalComponent
 
     this.allMenus = [];
 
-
-    const excludedMenus = this.configService.get("excludedMenus");
+    const excludedMenus =
+      this.configService.get(
+        'excludedMenus'
+      ) || [];
 
 
     this.menus
@@ -397,9 +568,8 @@ export class ImportantLinkModalComponent
       .forEach(
         (menu: any) => {
 
-
           // ---------------------------------------
-          // Menu has submenus
+          // Submenus
           // ---------------------------------------
 
           if (
@@ -409,16 +579,20 @@ export class ImportantLinkModalComponent
             menu.submenus.forEach(
               (sub: any) => {
 
-                this.allMenus.push({
+                if (sub.routerlink) {
 
-                  name:
-                    sub.name,
+                  this.allMenus.push({
 
-                  routerlink:
-                    this.UI_URL +
-                    sub.UIrouterlink
+                    name:
+                      sub.name,
 
-                });
+                    routerlink:
+                      this.UI_URL +
+                      sub.UIrouterlink
+
+                  });
+
+                }
 
               }
             );
@@ -427,7 +601,7 @@ export class ImportantLinkModalComponent
 
 
           // ---------------------------------------
-          // Main menu
+          // Main Menu
           // ---------------------------------------
 
           else if (
@@ -475,13 +649,13 @@ export class ImportantLinkModalComponent
     return this.allMenus.filter(
       menu =>
 
-        menu.name
+        (menu.name || '')
           .toLowerCase()
           .includes(search)
 
         ||
 
-        menu.routerlink
+        (menu.routerlink || '')
           .toLowerCase()
           .includes(search)
 
@@ -491,7 +665,7 @@ export class ImportantLinkModalComponent
 
 
   // ===========================================
-  // Select Menu
+  // Select Internal Menu
   // ===========================================
 
   selectMenu(menu: any): void {
@@ -500,21 +674,58 @@ export class ImportantLinkModalComponent
       menu;
 
 
+    // -----------------------------------------
+    // Set selected page values
+    // -----------------------------------------
+
     this.pageForm.patchValue({
 
       name:
-        menu.name,
+        menu.name || '',
 
       link:
-        menu.routerlink
+        menu.routerlink || ''
 
+    }, {
+      emitEvent: false
     });
 
 
+    // -----------------------------------------
+    // Mark fields touched
+    // -----------------------------------------
+
+    this.pageForm
+      .get('name')
+      ?.markAsTouched();
+
+    this.pageForm
+      .get('link')
+      ?.markAsTouched();
+
+
+    // -----------------------------------------
+    // Run duplicate validators
+    // -----------------------------------------
+
+    this.pageForm
+      .get('name')
+      ?.updateValueAndValidity();
+
+    this.pageForm
+      .get('link')
+      ?.updateValueAndValidity();
+
+
+    // -----------------------------------------
+    // Close dropdown
+    // -----------------------------------------
+
     this.showMenus = false;
 
-
-    this.searchControl.setValue('');
+    this.searchControl.setValue('', {
+      emitEvent: false
+    });
 
   }
 
@@ -522,8 +733,55 @@ export class ImportantLinkModalComponent
   // ===========================================
   // Submit
   // ===========================================
+
   isSubmitting = false;
+
   submit(): void {
+
+    // -----------------------------------------
+    // Internal page must be selected
+    // -----------------------------------------
+
+    if (
+      this.pageForm.get('type')?.value ===
+      'internal'
+    ) {
+
+      if (!this.selectedMenu) {
+
+        const linkControl =
+          this.pageForm.get('link');
+
+        linkControl?.setErrors({
+          ...(linkControl.errors || {}),
+          required: true
+        });
+
+        linkControl?.markAsTouched();
+
+        return;
+
+      }
+
+    }
+
+
+    // -----------------------------------------
+    // Run all validators
+    // -----------------------------------------
+
+    this.pageForm
+      .get('name')
+      ?.updateValueAndValidity();
+
+    this.pageForm
+      .get('link')
+      ?.updateValueAndValidity();
+
+
+    // -----------------------------------------
+    // Invalid form
+    // -----------------------------------------
 
     if (
       this.pageForm.invalid
@@ -534,6 +792,11 @@ export class ImportantLinkModalComponent
       return;
 
     }
+
+
+    // -----------------------------------------
+    // Submit
+    // -----------------------------------------
 
     this.isSubmitting = true;
 
@@ -560,15 +823,16 @@ export class ImportantLinkModalComponent
     };
 
 
-    console.log(
-      'Important Link:',
-      importantLink
-    );
-
-
     this.save.emit(
       importantLink
     );
+
+
+    setTimeout(() => {
+
+      this.isSubmitting = false;
+
+    }, 5000);
 
   }
 
@@ -589,17 +853,24 @@ export class ImportantLinkModalComponent
 
       link: ''
 
+    }, {
+      emitEvent: false
     });
+
+
+    this.pageForm.get('name')?.setErrors(null);
+    this.pageForm.get('link')?.setErrors(null);
 
 
     this.selectedMenu = null;
 
-
-    this.searchControl.setValue('');
-
+    this.searchControl.setValue('', {
+      emitEvent: false
+    });
 
     this.showMenus = false;
 
+    this.isSubmitting = false;
 
     this.close.emit();
 
