@@ -59,7 +59,7 @@
 
 <form [formGroup]="pageForm"
       (ngSubmit)="submit()"
-            (keydown.enter)="$event.preventDefault()">
+            >
 
 
   <!-- =================================================== -->
@@ -369,7 +369,7 @@
     </button>
 
 
-    <button type="submit"
+    <button type="submit" 
             [disabled]="
         pageForm.invalid ||
         (!selectedFile && !imagePreview)

@@ -452,29 +452,11 @@ export class LibraryComponent
       }
 
 
-      const formData =
-        new FormData();
-
-
-      formData.append(
-
-        'Id',
-
-        library.id.toString()
-
-      );
-
-
+      const id = library.id.toString()
       this.apiService
-
-        .DeleteFromFormRequest(
-
+        .DeleteRequest(
           'Library',
-
-          formData,
-
-          true
-
+          library.id.toString()
         )
 
         .subscribe({

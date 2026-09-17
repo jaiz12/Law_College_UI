@@ -30,7 +30,7 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
-            (keydown.enter)="$event.preventDefault()"
+            
             class="space-y-6 p-6">
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -60,14 +60,15 @@
                  dark:text-white">
 
             @if (
-            pageForm.get('startDate')?.touched &&
-            pageForm.get('startDate')?.hasError('required')
+            pageForm.get('startDate')?.touched){
+            @if (pageForm.get('startDate')?.hasError('required')
             ) {
 
             <p class="mt-2 text-sm text-red-600">
               Start Date is required.
             </p>
 
+            }
             }
 
           </div>
@@ -381,7 +382,7 @@
 
           </button>
 
-          <button type="submit"
+          <button type="submit" 
                   [disabled]="isSubmitting"
                   class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
             @if (isSubmitting) {

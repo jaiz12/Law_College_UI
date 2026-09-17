@@ -41,7 +41,6 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
-            (keydown.enter)="$event.preventDefault()"
             class="space-y-6 p-6">
 
         <!-- ========================================= -->
@@ -142,7 +141,7 @@
             <i class="ml-2 text-gray-500
                      dark:text-gray-400">
 
-              (Use Shift + Enter to start a new line.)
+              
 
             </i>
 
@@ -150,7 +149,6 @@
 
           <ckeditor [editor]="Editor"
                     [config]="editorConfig"
-                    (keydown.enter)="$event.preventDefault()"
                     formControlName="content">
 
           </ckeditor>
@@ -340,8 +338,9 @@
           </button>
 
 
-          <button type="submit"
-                  [disabled]="isSubmitting"
+          <button type="submit" 
+                  [disabled]="isSubmitting"                
+            
                   class="flex items-center justify-center
                    gap-2 rounded-xl bg-indigo-600
                    px-5 py-3 text-sm font-medium

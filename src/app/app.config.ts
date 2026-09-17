@@ -32,7 +32,8 @@ export const appConfig: ApplicationConfig = {
       progressBar: true,
       closeButton: true,
       preventDuplicates: true,
-      resetTimeoutOnDuplicate: true
+      resetTimeoutOnDuplicate: true,
+      tapToDismiss: true
     })
   ]
 };

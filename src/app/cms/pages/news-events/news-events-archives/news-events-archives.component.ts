@@ -261,7 +261,7 @@ export class NewsEventsArchivesComponent implements OnInit {
   // ARCHIVE
   // ===================================================
 
-  setActive(
+  unarchive(
     announcement: Announcements
   ): void {
 

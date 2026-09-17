@@ -21,7 +21,7 @@
     <!-- Form -->
     <form [formGroup]="pageForm"
           (ngSubmit)="submit()"
-          (keydown.enter)="$event.preventDefault()"
+          
           class="space-y-6 p-6">
 
       <!-- Icon -->
@@ -242,7 +242,7 @@
 
         </button>
 
-        <button type="submit"
+        <button type="submit" (keydown.enter)="$event.preventDefault()"
                 [disabled]="isSubmitting"
                 class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
           @if (isSubmitting) {
