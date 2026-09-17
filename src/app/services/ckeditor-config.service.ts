@@ -54,6 +54,7 @@ import {
 } from '@ckeditor/ckeditor5-image';
 
 import { ConfigService } from './config.service';
+import { ShiftEnter } from 'ckeditor5';
 
 @Injectable({
   providedIn: 'root'
@@ -102,7 +103,8 @@ export class CKEditorConfigService {
     ImageCaption,
     ImageStyle,
     ImageResize,
-    ImageUpload
+    ImageUpload,
+    ShiftEnter
   ];
 
   getConfig(): any {

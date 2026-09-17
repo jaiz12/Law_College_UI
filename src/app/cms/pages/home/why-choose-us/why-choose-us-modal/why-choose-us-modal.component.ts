@@ -22,6 +22,7 @@ import { ValidationService } from '../../../../../services/validation-service.se
 import {
   WhyChooseUs
 } from '../why-choose-us.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -53,6 +54,9 @@ export class WhyChooseUsModalComponent
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
+
 
   // ===================================================
   // INPUT
@@ -61,6 +65,9 @@ export class WhyChooseUsModalComponent
   @Input()
   item:
     WhyChooseUs | null = null;
+
+  @Input()
+  items: WhyChooseUs[] = [];
 
 
   // ===================================================
@@ -403,9 +410,12 @@ export class WhyChooseUsModalComponent
         validators: [
 
           Validators.required,
-
+          Validators.maxLength(100),
           this.validationService
-            .noWhitespaceValidator()
+            .noWhitespaceValidator(),
+          this.dublicateValidationService.duplicateValidator(() => this.items,
+            ['title']
+          )
 
         ],
 
@@ -436,7 +446,10 @@ export class WhyChooseUsModalComponent
 
           validators: [
             this.validationService
-              .noWhitespaceValidator()
+              .noWhitespaceValidator(),
+            Validators.pattern(
+              /^https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?:[/?#][^\s]*)?$/
+            )
 
           ],
 
@@ -523,6 +536,7 @@ export class WhyChooseUsModalComponent
         null;
 
     }
+    this.pageForm.controls.title.updateValueAndValidity();
 
   }
 
@@ -590,26 +604,29 @@ export class WhyChooseUsModalComponent
   // ===================================================
   // SUBMIT
   // ===================================================
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
       this.pageForm.markAllAsTouched();
       return;
     }
+    this.isSubmitting = true;
 
-    const value = this.pageForm.getRawValue();
+      const value = this.pageForm.getRawValue();
 
-    const item: WhyChooseUs = {
-      id: value.id ?? 0,
-      icon: value.icon,
-      title: value.title.trim(),
-      description: value.description.trim(),
-      externalLink: value.externalLink.trim() || null
-    };
+      const item: WhyChooseUs = {
+        id: value.id ?? 0,
+        icon: value.icon,
+        title: value.title.trim(),
+        description: value.description.trim(),
+        externalLink: value.externalLink.trim() || null
+      };
 
-    console.log('EMITTING SAVE:', item);
-    this.save.emit(item);
+      this.save.emit(item);
+      setTimeout(() => {
+        this.isSubmitting = false;
+      }, 5000);
   }
 
 

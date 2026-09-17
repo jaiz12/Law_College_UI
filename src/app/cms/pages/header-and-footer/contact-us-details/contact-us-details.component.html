@@ -1,7 +1,7 @@
-<div class="space-y-6">
+<div class="">
 
   <!-- Header -->
-  <div class="flex items-center justify-between px-6 py-3 ">
+  <div class="flex items-center justify-between py-3">
 
     <div>
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -22,6 +22,93 @@
       Add Contact
 
     </button>
+
+  </div>
+
+  <div class="flex flex-col gap-4 border-b border-gray-200 py-6 md:flex-row md:items-center md:justify-between dark:border-slate-700">
+
+    <!-- Search -->
+
+    <div class="relative w-full md:w-96">
+
+      <input [ngModel]="search()"
+             (ngModelChange)="search.set($event);page.set(1)"
+             type="text"
+             placeholder="Search Contact Us..."
+             class="w-full rounded-xl border border-gray-300 bg-white py-3 pl-11 pr-4 text-sm text-gray-800 outline-none transition
+          placeholder:text-gray-400
+          focus:border-indigo-500
+          focus:ring-2
+          focus:ring-indigo-200
+          dark:border-slate-700
+          dark:bg-slate-800
+          dark:text-white
+          dark:placeholder:text-slate-500
+          dark:focus:ring-indigo-900" />
+      <!-- Clear Button -->
+      @if (search()) {
+
+      <button type="button"
+              (click)="search.set(''); page.set(1)"
+              class="absolute
+                   right-3
+                   top-1/2
+                   flex
+                   h-7
+                   w-7
+                   -translate-y-1/2
+                   items-center
+                   justify-center
+                   rounded-full
+                   text-gray-400
+                   transition
+                   hover:bg-gray-100
+                   hover:text-gray-600
+                   dark:text-slate-400
+                   dark:hover:bg-slate-700
+                   dark:hover:text-white"
+              aria-label="Clear search">
+
+        <svg class="h-4 w-4"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             viewBox="0 0 24 24">
+
+          <path stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 6l12 12M18 6L6 18" />
+
+        </svg>
+
+      </button>
+
+      }
+      <svg class="absolute left-4 top-3.5 h-5 w-5 text-gray-400 dark:text-slate-500"
+           fill="none"
+           stroke="currentColor"
+           stroke-width="2"
+           viewBox="0 0 24 24">
+
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z" />
+
+      </svg>
+
+    </div>
+
+    <span class="text-sm font-medium text-gray-600 dark:text-slate-400">
+
+      Total Records :
+
+      <span class="font-semibold text-indigo-600 dark:text-indigo-400">
+
+        {{ filteredContacts().length }}
+
+      </span>
+
+    </span>
 
   </div>
 
@@ -60,7 +147,7 @@
 
         <tbody>
 
-          @for (item of contacts() | paginate:{itemsPerPage:itemsPerPage(),currentPage:page()}; track item.id) {
+          @for (item of filteredContacts() | paginate:{itemsPerPage:itemsPerPage(),currentPage:page()}; track item.id) {
 
           <tr class="border-t border-gray-200 transition hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800">
 
@@ -143,11 +230,40 @@
 
             <td colspan="3"
                 class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+              <div class="flex flex-col items-center gap-4">
 
-              <i class="fa-solid fa-circle-info mb-3 block text-4xl"></i>
+                <svg class="h-14 w-14 text-gray-300 dark:text-slate-600"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     viewBox="0 0 24 24">
 
-              No contact details available.
+                  <!-- Contact / People -->
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15 19a4 4 0 0 0-8 0" />
 
+                  <circle cx="11" cy="8" r="3" />
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17 11a3 3 0 1 0-1.5-5.6
+           M19 19a4 4 0 0 0-3-3.87" />
+
+                </svg>
+                <div class="text-lg font-semibold">
+
+                  No Contact Details Found
+
+                </div>
+
+                <div class="text-sm text-gray-400 dark:text-slate-500">
+
+                  Click "Add Contact" to create one.
+
+                </div>
+
+              </div>
             </td>
 
           </tr>
@@ -207,6 +323,7 @@
 @if (showModal()) {
 
 <app-contact-us-modal [contact]="selectedContact()"
+                      [contacts]="contacts()"
                       (save)="saveContact($event)"
                       (close)="closeModal()">
 </app-contact-us-modal>

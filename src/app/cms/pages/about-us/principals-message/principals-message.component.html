@@ -90,12 +90,9 @@
 
           </div>
 
-          <div class="mt-2
-  text-xs
-  text-gray-400
-  dark:text-gray-500">
+          <div class="mt-2 text-xs text-gray-400">
 
-            JPG, JPEG, PNG, WEBP
+            JPG, JPEG, PNG, or WEBP • Max 1 MB
 
           </div>
 
@@ -103,24 +100,32 @@
 
       </div>
       }
-      @if (
-      pageForm.get('photo')?.invalid &&
-      pageForm.get('photo')?.touched
-      ) {
+      @if (pageForm.get('photo')?.touched) {
 
-      <p class="mt-2 text-sm text-red-600">
+      @if (pageForm.get('photo')?.hasError('required')) {
 
-        Principal image is required.
-
+      <p class="mt-2 text-sm text-red-500">
+        Please upload an image.
       </p>
 
       }
 
-      @if (pageForm.get('photo')?.hasError('invalidFileType')) {
-      <p class="mt-2 text-sm text-red-600">
-        Invalid image format.
-        Only PNG, JPG, JPEG and WEBP are allowed.
+      @else if (pageForm.get('photo')?.hasError('invalidFile')) {
+
+      <p class="mt-2 text-sm text-red-500">
+        Only JPG, JPEG, PNG, or WEBP images are allowed.
       </p>
+
+      }
+
+      @else if (pageForm.get('photo')?.hasError('fileSize')) {
+
+      <p class="mt-2 text-sm text-red-500">
+        Image size cannot exceed 1 MB.
+      </p>
+
+      }
+
       }
 
     </div>
@@ -131,7 +136,7 @@
 
       <label class="mb-3 block font-semibold text-gray-700 dark:text-gray-200">
 
-        Principal's Message <span class="text-[#ff0000]">*</span>
+        Principal's Message <span class="text-[#ff0000]">*</span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
 
       </label>
 
@@ -142,9 +147,9 @@
       </ckeditor>
 
       @if (
-      pageForm.get('description')?.invalid &&
       pageForm.get('description')?.touched
       ) {
+      @if (pageForm.get('description')?.hasError('required')) {
 
       <p class="mt-2 text-sm text-red-600">
 
@@ -153,12 +158,13 @@
       </p>
 
       }
-      @if (pageForm.get('description')?.hasError('whitespace')) {
+      @else if (pageForm.get('description')?.hasError('whitespace')) {
 
       <p class="mt-2 text-sm text-red-500">
         Description cannot contain leading, trailing, or only whitespace.
       </p>
 
+      }
       }
     </div>
 
@@ -176,6 +182,17 @@
 
         <input formControlName="metaTitle"
                class="w-full rounded-lg border border-gray-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+        @if (pageForm.get('metaTitle')?.touched) {
+
+        @if (pageForm.get('metaTitle')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Title cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
 
       </div>
 
@@ -192,6 +209,18 @@
                   class="w-full rounded-lg border border-gray-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
         </textarea>
+
+        @if (pageForm.get('metaTitle')?.touched) {
+
+        @if (pageForm.get('metaTitle')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Description cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
 
       </div>
 

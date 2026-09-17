@@ -20,6 +20,7 @@ import { CommonModule } from '@angular/common';
 import { ContactDetail } from '../contact-us-details.component';
 
 import { ValidationService } from '../../../../../services/validation-service.service';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -29,11 +30,8 @@ import { ValidationService } from '../../../../../services/validation-service.se
   standalone: true,
 
   imports: [
-
     CommonModule,
-
     ReactiveFormsModule
-
   ],
 
   templateUrl: './contact-us-modal.component.html',
@@ -50,11 +48,14 @@ export class ContactUsModalComponent implements OnChanges {
   // Services
   // ---------------------------------------
 
-  private fb = inject(FormBuilder);
+  private fb =
+    inject(FormBuilder);
 
-  private validationService = inject(
-    ValidationService
-  );
+  private validationService =
+    inject(ValidationService);
+
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
 
   // ---------------------------------------
@@ -65,12 +66,18 @@ export class ContactUsModalComponent implements OnChanges {
   contact: ContactDetail | null = null;
 
 
-  @Output()
-  save = new EventEmitter<ContactDetail>();
+  @Input()
+  contacts: ContactDetail[] = [];
 
 
   @Output()
-  close = new EventEmitter<void>();
+  save =
+    new EventEmitter<ContactDetail>();
+
+
+  @Output()
+  close =
+    new EventEmitter<void>();
 
 
   // ---------------------------------------
@@ -99,7 +106,6 @@ export class ContactUsModalComponent implements OnChanges {
 
   icons = [
 
-    // Phone
     {
       name: 'Phone',
       value: 'fa-solid fa-phone'
@@ -115,7 +121,6 @@ export class ContactUsModalComponent implements OnChanges {
       value: 'fa-solid fa-mobile-screen-button'
     },
 
-    // Address
     {
       name: 'Location',
       value: 'fa-solid fa-location-dot'
@@ -131,7 +136,6 @@ export class ContactUsModalComponent implements OnChanges {
       value: 'fa-solid fa-map'
     },
 
-    // Email
     {
       name: 'Email',
       value: 'fa-solid fa-envelope'
@@ -147,7 +151,6 @@ export class ContactUsModalComponent implements OnChanges {
       value: 'fa-solid fa-at'
     },
 
-    // Website
     {
       name: 'Globe',
       value: 'fa-solid fa-globe'
@@ -158,7 +161,6 @@ export class ContactUsModalComponent implements OnChanges {
       value: 'fa-solid fa-link'
     },
 
-    // Social
     {
       name: 'Facebook',
       value: 'fa-brands fa-facebook'
@@ -184,7 +186,6 @@ export class ContactUsModalComponent implements OnChanges {
       value: 'fa-brands fa-youtube'
     },
 
-    // General
     {
       name: 'Clock',
       value: 'fa-solid fa-clock'
@@ -209,41 +210,51 @@ export class ContactUsModalComponent implements OnChanges {
 
   pageForm = this.fb.group({
 
-    id: this.fb.control<number>(0, {
+    id:
+      this.fb.control<number>(0, {
 
-      nonNullable: true
+        nonNullable: true
 
-    }),
-
-
-
-    icon: this.fb.control<string>('', {
-
-      validators: [
-
-        Validators.required
-
-      ],
-
-      nonNullable: true
-
-    }),
+      }),
 
 
-    detail: this.fb.control<string>('', {
+    icon:
+      this.fb.control<string>('', {
 
-      validators: [
+        validators: [
 
-        Validators.required,
+          Validators.required
 
-        this.validationService
-          .noWhitespaceValidator()
+        ],
 
-      ],
+        nonNullable: true
 
-      nonNullable: true
+      }),
 
-    })
+
+    detail:
+      this.fb.control<string>('', {
+
+        validators: [
+
+          Validators.required,
+
+          Validators.maxLength(100),
+
+          this.validationService
+            .noWhitespaceValidator(),
+
+          this.dublicateValidationService
+            .duplicateValidator(
+              () => this.contacts,
+              ['detail']
+            )
+
+        ],
+
+        nonNullable: true
+
+      })
 
   });
 
@@ -269,7 +280,6 @@ export class ContactUsModalComponent implements OnChanges {
 
     if (this.contact) {
 
-
       this.pageForm.patchValue({
 
         id:
@@ -284,16 +294,11 @@ export class ContactUsModalComponent implements OnChanges {
       });
 
 
-      // Select existing icon
-
       this.selectedIcon =
-
         this.icons.find(
-
           x =>
             x.value ===
             this.contact?.icon
-
         ) ?? null;
 
 
@@ -304,7 +309,6 @@ export class ContactUsModalComponent implements OnChanges {
     }
 
     else {
-
 
       this.pageForm.reset({
 
@@ -325,14 +329,38 @@ export class ContactUsModalComponent implements OnChanges {
 
     }
 
+
+    // Important:
+    // Re-run duplicate validation after
+    // contacts/contact input changes.
+
+    this.pageForm
+      .get('detail')
+      ?.updateValueAndValidity();
+
   }
 
 
   // ---------------------------------------
   // Submit
   // ---------------------------------------
+
   isSubmitting = false;
+
   submit(): void {
+
+    if (this.isSubmitting) {
+      return;
+    }
+
+
+    // Always refresh duplicate validation
+    // before submitting.
+
+    this.pageForm
+      .get('detail')
+      ?.updateValueAndValidity();
+
 
     if (this.pageForm.invalid) {
 
@@ -342,21 +370,49 @@ export class ContactUsModalComponent implements OnChanges {
 
     }
 
+
     this.isSubmitting = true;
 
-    const value = this.pageForm.getRawValue();
 
-    const contact: ContactDetail = {
 
-      id: value.id ?? 0,
+      const value =
+        this.pageForm.getRawValue();
 
-      icon: value.icon,
 
-      detail: value.detail.trim()
+      const contact: ContactDetail = {
 
-    };
+        id:
+          value.id ?? 0,
 
-    this.save.emit(contact);
+        icon:
+          value.icon.trim(),
+
+        detail:
+          value.detail.trim()
+
+      };
+
+
+      this.save.emit(contact);
+
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
+
+  }
+
+
+  // ---------------------------------------
+  // Save Completed
+  // ---------------------------------------
+
+  /**
+   * Parent component can call this after
+   * API success/error.
+   */
+  resetSubmitting(): void {
+
+    this.isSubmitting = false;
 
   }
 
@@ -384,6 +440,7 @@ export class ContactUsModalComponent implements OnChanges {
 
     this.showIcons = false;
 
+    this.isSubmitting = false;
 
     this.close.emit();
 
@@ -438,7 +495,6 @@ export class ContactUsModalComponent implements OnChanges {
 
   selectIcon(icon: any): void {
 
-
     this.selectedIcon =
       icon;
 
@@ -455,8 +511,6 @@ export class ContactUsModalComponent implements OnChanges {
 
     this.showIcons = false;
 
-
-    // Mark icon as touched
 
     this.pageForm
       .get('icon')

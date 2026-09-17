@@ -441,6 +441,7 @@ export class AlbumModalComponent
 
     this.save.emit(album);
 
+
   }
 
 

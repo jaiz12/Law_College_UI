@@ -89,16 +89,27 @@
                         dark:text-white">
 
 
-          @if(
-          pageForm.get('title')?.touched &&
-          pageForm.get('title')?.invalid
-          ){
 
-          @if(
-          pageForm.get('title')?.hasError('required')
-          ){
+          @if (pageForm.get('title')?.touched) {
+
+          @if (
+          pageForm.get('title')?.hasError('whitespace')
+          ) {
 
           <p class="mt-2 text-sm text-red-500">
+
+            Title cannot contain leading, trailing,
+            or only whitespace.
+
+          </p>
+
+          }
+
+          @else if (
+          pageForm.get('title')?.hasError('required')
+          ) {
+
+          <p class="mt-2 text-sm text-red-600">
 
             Title is required.
 
@@ -106,14 +117,26 @@
 
           }
 
+          @else if (
+          pageForm.get('title')?.hasError('maxlength')
+          ) {
 
-          @if(
-          pageForm.get('title')?.hasError('whitespace')
-          ){
+          <p class="mt-2 text-sm text-red-600">
+
+            Title cannot exceed 200 characters.
+
+          </p>
+
+          }
+
+          @else if (
+          pageForm.get('title')?.hasError('duplicate')
+          ) {
 
           <p class="mt-2 text-sm text-red-500">
 
-            Title cannot contain leading, trailing, or only whitespace.
+            This title already exists.
+            Please enter a different title.
 
           </p>
 
@@ -156,23 +179,41 @@
 
 
           @if(
-          pageForm.get('externalLink')?.touched &&
-          pageForm.get('externalLink')?.hasError('maxlength')
-          ){
+          pageForm.get('externalLink')?.touched
+          ) {
+
+          @if(
+          pageForm.get('externalLink')?.hasError('whitespace')
+          ) {
 
           <p class="mt-2 text-sm text-red-500">
-
-            External link cannot exceed 500 characters.
-
+            URL cannot contain leading, trailing,
+            or only whitespace.
           </p>
 
           }
 
-          <p class="mt-2 text-xs text-slate-400">
+          @else if(
+          pageForm.get('externalLink')?.hasError('urlWhitespace')
+          ) {
 
-            Example: https://example.com/library
-
+          <p class="mt-2 text-sm text-red-500">
+            URL cannot contain spaces.
           </p>
+
+          }
+          @else if(
+          pageForm.get('externalLink')?.hasError('invalidUrl')
+          ) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Please enter a valid URL starting with
+            http:// or https://.
+          </p>
+
+          }
+
+          }
 
         </div>
 

@@ -7,6 +7,7 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { OurProgram } from '../our-program.component';
 import { ConfigService } from '../../../../../services/config.service';
 import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 @Component({
   selector: 'app-our-program-modal',
@@ -30,6 +31,9 @@ export class OurProgramModalComponent implements OnChanges {
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
+
 
   // ===================================================
   // INPUT
@@ -38,6 +42,10 @@ export class OurProgramModalComponent implements OnChanges {
   @Input()
   item:
     OurProgram | null = null;
+
+  @Input()
+  items:
+    OurProgram[] = [];
 
 
   // ===================================================
@@ -83,10 +91,12 @@ export class OurProgramModalComponent implements OnChanges {
 
         validators: [
 
-          Validators.required,
-
+          Validators.maxLength(100),
           this.validationService
-            .noWhitespaceValidator()
+            .noWhitespaceValidator(),
+          this.dublicateValidationService.duplicateValidator(() => this.items,
+            ['title']
+          )
 
         ],
 
@@ -99,10 +109,9 @@ export class OurProgramModalComponent implements OnChanges {
 
         validators: [
 
-          Validators.required,
-
+          Validators.maxLength(500),
           this.validationService
-            .noWhitespaceValidator()
+            .noWhitespaceValidator(),
 
         ],
 
@@ -189,6 +198,7 @@ export class OurProgramModalComponent implements OnChanges {
 
 
     }
+    this.pageForm.controls.title.updateValueAndValidity();
 
   }
 
@@ -219,6 +229,10 @@ export class OurProgramModalComponent implements OnChanges {
 
     console.log('EMITTING SAVE:', item);
     this.save.emit(item);
+
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
   }
 
 

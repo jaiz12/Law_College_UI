@@ -55,7 +55,8 @@ export class GoogleMapComponent implements OnInit {
       latitude: this.fb.control<string>('', {
         validators: [
           Validators.required,
-          Validators.min(0)
+          this.latitudeValidator(),
+          Validators.pattern(/^-?(?:90(?:\.0+)?|[0-8]?\d(?:\.\d+)?)$/)
         ],
         nonNullable: true
       }),
@@ -63,7 +64,8 @@ export class GoogleMapComponent implements OnInit {
       longitude: this.fb.control<string>('', {
         validators: [
           Validators.required,
-          Validators.min(0)
+          this.longitudeValidator(),
+          Validators.pattern(/^-?(?:180(?:\.0+)?|1[0-7]\d(?:\.\d+)?|[0-9]?\d(?:\.\d+)?)$/)
         ],
         nonNullable: true
       })
@@ -91,7 +93,7 @@ export class GoogleMapComponent implements OnInit {
    * Prevents typing 'e', 'E', and '-' in numerical inputs.
    */
   preventInvalidChars(event: KeyboardEvent): void {
-    if (['e', 'E', '-'].includes(event.key)) {
+    if (['e', 'E'].includes(event.key)) {
       event.preventDefault();
     }
   }
@@ -231,5 +233,60 @@ export class GoogleMapComponent implements OnInit {
         this.selectedLocation.longitude
       );
     }
+  }
+
+  private latitudeValidator() {
+    return (control: any) => {
+
+      const value = control.value?.toString().trim();
+
+      if (!value) {
+        return null;
+      }
+
+      if (/\s/.test(value)) {
+        return { whitespace: true };
+      }
+
+      const latitude = Number(value);
+
+      if (
+        Number.isNaN(latitude) ||
+        latitude < -90 ||
+        latitude > 90
+      ) {
+        return { invalidLatitude: true };
+      }
+
+      return null;
+    };
+  }
+
+
+  private longitudeValidator() {
+    return (control: any) => {
+
+      const value = control.value?.toString().trim();
+
+      if (!value) {
+        return null;
+      }
+
+      if (/\s/.test(value)) {
+        return { whitespace: true };
+      }
+
+      const longitude = Number(value);
+
+      if (
+        Number.isNaN(longitude) ||
+        longitude < -180 ||
+        longitude > 180
+      ) {
+        return { invalidLongitude: true };
+      }
+
+      return null;
+    };
   }
 }

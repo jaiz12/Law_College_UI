@@ -122,66 +122,50 @@
             <!-- =========================================== -->
             <!-- DROPDOWN -->
             <!-- =========================================== -->
-            @if (showMenus) {
+           
+            @if(showMenus) {
 
-            <div class="absolute left-0 right-0 z-50 mt-2
-               overflow-hidden rounded-xl
-               border border-gray-300
-               bg-white
-               shadow-xl
-               dark:border-slate-700
-               dark:bg-slate-900">
-
-              <!-- ======================================= -->
-              <!-- SEARCH -->
-              <!-- ======================================= -->
+            <div class="absolute z-50 mt-2 max-h-80 w-full
+        overflow-hidden rounded-xl
+        border border-gray-300
+        bg-white shadow-xl
+        dark:border-slate-700
+        dark:bg-slate-900">
 
               <div class="border-b border-gray-200
-                 dark:border-slate-700">
+          dark:border-slate-700">
 
                 <input type="text"
                        [formControl]="searchControl"
-                       placeholder="Search page..."
+                       placeholder="Search internal page..."
                        class="w-full bg-transparent
-                   px-4 py-3
-                   text-sm
-                   text-gray-800
-                   outline-none
-                   placeholder:text-gray-400
-                   dark:text-white
-                   dark:placeholder:text-slate-500" />
+              px-4 py-3 outline-none
+              dark:text-white">
 
               </div>
 
 
-              <!-- ======================================= -->
-              <!-- MENU LIST -->
-              <!-- ======================================= -->
-
               <div class="max-h-64 overflow-y-auto">
 
-                @for (
+                @for(
                 menu of filteredMenus();
                 track menu.routerlink
                 ) {
 
                 <button type="button"
                         (click)="selectMenu(menu)"
-                        class="flex w-full
-                     flex-col
-                     items-start
-                     px-4 py-3
-                     text-left
-                     transition
-                     hover:bg-indigo-50
-                     dark:hover:bg-slate-800">
+                        class="flex w-full flex-col
+                 items-start px-4 py-3
+                 text-left transition
+                 hover:bg-indigo-50
+                 dark:hover:bg-slate-800">
 
-                  <span class="font-medium
-                       text-gray-800
-                       dark:text-white">
-
+                  <span class="font-medium dark:text-white">
                     {{ menu.name }}
+                  </span>
 
+                  <span class="text-xs text-gray-500">
+                    {{ menu.routerlink }}
                   </span>
 
                 </button>
@@ -190,12 +174,8 @@
 
                 @empty {
 
-                <div class="p-6 text-center
-                     text-sm text-gray-500
-                     dark:text-slate-400">
-
+                <div class="p-6 text-center text-gray-500">
                   No pages found.
-
                 </div>
 
                 }
@@ -213,7 +193,6 @@
           <!-- VALIDATION -->
           <!-- =========================================== -->
           @if (
-          pageForm.get('pageName')?.invalid &&
           pageForm.get('pageName')?.touched
           ) {
 
@@ -242,7 +221,7 @@
             <span class="text-xs font-normal text-gray-400">
               (Optional)
             </span>
-
+            <i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
           </label>
 
 
@@ -334,53 +313,46 @@
                    (change)="onFileChange($event)" />
 
 
-            <div class="flex flex-col
-                       items-center
-                       justify-center
-                       py-10">
+            <div class="flex flex-col items-center
+           justify-center py-10">
+
 
               <!-- Upload Icon -->
 
-              <div class="mb-3 flex h-14 w-14
-                         items-center justify-center
-                         rounded-full
-                         bg-indigo-100
-                         text-indigo-600
-                         dark:bg-indigo-900/30
-                         dark:text-indigo-400">
+              <svg class="mb-4 h-12 w-12 text-indigo-500"
+                   fill="none"
+                   stroke="currentColor"
+                   stroke-width="2"
+                   viewBox="0 0 24 24">
 
-                <i class="fa-solid
-                           fa-cloud-arrow-up
-                           text-xl">
-                </i>
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4">
+                </path>
 
-              </div>
+              </svg>
 
 
-              <!-- Text -->
+              <div class="font-semibold text-gray-700
+             dark:text-gray-200">
 
-              <div class="font-semibold
-                         text-gray-700
-                         dark:text-gray-200">
-
-                Drag & Drop Banner Image
+                Drag & Drop Member Photo
 
               </div>
 
 
-              <div class="mt-1 text-sm
-                         text-gray-500
-                         dark:text-slate-400">
+              <div class="mt-1 text-sm text-gray-500
+             dark:text-slate-400">
 
                 or click to browse
 
               </div>
 
 
-              <div class="mt-2 text-xs
-                         text-gray-400">
+              <div class="mt-2 text-xs text-gray-400
+             dark:text-gray-500">
 
-                PNG, JPG, JPEG, WEBP
+                JPG, JPEG, PNG, or WEBP • Max 1 MB
 
               </div>
 
@@ -395,30 +367,30 @@
           <!-- VALIDATION -->
           <!-- =========================================== -->
           @if (
-          pageForm.get('image')?.hasError('required') &&
-          pageForm.get('image')?.touched
+          pageForm.get('image')?.touched &&
+          pageForm.get('image')?.hasError('required')
           ) {
-
           <p class="mt-2 text-sm text-red-600">
-
-            Banner image is required.
-
+            Image is required.
           </p>
-
           }
 
-
           @if (
+          pageForm.get('image')?.touched &&
           pageForm.get('image')?.hasError('invalidFileType')
           ) {
-
           <p class="mt-2 text-sm text-red-600">
-
-            Invalid image format.
-            Only PNG, JPG, JPEG and WEBP are allowed.
-
+            Only JPG, JPEG, PNG and WEBP image files are allowed.
           </p>
+          }
 
+          @if (
+          pageForm.get('image')?.touched &&
+          pageForm.get('image')?.hasError('fileTooLarge')
+          ) {
+          <p class="mt-2 text-sm text-red-600">
+            Image size must not exceed 1 MB.
+          </p>
           }
 
         </div>

@@ -61,8 +61,18 @@ export class VisionAndMissionComponent implements OnInit {
         ],
         nonNullable: true
       }],
-      metaTitle: [''],
-      metaDescription: [''],
+      metaTitle: ['', {
+        validators: [
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
+      metaDescription: ['', {
+        validators: [
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
     });
   }
 

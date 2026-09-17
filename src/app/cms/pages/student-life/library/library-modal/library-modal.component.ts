@@ -21,6 +21,7 @@ import { ValidationService } from '../../../../../services/validation-service.se
 import {
   Library
 } from '../library.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -55,6 +56,8 @@ export class LibraryModalComponent
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
   // -------------------------------------------------
   // Inputs
@@ -62,6 +65,9 @@ export class LibraryModalComponent
 
   @Input()
   library: Library | null = null;
+
+  @Input()
+  libraries: Library[] = [];
 
 
   // -------------------------------------------------
@@ -96,8 +102,14 @@ export class LibraryModalComponent
 
             Validators.required,
 
-            this.validationService
-              .noWhitespaceValidator()
+            Validators.maxLength(200),
+
+            this.validationService.noWhitespaceValidator(),
+
+            this.dublicateValidationService.duplicateValidator(
+              () => this.libraries,
+              ['title']
+            )
 
           ],
 
@@ -111,6 +123,8 @@ export class LibraryModalComponent
 
           validators: [
 
+            this.urlValidator(),
+            this.validationService.noWhitespaceValidator(),
             Validators.maxLength(500)
 
           ],
@@ -132,6 +146,43 @@ export class LibraryModalComponent
 
   }
 
+
+  // ---------------------------------------
+  // URL Validator
+  // ---------------------------------------
+
+  private urlValidator() {
+
+    return (control: any) => {
+
+      const value =
+        control.value
+          ?.trim();
+
+      if (!value) {
+        return null;
+      }
+
+      // No whitespace anywhere
+      if (/\s/.test(value)) {
+        return {
+          urlWhitespace: true
+        };
+      }
+
+      // Valid HTTP / HTTPS URL
+      const urlPattern =
+        /^https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?::\d+)?(?:[/?#][^\s]*)?$/;
+
+      if (!urlPattern.test(value)) {
+        return {
+          invalidUrl: true
+        };
+      }
+
+      return null;
+    };
+  }
 
   // -------------------------------------------------
   // Input Changes
@@ -208,6 +259,9 @@ export class LibraryModalComponent
         value.externalLink || null
 
     });
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
 
   }
 

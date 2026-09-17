@@ -454,11 +454,22 @@ export class AcademicCalendarComponent
     // IS ACTIVE
     // =================================================
 
-    formData.append(
-      'IsActive',
-      'false'
-    );
+    if (isEdit) {
 
+      // During edit, preserve the existing status
+      formData.append(
+        'IsActive',
+        calendar.isActive ? 'true' : 'false'
+      );
+
+    } else {
+
+      // New academic calendar is always inactive
+      formData.append(
+        'IsActive',
+        'false'
+      );
+    }
 
     // =================================================
     // FILE
@@ -592,18 +603,17 @@ export class AcademicCalendarComponent
   // SET ACTIVE
   // ===================================================
 
-  setActive(
-    calendar: AcademicCalendar
-  ): void {
+  // ===================================================
+  // TOGGLE ACTIVE / INACTIVE
+  // ===================================================
 
-    // Already active
-    if (
-      calendar.isActive
-    ) {
+  toggleActive(calendar: AcademicCalendar): void {
 
-      return;
+    // =================================================
+    // NEW STATUS
+    // =================================================
 
-    }
+    const newStatus = !calendar.isActive;
 
 
     // =================================================
@@ -611,29 +621,29 @@ export class AcademicCalendarComponent
     // =================================================
 
     const previousItems =
-      this.academicCalendars()
-        .map(item => ({
-          ...item
-        }));
+      this.academicCalendars().map(item => ({
+        ...item
+      }));
 
 
     // =================================================
     // OPTIMISTIC UPDATE
     // =================================================
 
-    this.academicCalendars.update(
+    this.academicCalendars.update(list =>
+      list.map(item => {
 
-      list =>
+        if (item.id === calendar.id) {
 
-        list.map(item => ({
+          return {
+            ...item,
+            isActive: newStatus
+          };
 
-          ...item,
+        }
 
-          isActive:
-            item.id === calendar.id
-
-        }))
-
+        return item;
+      })
     );
 
 
@@ -641,28 +651,22 @@ export class AcademicCalendarComponent
     // FORM DATA
     // =================================================
 
-    const formData =
-      new FormData();
+    const formData = new FormData();
 
 
     formData.append(
-
       'Id',
-
       calendar.id.toString()
-
     );
+
 
     // =================================================
     // TITLE
     // =================================================
 
     formData.append(
-
       'Title',
-
       calendar.title?.trim() ?? ''
-
     );
 
 
@@ -671,42 +675,49 @@ export class AcademicCalendarComponent
     // =================================================
 
     formData.append(
-
       'Content',
-
       calendar.content ?? ''
-
     );
+
+
+    // =================================================
+    // NEW STATUS
+    // =================================================
+
+    formData.append(
+      'IsActive',
+      newStatus ? 'true' : 'false'
+    );
+
+
+    // =================================================
+    // USER
+    // =================================================
+
+    formData.append(
+      'UpdatedBy',
+      this.loggedInId()
+    );
+
+
+    // =================================================
+    // FILE
+    // =================================================
+
+    /*
+     * Only send a file if there is actually
+     * a newly selected file.
+     */
 
     if (calendar.filePath) {
 
       formData.append(
-
         'File',
-
         calendar.filePath,
-
         calendar.filePath.name
-
       );
 
     }
-    formData.append(
-
-      'IsActive',
-
-      'true'
-
-    );
-
-
-    formData.append(
-
-      'UpdatedBy',
-
-      this.loggedInId()
-
-    );
 
 
     // =================================================
@@ -716,40 +727,37 @@ export class AcademicCalendarComponent
     this.apiService
 
       .PutRequest(
-
         'AcademicCalendar',
-
         formData,
-
         true
-
       )
 
       .subscribe({
 
         next: (res: any) => {
 
-          if (
-            res?.isSucceeded
-          ) {
+          if (res?.isSucceeded) {
 
             this.toastr.success(
 
               res?.message ||
 
-              'Status updated.'
+              `Academic Calendar ${newStatus
+                ? 'activated'
+                : 'deactivated'
+              } successfully.`
 
             );
 
-          }
+          } else {
 
-          else {
+            // -----------------------------------------
+            // ROLLBACK
+            // -----------------------------------------
 
-            // Rollback
             this.academicCalendars.set(
               previousItems
             );
-
 
             this.toastr.warning(
 
@@ -765,14 +773,17 @@ export class AcademicCalendarComponent
 
         error: (err) => {
 
-          // Rollback
+          // -----------------------------------------
+          // ROLLBACK
+          // -----------------------------------------
+
           this.academicCalendars.set(
             previousItems
           );
 
 
           console.error(
-            'Set Active Error:',
+            'Toggle Academic Calendar Status Error:',
             err
           );
 

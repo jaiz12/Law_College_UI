@@ -1,9 +1,26 @@
+
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject
+} from '@angular/core';
+
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+
 import { InfrastructureBody } from '../infrastructure.component';
 import { ConfigService } from '../../../../../services/config.service';
 import { ValidationService } from '../../../../../services/validation-service.service';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
+
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
@@ -18,29 +35,50 @@ import { CKEditorConfigService } from '../../../../../services/ckeditor-config.s
   templateUrl: './infrastructure-modal.component.html',
   styleUrl: './infrastructure-modal.component.scss'
 })
-export class InfrastructureModalComponent implements OnChanges {
+export class InfrastructureModalComponent
+  implements OnChanges {
 
-  editorConfig: any;
-  public Editor: any;
+  // ===================================================
+  // SERVICES
+  // ===================================================
 
   private fb = inject(FormBuilder);
-  private validationService = inject(ValidationService);
+
+  private validationService =
+    inject(ValidationService);
+
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
   constructor(
     private config: ConfigService,
     private ckEditorConfig: CKEditorConfigService
   ) {
-    // CKEditor build
     this.Editor = this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
+    this.editorConfig =
+      this.ckEditorConfig.getConfig();
   }
 
-  // ---------------------------------------
-  // Input / Output
-  // ---------------------------------------
+  // ===================================================
+  // CKEDITOR
+  // ===================================================
+
+  editorConfig: any;
+  public Editor: any;
+
+  // ===================================================
+  // INPUT
+  // ===================================================
 
   @Input()
   infrastructure: InfrastructureBody | null = null;
+
+  @Input()
+  infrastructures: InfrastructureBody[] = [];
+
+  // ===================================================
+  // OUTPUT
+  // ===================================================
 
   @Output()
   save = new EventEmitter<FormData>();
@@ -48,278 +86,542 @@ export class InfrastructureModalComponent implements OnChanges {
   @Output()
   close = new EventEmitter<void>();
 
-  // ---------------------------------------
-  // File Variables
-  // ---------------------------------------
+  // ===================================================
+  // IMAGE & DRAG/DROP
+  // ===================================================
 
-  imagePreview: string | ArrayBuffer | null = null;
-  selectedFile: File | null = null;
+  imagePreview:
+    string | ArrayBuffer | null = null;
+
+  selectedFile:
+    File | null = null;
+
   dragging = false;
 
   readonly allowedExtensions = [
-    '.png',
     '.jpg',
     '.jpeg',
+    '.png',
     '.webp'
   ];
 
-  // ---------------------------------------
-  // Form
-  // ---------------------------------------
+  readonly allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ];
 
-  pageForm = this.fb.group({
-    id: this.fb.control<string>('', {
-      nonNullable: true
-    }),
+  readonly maxFileSize =
+    1 * 1024 * 1024; // 1 MB
 
-    title: this.fb.control<string>('', {
-      validators: [
-        Validators.required,
-        this.validationService.noWhitespaceValidator()
-      ],
-      nonNullable: true
-    }),
+  // ===================================================
+  // FORM
+  // ===================================================
 
-    content: this.fb.control<string>('', {
-      validators: [
-        Validators.required,
-        this.validationService.noWhitespaceValidator()
-      ],
-      nonNullable: true
-    }),
+  pageForm = this.fb.group(
+    {
+      id:
+        this.fb.control<string>('', {
+          nonNullable: true
+        }),
 
-    photo: this.fb.control<string | null>(null, {
-      validators: [
-        Validators.required
-      ]
-    })
-  });
+      title:
+        this.fb.control<string>('', {
+          validators: [
+            Validators.required,
 
-  // ---------------------------------------
-  // Edit Mode
-  // ---------------------------------------
+            Validators.maxLength(200),
+
+            this.dublicateValidationService.duplicateValidator(() => this.infrastructures,
+              ['title']
+            ),
+
+            this.validationService
+              .noWhitespaceValidator()
+          ],
+
+          nonNullable: true
+        }),
+
+      content:
+        this.fb.control<string>('', {
+          validators: [
+            Validators.required,
+
+            this.validationService
+              .noWhitespaceValidator()
+          ],
+
+          nonNullable: true
+        }),
+
+      photo:
+        this.fb.control<string | null>(
+          null,
+          {
+            validators: [
+              Validators.required
+            ]
+          }
+        )
+    }
+  );
+
+  // ===================================================
+  // EDIT MODE
+  // ===================================================
 
   get isEditMode(): boolean {
     return !!this.infrastructure;
   }
 
-  // ---------------------------------------
-  // Input Changes
-  // ---------------------------------------
+  // ===================================================
+  // LIFECYCLE
+  // ===================================================
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(
+    changes: SimpleChanges
+  ): void {
+
     if (this.infrastructure) {
+
       this.pageForm.patchValue({
-        id: this.infrastructure.id ?? '',
-        title: this.infrastructure.title ?? '',
-        content: this.infrastructure.content ?? '',
-        photo: this.infrastructure.photo ?? ''
+
+        id:
+          this.infrastructure.id ?? '',
+
+        title:
+          this.infrastructure.title ?? '',
+
+        content:
+          this.infrastructure.content ?? '',
+
+        photo:
+          this.infrastructure.photo ?? ''
+
       });
 
-      const photoPath = this.infrastructure.photo;
+      // ===============================================
+      // EXISTING PHOTO
+      // ===============================================
+
+      const photoPath =
+        this.infrastructure.photo;
 
       if (photoPath) {
-        this.imagePreview = this.config.get('IMAGE_API_URL') + photoPath;
-        // Existing photo is valid during edit
-        this.pageForm.get('photo')?.setErrors(null);
-      } else {
+
+        this.imagePreview =
+          this.config.get(
+            'IMAGE_API_URL'
+          ) + photoPath;
+
+        this.pageForm
+          .get('photo')
+          ?.setErrors(null);
+
+      }
+
+      else {
+
         this.imagePreview = null;
-        this.pageForm.get('photo')?.setErrors({ required: true });
+
+        this.pageForm
+          .get('photo')
+          ?.setErrors({
+            required: true
+          });
+
       }
 
       this.selectedFile = null;
-    } else {
+
+    }
+
+    else {
+
+      // ===============================================
+      // CREATE MODE
+      // ===============================================
+
       this.pageForm.reset({
+
         id: '',
+
         title: '',
+
         content: '',
-        photo: ''
+
+        photo: null
+
       });
 
       this.imagePreview = null;
+
       this.selectedFile = null;
 
-      this.pageForm.get('photo')?.setErrors(null);
     }
+
+    // ===============================================
+    // REVALIDATE DUPLICATE
+    // ===============================================
+
+    this.pageForm.controls.title.updateValueAndValidity();
   }
 
-  // ---------------------------------------
-  // File Selection
-  // ---------------------------------------
+  // ===================================================
+  // FILE CHANGE
+  // ===================================================
 
-  onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
+  onFileChange(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
 
     if (!input.files?.length) {
       return;
     }
 
-    const file = input.files[0];
+    const file =
+      input.files[0];
 
-    if (!this.isAllowedFile(file)) {
+    const error =
+      this.validateFile(file);
+
+    if (error) {
+
       this.selectedFile = null;
+
       this.imagePreview = null;
 
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
-      });
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+          [error]: true
+        });
 
-      this.pageForm.get('photo')?.markAsTouched();
+      this.pageForm
+        .get('photo')
+        ?.markAsTouched();
 
       input.value = '';
+
       return;
     }
 
     this.loadFile(file);
+
     input.value = '';
   }
 
-  // ---------------------------------------
-  // File Validation
-  // ---------------------------------------
+  // ===================================================
+  // FILE VALIDATION
+  // ===================================================
 
-  private isAllowedFile(file: File): boolean {
-    const fileName = file.name.toLowerCase();
-    const extension = fileName.substring(fileName.lastIndexOf('.'));
-    return this.allowedExtensions.includes(extension);
+  private validateFile(
+    file: File
+  ):
+    'invalidFileType'
+    | 'fileTooLarge'
+    | null {
+
+    const fileName =
+      file.name.toLowerCase();
+
+    const extension =
+      fileName.substring(
+        fileName.lastIndexOf('.')
+      );
+
+    const validExtension =
+      this.allowedExtensions.includes(
+        extension
+      );
+
+    const validMimeType =
+      this.allowedMimeTypes.includes(
+        file.type
+      );
+
+    // ===============================================
+    // FILE TYPE
+    // ===============================================
+
+    if (
+      !validExtension ||
+      !validMimeType
+    ) {
+
+      return 'invalidFileType';
+
+    }
+
+    // ===============================================
+    // FILE SIZE
+    // ===============================================
+
+    if (
+      file.size > this.maxFileSize
+    ) {
+
+      return 'fileTooLarge';
+
+    }
+
+    return null;
   }
 
-  // ---------------------------------------
-  // Load Image
-  // ---------------------------------------
+  // ===================================================
+  // LOAD IMAGE
+  // ===================================================
 
-  loadFile(file: File): void {
+  loadFile(
+    file: File
+  ): void {
+
     this.selectedFile = file;
 
-    const reader = new FileReader();
+    const reader =
+      new FileReader();
 
     reader.onload = () => {
-      this.imagePreview = reader.result as string;
 
-      this.pageForm.get('photo')?.setValue(this.imagePreview);
-      this.pageForm.get('photo')?.setErrors(null);
+      this.imagePreview =
+        reader.result as string;
+
+      this.pageForm
+        .get('photo')
+        ?.setValue(
+          this.imagePreview
+        );
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors(null);
+
     };
 
     reader.readAsDataURL(file);
   }
 
-  // ---------------------------------------
-  // Drag & Drop
-  // ---------------------------------------
+  // ===================================================
+  // DRAG OVER
+  // ===================================================
 
-  onDragOver(event: DragEvent): void {
+  onDragOver(
+    event: DragEvent
+  ): void {
+
     event.preventDefault();
+
     this.dragging = true;
   }
 
-  onDragLeave(event: DragEvent): void {
+  // ===================================================
+  // DRAG LEAVE
+  // ===================================================
+
+  onDragLeave(
+    event: DragEvent
+  ): void {
+
     event.preventDefault();
+
     this.dragging = false;
   }
 
-  onDrop(event: DragEvent): void {
+  // ===================================================
+  // DROP
+  // ===================================================
+
+  onDrop(
+    event: DragEvent
+  ): void {
+
     event.preventDefault();
+
     this.dragging = false;
 
-    const file = event.dataTransfer?.files?.[0];
+    const file =
+      event.dataTransfer
+        ?.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (!this.isAllowedFile(file)) {
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
-      });
+    const error =
+      this.validateFile(file);
 
-      this.pageForm.get('photo')?.markAsTouched();
+    if (error) {
+
+      this.selectedFile = null;
+
+      this.imagePreview = null;
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+          [error]: true
+        });
+
+      this.pageForm
+        .get('photo')
+        ?.markAsTouched();
+
       return;
     }
 
     this.loadFile(file);
   }
 
-  // ---------------------------------------
-  // Remove Image
-  // ---------------------------------------
+  // ===================================================
+  // REMOVE IMAGE
+  // ===================================================
 
   removeImage(): void {
+
     this.selectedFile = null;
+
     this.imagePreview = null;
 
-    const photoControl = this.pageForm.get('photo');
+    const photoControl =
+      this.pageForm.get('photo');
+
     photoControl?.setValue(null);
 
-    // Required when not in edit mode or when existing image is removed
-    if (!this.isEditMode) {
-      photoControl?.setErrors({
-        required: true
-      });
-    }
+    photoControl?.setErrors({
+      required: true
+    });
 
     photoControl?.markAsTouched();
+
     photoControl?.updateValueAndValidity();
   }
 
-  // ---------------------------------------
-  // Submit
-  // ---------------------------------------
-  isSubmitting = false;
-  submit(): void {
-    const photoControl = this.pageForm.get('photo');
+  // ===================================================
+  // SUBMIT
+  // ===================================================
 
-    // Required only when creating with no file or preview
-    if (!this.isEditMode && !this.selectedFile && !this.imagePreview) {
+  isSubmitting = false;
+
+  submit(): void {
+
+    const photoControl =
+      this.pageForm.get('photo');
+
+    // ===============================================
+    // PHOTO REQUIRED
+    // ===============================================
+
+    if (
+      !this.isEditMode &&
+      !this.selectedFile &&
+      !this.imagePreview
+    ) {
+
       photoControl?.setErrors({
         required: true
       });
+
     }
+
+    // ===============================================
+    // REVALIDATE FORM
+    // ===============================================
+
+    this.pageForm.updateValueAndValidity();
 
     if (this.pageForm.invalid) {
+
       this.pageForm.markAllAsTouched();
+
       return;
     }
-    this.isSubmitting = true;
-    const formData = new FormData();
-    const id = this.pageForm.get('id')?.value;
 
-    // Id
+    // ===============================================
+    // START SUBMIT
+    // ===============================================
+
+    this.isSubmitting = true;
+
+    const formData =
+      new FormData();
+
+    const id =
+      this.pageForm.get('id')?.value;
+
+    // ===============================================
+    // ID
+    // ===============================================
+
     if (id) {
-      formData.append('Id', id);
+
+      formData.append(
+        'Id',
+        id
+      );
+
     }
 
-    // Title
+    // ===============================================
+    // TITLE
+    // ===============================================
+
     formData.append(
       'Title',
-      this.pageForm.get('title')?.value ?? ''
+      this.pageForm
+        .get('title')
+        ?.value
+        ?.trim() ?? ''
     );
 
-    // Content
+    // ===============================================
+    // CONTENT
+    // ===============================================
+
     formData.append(
       'Content',
-      this.pageForm.get('content')?.value ?? ''
+      this.pageForm
+        .get('content')
+        ?.value
+        ?.trim() ?? ''
     );
 
-    // Photo
+    // ===============================================
+    // PHOTO
+    // ===============================================
+
     if (this.selectedFile) {
+
       formData.append(
         'Photo',
         this.selectedFile,
         this.selectedFile.name
       );
+
     }
 
     this.save.emit(formData);
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
   }
 
-  // ---------------------------------------
-  // Cancel
-  // ---------------------------------------
+  // ===================================================
+  // CANCEL
+  // ===================================================
 
   cancel(): void {
+
     this.pageForm.reset();
+
     this.selectedFile = null;
+
     this.imagePreview = null;
+
     this.close.emit();
   }
 }
+

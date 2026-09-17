@@ -140,49 +140,94 @@
 
       </div>
 
-      
 
+
+      <!-- Details -->
       <!-- Details -->
       <div>
 
-        <label class="mb-2 block font-medium text-gray-700 dark:text-gray-300">
+        <label class="mb-2 block font-medium
+                text-gray-700 dark:text-gray-300">
 
           Detail
           <span class="text-red-500">*</span>
 
         </label>
 
+
         <input type="text"
                formControlName="detail"
+               maxlength="100"
                placeholder="Enter phone, email, address..."
-               class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none transition
-                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200
-                 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+               class="w-full rounded-xl border
+           border-gray-300
+           bg-white
+           px-4 py-3
+           text-gray-900
+           outline-none
+           transition
+           focus:border-indigo-500
+           focus:ring-2
+           focus:ring-indigo-200
+           dark:border-slate-700
+           dark:bg-slate-800
+           dark:text-white">
 
-        @if (pageForm.get('detail')?.touched &&
-        pageForm.get('detail')?.invalid) {
 
-        @if (pageForm.get('detail')?.hasError('required')) {
+        @if (
+        pageForm.get('detail')?.touched
+        ) {
+
+        @if (
+        pageForm.get('detail')?.hasError('required')
+        ) {
 
         <p class="mt-2 text-sm text-red-500">
-
           Detail is required.
-
         </p>
 
         }
 
-        @if (pageForm.get('detail')?.hasError('whitespace')) {
+        @else if (
+        pageForm.get('detail')?.hasError('whitespace')
+        ) {
 
         <p class="mt-2 text-sm text-red-500">
-
           Detail cannot contain leading, trailing, or only whitespace.
+        </p>
 
+        }
+
+        @else if (
+        pageForm.get('detail')?.hasError('maxlength')
+        ) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Detail cannot exceed 100 characters.
+        </p>
+
+        }
+
+        @else if (
+        pageForm.get('detail')?.hasError('duplicate')
+        ) {
+
+        <p class="mt-2 text-sm text-red-500">
+          This contact detail already exists. Please enter a different detail.
         </p>
 
         }
 
         }
+
+
+        <div class="mt-1 flex justify-end">
+
+          <span class="text-xs text-gray-400">
+            {{ pageForm.get('detail')?.value?.length || 0 }}/100
+          </span>
+
+        </div>
 
       </div>
 

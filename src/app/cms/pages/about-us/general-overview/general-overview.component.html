@@ -18,7 +18,7 @@
     <!-- CKEditor -->
     <div class="mb-8">
       <label class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-        Description <span class="text-[#ff0000]">*</span>
+        Description <span class="text-[#ff0000]">*</span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
       </label>
 
       <ckeditor [editor]="Editor"
@@ -26,19 +26,24 @@
                 formControlName="description">
       </ckeditor>
 
-      @if (
-      pageForm.get('description')?.invalid &&
-      pageForm.get('description')?.touched
-      ) {
+      @if (pageForm.get('description')?.touched) {
+
+      @if (pageForm.get('description')?.hasError('required')) {
+
       <p class="mt-2 text-sm text-red-600">
         Description is required.
       </p>
+
       }
 
-      @if (pageForm.get('description')?.hasError('whitespace')) {
+      @else if (pageForm.get('description')?.hasError('whitespace')) {
+
       <p class="mt-2 text-sm text-red-500">
         Description cannot contain leading, trailing, or only whitespace.
       </p>
+
+      }
+
       }
     </div>
 
@@ -54,6 +59,18 @@
                       dark:border-slate-700
                       dark:bg-slate-800
                       dark:text-white">
+
+        @if (pageForm.get('metaTitle')?.touched) {
+
+        @if (pageForm.get('metaTitle')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Title cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
       </div>
 
       <div>
@@ -68,6 +85,17 @@
                          dark:bg-slate-800
                          dark:text-white">
         </textarea>
+        @if (pageForm.get('metaDescription')?.touched) {
+
+        @if (pageForm.get('metaDescription')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Description cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
       </div>
     </div>
 

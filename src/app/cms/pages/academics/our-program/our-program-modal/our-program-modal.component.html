@@ -129,24 +129,33 @@
                    dark:text-white">
 
 
-          @if (
-          pageForm.get('title')?.invalid &&
-          pageForm.get('title')?.touched
-          ) {
+          @if (pageForm.get('title')?.touched) {
 
-          <p class="mt-2 text-sm
-                      text-red-600">
-
-            Title is required.
-
-          </p>
-
-          }
           @if (pageForm.get('title')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Title cannot contain leading, trailing, or only whitespace.
           </p>
+
+          } @else if (pageForm.get('title')?.hasError('required')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Title is required.
+          </p>
+
+          } @else if (pageForm.get('title')?.hasError('maxlength')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Title cannot exceed 100 characters.
+          </p>
+
+          } @else if (pageForm.get('title')?.hasError('duplicate')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            This title already exists. Please enter a different title.
+          </p>
+
+          }
 
           }
 
@@ -170,43 +179,55 @@
           </label>
 
 
-          <input type="text"
-                 formControlName="shortDescription"
-                 placeholder="Enter Short Description"
-                 class="w-full rounded-xl
-   border border-gray-300
-   bg-white
-   px-4 py-3
-   text-gray-800
-   outline-none
-   focus:border-indigo-500
-   focus:ring-2
-   focus:ring-indigo-200
-   dark:border-slate-700
-   dark:bg-slate-800
-   dark:text-white">
+          <textarea rows="5"
+                    formControlName="shortDescription"
+                    placeholder="Enter Short Description"
+                    class="w-full resize-none
+         rounded-xl
+         border border-gray-300
+         bg-white
+         px-4 py-3
+         text-gray-800
+         outline-none
+         focus:border-indigo-500
+         focus:ring-2
+         focus:ring-indigo-200
+         dark:border-slate-700
+         dark:bg-slate-800
+         dark:text-white">
+</textarea>
 
 
-          @if (
-          pageForm.get('shortDescription')?.invalid &&
-          pageForm.get('shortDescription')?.touched
-          ) {
+          @if (pageForm.get('shortDescription')?.touched) {
 
-          <p class="mt-2 text-sm
-               text-red-600">
-
-            Short Description is required.
-
-          </p>
-
-          }
           @if (pageForm.get('shortDescription')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Short Description cannot contain leading, trailing, or only whitespace.
           </p>
 
+          } @else if (pageForm.get('shortDescription')?.hasError('maxlength')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Short Description cannot exceed 500 characters.
+          </p>
+
+          }  @else if (pageForm.get('shortDescription')?.hasError('required')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Short Description is required.
+          </p>
+
           }
+
+          }
+          <div class="mt-1 flex justify-end">
+
+            <span class="text-xs text-gray-400">
+              {{ pageForm.get('shortDescription')?.value?.length || 0 }}/500
+            </span>
+
+          </div>
 
         </div>
 
@@ -223,7 +244,7 @@
 
             Description
 
-            <span class="text-red-500">*</span>
+            <span class="text-red-500">*</span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
 
           </label>
 
@@ -234,24 +255,21 @@
           </ckeditor>
 
 
-          @if (
-          pageForm.get('description')?.invalid &&
-          pageForm.get('description')?.touched
-          ) {
+          @if (pageForm.get('description')?.touched) {
 
-          <p class="mt-2 text-sm
-                      text-red-600">
-
-            Description is required.
-
-          </p>
-
-          }
           @if (pageForm.get('description')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Description cannot contain leading, trailing, or only whitespace.
           </p>
+
+          } @else if (pageForm.get('description')?.hasError('required')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Description is required.
+          </p>
+
+          }
 
           }
 

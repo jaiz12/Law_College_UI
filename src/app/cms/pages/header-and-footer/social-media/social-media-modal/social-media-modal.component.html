@@ -220,32 +220,23 @@
         </div>
 
 
-        <!-- Icon Required -->
-        @if(
-        pageForm.get('icon')?.touched &&
-        pageForm.get('icon')?.hasError('required')
-        ){
+        @if(pageForm.get('icon')?.touched) {
+
+        @if(pageForm.get('icon')?.hasError('required')) {
 
         <p class="mt-2 text-sm text-red-500">
-
           Social media is required.
-
         </p>
 
         }
 
-
-        <!-- Duplicate -->
-        @if(
-        pageForm.get('icon')?.touched &&
-        pageForm.get('icon')?.hasError('duplicate')
-        ){
+        @else if(pageForm.get('icon')?.hasError('duplicate')) {
 
         <p class="mt-2 text-sm text-red-500">
-
           This social media platform has already been added.
-
         </p>
+
+        }
 
         }
 
@@ -283,25 +274,17 @@
                  dark:text-white">
 
 
-        @if(
-        pageForm.get('link')?.touched &&
-        pageForm.get('link')?.invalid
-        ){
+        @if(pageForm.get('link')?.touched) {
 
-        @if(
-        pageForm.get('link')?.hasError('required')
-        ){
+        @if(pageForm.get('link')?.hasError('required')) {
 
         <p class="mt-2 text-sm text-red-500">
-
           Social media URL is required.
-
         </p>
 
         }
 
-
-        @if (pageForm.get('link')?.hasError('whitespace')) {
+        @else if(pageForm.get('link')?.hasError('whitespace')) {
 
         <p class="mt-2 text-sm text-red-500">
           URL cannot contain leading, trailing, or only whitespace.
@@ -309,17 +292,19 @@
 
         }
 
-
-        @if(
-        pageForm.get('url')?.hasError('pattern')
-        ){
+        @else if(pageForm.get('link')?.hasError('pattern')) {
 
         <p class="mt-2 text-sm text-red-500">
-
           Please enter a valid URL starting with
-          <strong>http://</strong> or
-          <strong>https://</strong>.
+          http:// or https://.
+        </p>
 
+        }
+
+        @else if(pageForm.get('link')?.hasError('duplicate')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          This social media URL has already been added.
         </p>
 
         }

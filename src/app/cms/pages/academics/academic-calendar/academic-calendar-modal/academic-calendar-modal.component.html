@@ -89,23 +89,33 @@
                         dark:text-white">
 
 
-          @if (
-          pageForm.get('title')?.invalid &&
-          pageForm.get('title')?.touched
-          ) {
+          @if (pageForm.get('title')?.touched) {
+
+          @if (pageForm.get('title')?.hasError('required')) {
 
           <p class="mt-2 text-sm text-red-600">
-
             Title is required.
-
           </p>
 
-          }
-          @if (pageForm.get('title')?.hasError('whitespace')) {
+          } @else if (pageForm.get('title')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Title cannot contain leading, trailing, or only whitespace.
           </p>
+
+          } @else if (pageForm.get('title')?.hasError('maxlength')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Title cannot exceed 100 characters.
+          </p>
+
+          } @else if (pageForm.get('title')?.hasError('duplicate')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            An academic calendar with this title already exists.
+          </p>
+
+          }
 
           }
 
@@ -128,7 +138,7 @@
 
               (Optional)
 
-            </span>
+            </span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
 
           </label>
 
@@ -149,7 +159,7 @@
         <div>
           <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Academic Calendar File
-            <span class="text-xs font-normal text-gray-400">(Optional)</span>
+            <span class="text-red-500">*</span>
           </label>
 
           <!-- Existing / Selected File -->
@@ -210,22 +220,33 @@
                 or click to browse
               </div>
 
-              <div class="mt-2 text-xs text-gray-400">PDF</div>
+              <div class="mt-2 text-xs text-gray-400">PDF • Max 5 MB</div>
             </div>
           </div>
           }
 
-          <!-- Validation Messages -->
-          @if (pageForm.get('file')?.touched && pageForm.get('file')?.hasError('invalidFileType')) {
-          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
-            Invalid file format. Only PDF files are allowed.
-          </p>
-          }
+          @if (pageForm.get('file')?.touched) {
 
-          @if (pageForm.get('file')?.touched && pageForm.get('file')?.hasError('required')) {
+          @if (pageForm.get('file')?.hasError('required')) {
+
           <p class="mt-2 text-sm text-red-600 dark:text-red-400">
             Academic calendar file is required.
           </p>
+
+          } @else if (pageForm.get('file')?.hasError('invalidFileType')) {
+
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            Invalid file format. Only PDF files are allowed.
+          </p>
+
+          } @else if (pageForm.get('file')?.hasError('maxFileSize')) {
+
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            PDF file size must not exceed 5 MB.
+          </p>
+
+          }
+
           }
         </div>
 

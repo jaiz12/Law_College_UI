@@ -11,14 +11,18 @@ import {
 } from '@angular/core';
 
 import {
+    AbstractControl,
   FormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
 import { ValidationService } from '../../../../../services/validation-service.service';
 
 import { Announcements } from '../announcements.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -40,7 +44,8 @@ export class AnnouncementsModalComponent implements OnChanges {
   private fb = inject(FormBuilder);
 
   private validationService = inject(ValidationService);
-
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
   // ===================================================
   // INPUT
@@ -48,6 +53,9 @@ export class AnnouncementsModalComponent implements OnChanges {
 
   @Input()
   announcements: Announcements | null = null;
+
+  @Input()
+  items: Announcements [] = [];
 
 
   // ===================================================
@@ -79,9 +87,13 @@ export class AnnouncementsModalComponent implements OnChanges {
   // ALLOWED FILE TYPES
   // ===================================================
 
-  readonly allowedExtensions = [
-    '.pdf'
+  readonly allowedExtensions = ['.pdf'];
+
+  readonly allowedMimeTypes = [
+    'application/pdf'
   ];
+
+  readonly maxFileSize = 5 * 1024 * 1024; // 5 MB
 
 
   // ===================================================
@@ -97,7 +109,10 @@ export class AnnouncementsModalComponent implements OnChanges {
       {
         validators: [
           Validators.required,
-          this.validationService.noWhitespaceValidator()
+
+          Validators.maxLength(2500),
+
+          this.validationService.noWhitespaceValidator(),
         ],
         nonNullable: true
       }
@@ -140,7 +155,28 @@ export class AnnouncementsModalComponent implements OnChanges {
       }
     )
 
-  });
+  },
+
+    {
+
+      // =================================================
+      // NAME + PHONE COMBINATION DUPLICATE
+      // =================================================
+
+      validators: [
+
+        this.dublicateValidationService
+          .duplicateCombinationValidator(
+            () => this.items,
+            ['startDate', 'category', 'title']
+        ),
+
+        // Start Date / End Date validation
+        this.endDateValidator()
+
+      ]
+
+    });
 
 
   // ===================================================
@@ -157,7 +193,9 @@ export class AnnouncementsModalComponent implements OnChanges {
   // ===================================================
 
   ngOnChanges(changes: SimpleChanges): void {
+    
 
+    console.log(this.items, this.announcements)
     if (this.announcements) {
 
       this.pageForm.patchValue({
@@ -233,7 +271,16 @@ export class AnnouncementsModalComponent implements OnChanges {
         .get('file')
         ?.setErrors(null);
 
+
     }
+
+    // ===================================================
+    // REVALIDATE AFTER PATCH
+    // ===================================================
+
+    this.pageForm.updateValueAndValidity({
+      emitEvent: false
+    }); 
 
   }
 
@@ -250,19 +297,50 @@ export class AnnouncementsModalComponent implements OnChanges {
       return '';
     }
 
-    const parsedDate = new Date(date);
+    // Handles:
+    // 2026-09-03 00:00:00
+    // 2026-09-03T00:00:00
+    // 2026-09-03
+    const datePart = date
+      .toString()
+      .split('T')[0]
+      .split(' ')[0];
 
-    if (isNaN(parsedDate.getTime())) {
+    // Validate YYYY-MM-DD
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
       return '';
     }
 
-    return parsedDate.toISOString().split('T')[0];
+    return datePart;
   }
 
+
+  private endDateValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+
+      const startDate = control.get('startDate')?.value;
+      const endDate = control.get('endDate')?.value;
+
+      // End date is optional
+      if (!startDate || !endDate) {
+        return null;
+      }
+
+      // Compare YYYY-MM-DD directly
+      if (endDate < startDate) {
+        return {
+          endDateBeforeStartDate: true
+        };
+      }
+
+      return null;
+    };
+  }
 
   // ===================================================
   // FILE CHANGE
   // ===================================================
+
 
   onFileChange(event: Event): void {
 
@@ -276,7 +354,6 @@ export class AnnouncementsModalComponent implements OnChanges {
     this.loadFile(input.files[0]);
 
     input.value = '';
-
   }
 
 
@@ -284,42 +361,47 @@ export class AnnouncementsModalComponent implements OnChanges {
   // LOAD FILE
   // ===================================================
 
+  // =========================================
+  // File Loading & Validation
+  // =========================================
+
   loadFile(file: File): void {
 
-    if (!this.isAllowedFile(file)) {
+    const fileControl =
+      this.pageForm.get('file');
+
+    const validationError =
+      this.validateFile(file);
+
+    if (validationError) {
 
       this.selectedFile = null;
 
       this.fileName = '';
 
-      this.pageForm
-        .get('file')
-        ?.setErrors({
-          invalidFileType: true
-        });
+      fileControl?.setErrors(validationError);
 
-      this.pageForm
-        .get('file')
-        ?.markAsTouched();
+      fileControl?.markAsTouched();
 
       return;
     }
-
 
     this.selectedFile = file;
 
     this.fileName = file.name;
 
+    fileControl?.setValue(file.name);
 
-    this.pageForm
-      .get('file')
-      ?.setValue(file.name);
+    fileControl?.setErrors(null);
 
+    fileControl?.markAsTouched();
 
-    this.pageForm
-      .get('file')
-      ?.setErrors(null);
-
+    /*
+     * New file has been selected.
+     * Existing file is no longer the file
+     * being submitted.
+     */
+    this.existingFile = null;
   }
 
 
@@ -327,21 +409,61 @@ export class AnnouncementsModalComponent implements OnChanges {
   // FILE VALIDATION
   // ===================================================
 
-  private isAllowedFile(file: File): boolean {
+  // ===================================================
+  // FILE VALIDATION
+  // ===================================================
+
+  private validateFile(file: File): { [key: string]: boolean } | null {
 
     const fileName =
-      file.name.toLowerCase();
+      file.name.trim().toLowerCase();
 
     const extension =
       fileName.substring(
         fileName.lastIndexOf('.')
       );
 
-    return this.allowedExtensions.includes(
-      extension
-    );
+    // -------------------------------
+    // Extension validation
+    // -------------------------------
 
+    if (!this.allowedExtensions.includes(extension)) {
+
+      return {
+        invalidFileType: true
+      };
+    }
+
+
+    // -------------------------------
+    // MIME type validation
+    // -------------------------------
+
+    if (!this.allowedMimeTypes.includes(file.type)) {
+
+      return {
+        invalidFileType: true
+      };
+    }
+
+
+    // -------------------------------
+    // File size validation
+    // -------------------------------
+
+    if (file.size > this.maxFileSize) {
+
+      return {
+        maxFileSize: true
+      };
+    }
+
+
+    return null;
   }
+
+
+
 
 
   // ===================================================
@@ -384,11 +506,13 @@ export class AnnouncementsModalComponent implements OnChanges {
     const file =
       event.dataTransfer?.files?.[0];
 
-    if (file) {
 
-      this.loadFile(file);
-
+    if (!file) {
+      return;
     }
+
+
+    this.loadFile(file);
 
   }
 
@@ -488,6 +612,9 @@ export class AnnouncementsModalComponent implements OnChanges {
       isActive: true,
 
     });
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
 
   }
 

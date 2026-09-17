@@ -19,6 +19,7 @@ import {
 
 import { ValidationService } from '../../../../../services/validation-service.service';
 import { Statistics } from '../statistics.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -42,6 +43,9 @@ export class StatisticsModalComponent implements OnChanges {
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
+
 
   // ===================================================
   // INPUT
@@ -50,6 +54,9 @@ export class StatisticsModalComponent implements OnChanges {
   @Input()
   item:
     Statistics | null = null;
+
+  @Input()
+  items: Statistics[] = [];
 
 
   // ===================================================
@@ -87,9 +94,14 @@ export class StatisticsModalComponent implements OnChanges {
         validators: [
 
           Validators.required,
-
+          Validators.maxLength(100),
           this.validationService
-            .noWhitespaceValidator()
+            .noWhitespaceValidator(),
+          this.dublicateValidationService
+            .duplicateValidator(
+              () => this.items,
+              ['title']
+            )
 
         ],
 
@@ -105,7 +117,9 @@ export class StatisticsModalComponent implements OnChanges {
           Validators.required,
 
           this.validationService
-            .noWhitespaceValidator()
+            .noWhitespaceValidator(),
+
+          Validators.pattern(/^\+?[0-9]+$/)
 
         ],
 
@@ -171,30 +185,38 @@ export class StatisticsModalComponent implements OnChanges {
 
     }
 
+    this.pageForm.controls.title.updateValueAndValidity({
+      emitEvent: false
+    });
+
   }
 
 
   // ===================================================
   // SUBMIT
   // ===================================================
-
+  isSubmitting = false;
   submit(): void {
 
     if (this.pageForm.invalid) {
       this.pageForm.markAllAsTouched();
       return;
     }
+    this.isSubmitting = true;
 
-    const value = this.pageForm.getRawValue();
+      const value = this.pageForm.getRawValue();
 
-    const item: Statistics = {
-      id: value.id ?? 0,
-      title: value.title.trim(),
-      count: value.count.trim()
-    };
+      const item: Statistics = {
+        id: value.id ?? 0,
+        title: value.title.trim(),
+        count: value.count.trim()
+      };
 
-    console.log('EMITTING SAVE:', item);
-    this.save.emit(item);
+      console.log('EMITTING SAVE:', item);
+      this.save.emit(item);
+      setTimeout(() => {
+        this.isSubmitting = false;
+      }, 5000);
   }
 
 

@@ -190,6 +190,7 @@ export class MediaModalComponent implements OnChanges {
     });
 
     this.save.emit(formData);
+
   }
 
   cancel(): void {

@@ -46,7 +46,45 @@
                  dark:text-white
                  dark:placeholder:text-slate-500
                  dark:focus:ring-indigo-900">
+        <!-- Clear Button -->
+        @if (search()) {
 
+        <button type="button"
+                (click)="search.set(''); page.set(1)"
+                class="absolute
+                   right-3
+                   top-1/2
+                   flex
+                   h-7
+                   w-7
+                   -translate-y-1/2
+                   items-center
+                   justify-center
+                   rounded-full
+                   text-gray-400
+                   transition
+                   hover:bg-gray-100
+                   hover:text-gray-600
+                   dark:text-slate-400
+                   dark:hover:bg-slate-700
+                   dark:hover:text-white"
+                aria-label="Clear search">
+
+          <svg class="h-4 w-4"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 6l12 12M18 6L6 18" />
+
+          </svg>
+
+        </button>
+
+        }
         <svg class="absolute left-4 top-3.5 h-5 w-5 text-gray-400 dark:text-slate-500"
              fill="none"
              stroke="currentColor"

@@ -18,6 +18,7 @@ import {
 
 import { ValidationService } from '../../../../../services/validation-service.service';
 import { LegalAidCell } from '../legal-aid-cell.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 @Component({
   selector: 'app-legal-aid-cell-modal',
@@ -39,6 +40,9 @@ export class LegalAidCellModalComponent implements OnChanges {
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
+
 
   // -------------------------------------------------
   // Inputs
@@ -46,6 +50,9 @@ export class LegalAidCellModalComponent implements OnChanges {
 
   @Input()
   legalAidCell: LegalAidCell | null = null;
+
+  @Input()
+  legalAidCells: LegalAidCell[] = [];
 
 
   // -------------------------------------------------
@@ -80,8 +87,14 @@ export class LegalAidCellModalComponent implements OnChanges {
 
             Validators.required,
 
-            this.validationService
-              .noWhitespaceValidator()
+            Validators.maxLength(200),
+
+            this.validationService.noWhitespaceValidator(),
+
+            this.dublicateValidationService.duplicateValidator(
+              () => this.legalAidCells,
+              ['title']
+            )
 
           ],
 
@@ -95,6 +108,8 @@ export class LegalAidCellModalComponent implements OnChanges {
 
           validators: [
 
+            this.urlValidator(),
+            this.validationService.noWhitespaceValidator(),
             Validators.maxLength(500)
 
           ],
@@ -158,6 +173,43 @@ export class LegalAidCellModalComponent implements OnChanges {
 
   }
 
+  // ---------------------------------------
+  // URL Validator
+  // ---------------------------------------
+
+  private urlValidator() {
+
+    return (control: any) => {
+
+      const value =
+        control.value
+          ?.trim();
+
+      if (!value) {
+        return null;
+      }
+
+      // No whitespace anywhere
+      if (/\s/.test(value)) {
+        return {
+          urlWhitespace: true
+        };
+      }
+
+      // Valid HTTP / HTTPS URL
+      const urlPattern =
+        /^https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?::\d+)?(?:[/?#][^\s]*)?$/;
+
+      if (!urlPattern.test(value)) {
+        return {
+          invalidUrl: true
+        };
+      }
+
+      return null;
+    };
+  }
+
 
   // -------------------------------------------------
   // Submit
@@ -192,6 +244,9 @@ export class LegalAidCellModalComponent implements OnChanges {
         value.externalLink || null
 
     });
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
 
   }
 

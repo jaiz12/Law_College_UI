@@ -325,7 +325,6 @@ export class BannerComponent
   // ===================================================
   // SAVE
   // ===================================================
-
   saveBanner(
     banner: Banner
   ): void {
@@ -521,7 +520,6 @@ export class BannerComponent
       },
 
       error: (err) => {
-
         console.error(
 
           'Save Banner Error:',

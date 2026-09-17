@@ -1,11 +1,26 @@
+
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject
+} from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators
+} from '@angular/forms';
+
 import { ConfigService } from '../../../../../services/config.service';
 import { ValidationService } from '../../../../../services/validation-service.service';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { StatutoryBodiesBody } from '../statutory-bodies.component';
 import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 @Component({
   selector: 'app-statutory-bodies-modal',
@@ -26,21 +41,26 @@ export class StatutoryBodiesModalComponent implements OnChanges {
   private fb = inject(FormBuilder);
   private validationService = inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
+
   constructor(
     private config: ConfigService,
     private ckEditorConfig: CKEditorConfigService
   ) {
-    // CKEditor build
     this.Editor = this.ckEditorConfig.Editor;
     this.editorConfig = this.ckEditorConfig.getConfig();
   }
 
-  // ---------------------------------------
-  // Input / Output
-  // ---------------------------------------
+  // =========================================================
+  // INPUT / OUTPUT
+  // =========================================================
 
   @Input()
   statutorybody: StatutoryBodiesBody | null = null;
+
+  @Input()
+  statutorybodies: StatutoryBodiesBody[] = [];
 
   @Output()
   save = new EventEmitter<FormData>();
@@ -48,9 +68,9 @@ export class StatutoryBodiesModalComponent implements OnChanges {
   @Output()
   close = new EventEmitter<void>();
 
-  // ---------------------------------------
-  // File Variables
-  // ---------------------------------------
+  // =========================================================
+  // IMAGE
+  // =========================================================
 
   imagePreview: string | ArrayBuffer | null = null;
   selectedFile: File | null = null;
@@ -63,11 +83,20 @@ export class StatutoryBodiesModalComponent implements OnChanges {
     '.webp'
   ];
 
-  // ---------------------------------------
-  // Form
-  // ---------------------------------------
+  readonly allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ];
+
+  readonly maxFileSize = 1 * 1024 * 1024; // 1 MB
+
+  // =========================================================
+  // FORM
+  // =========================================================
 
   pageForm = this.fb.group({
+
     id: this.fb.control<string>('', {
       nonNullable: true
     }),
@@ -75,7 +104,13 @@ export class StatutoryBodiesModalComponent implements OnChanges {
     title: this.fb.control<string>('', {
       validators: [
         Validators.required,
-        this.validationService.noWhitespaceValidator()
+        Validators.maxLength(200),
+        this.validationService.noWhitespaceValidator(),
+
+        this.dublicateValidationService.duplicateValidator(
+          () => this.statutorybodies,
+          ['title']
+        )
       ],
       nonNullable: true
     }),
@@ -83,6 +118,7 @@ export class StatutoryBodiesModalComponent implements OnChanges {
     content: this.fb.control<string>('', {
       validators: [
         Validators.required,
+        Validators.maxLength(1000),
         this.validationService.noWhitespaceValidator()
       ],
       nonNullable: true
@@ -93,22 +129,29 @@ export class StatutoryBodiesModalComponent implements OnChanges {
         Validators.required
       ]
     })
+
   });
 
-  // ---------------------------------------
-  // Edit Mode
-  // ---------------------------------------
+  // =========================================================
+  // EDIT MODE
+  // =========================================================
 
   get isEditMode(): boolean {
     return !!this.statutorybody;
   }
 
-  // ---------------------------------------
-  // Input Changes
-  // ---------------------------------------
+  // =========================================================
+  // LIFECYCLE
+  // =========================================================
 
   ngOnChanges(changes: SimpleChanges): void {
+
     if (this.statutorybody) {
+
+      // ===============================================
+      // EDIT MODE
+      // ===============================================
+
       this.pageForm.patchValue({
         id: this.statutorybody.id ?? '',
         title: this.statutorybody.title ?? '',
@@ -119,209 +162,379 @@ export class StatutoryBodiesModalComponent implements OnChanges {
       const photoPath = this.statutorybody.photo;
 
       if (photoPath) {
-        this.imagePreview = this.config.get('IMAGE_API_URL') + photoPath;
-        // Existing photo is valid during edit
+
+        this.imagePreview =
+          this.config.get('IMAGE_API_URL') + photoPath;
+
+        // Existing image is valid in edit mode
         this.pageForm.get('photo')?.setErrors(null);
+
       } else {
+
         this.imagePreview = null;
-        this.pageForm.get('photo')?.setErrors({ required: true });
+
+        this.pageForm.get('photo')?.setErrors({
+          required: true
+        });
+
       }
 
       this.selectedFile = null;
+
     } else {
+
+      // ===============================================
+      // CREATE MODE
+      // ===============================================
+
       this.pageForm.reset({
         id: '',
         title: '',
         content: '',
-        photo: ''
+        photo: null
       });
 
       this.imagePreview = null;
       this.selectedFile = null;
 
-      this.pageForm.get('photo')?.setErrors(null);
     }
+
+    // ===============================================
+    // REVALIDATE DUPLICATE TITLE
+    // ===============================================
+
+    this.pageForm.controls.title.updateValueAndValidity();
   }
 
-  // ---------------------------------------
-  // File Selection
-  // ---------------------------------------
+  // =========================================================
+  // FILE CHANGE
+  // =========================================================
 
   onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
+
+    const input =
+      event.target as HTMLInputElement;
 
     if (!input.files?.length) {
       return;
     }
 
-    const file = input.files[0];
+    const file =
+      input.files[0];
 
-    if (!this.isAllowedFile(file)) {
+    const error =
+      this.validateFile(file);
+
+    if (error) {
+
       this.selectedFile = null;
       this.imagePreview = null;
 
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
-      });
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+          [error]: true
+        });
 
-      this.pageForm.get('photo')?.markAsTouched();
+      this.pageForm
+        .get('photo')
+        ?.markAsTouched();
 
       input.value = '';
+
       return;
     }
 
     this.loadFile(file);
+
     input.value = '';
   }
 
-  // ---------------------------------------
-  // File Validation
-  // ---------------------------------------
+  // =========================================================
+  // FILE VALIDATION
+  // =========================================================
 
-  private isAllowedFile(file: File): boolean {
-    const fileName = file.name.toLowerCase();
-    const extension = fileName.substring(fileName.lastIndexOf('.'));
-    return this.allowedExtensions.includes(extension);
+  private validateFile(
+    file: File
+  ):
+    'invalidFileType'
+    | 'fileTooLarge'
+    | null {
+
+    const fileName =
+      file.name.toLowerCase();
+
+    const extension =
+      fileName.substring(
+        fileName.lastIndexOf('.')
+      );
+
+    const validExtension =
+      this.allowedExtensions.includes(
+        extension
+      );
+
+    const validMimeType =
+      this.allowedMimeTypes.includes(
+        file.type
+      );
+
+    // ===============================================
+    // FILE TYPE
+    // ===============================================
+
+    if (
+      !validExtension ||
+      !validMimeType
+    ) {
+
+      return 'invalidFileType';
+
+    }
+
+    // ===============================================
+    // FILE SIZE
+    // ===============================================
+
+    if (
+      file.size > this.maxFileSize
+    ) {
+
+      return 'fileTooLarge';
+
+    }
+
+    return null;
   }
 
-  // ---------------------------------------
-  // Load Image
-  // ---------------------------------------
+  // =========================================================
+  // LOAD IMAGE
+  // =========================================================
 
-  loadFile(file: File): void {
+  private loadFile(file: File): void {
+
     this.selectedFile = file;
 
-    const reader = new FileReader();
+    const reader =
+      new FileReader();
 
     reader.onload = () => {
-      this.imagePreview = reader.result as string;
 
-      this.pageForm.get('photo')?.setValue(this.imagePreview);
-      this.pageForm.get('photo')?.setErrors(null);
+      this.imagePreview =
+        reader.result as string;
+
+      this.pageForm
+        .get('photo')
+        ?.setValue(
+          this.imagePreview
+        );
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors(null);
+
     };
 
     reader.readAsDataURL(file);
   }
 
-  // ---------------------------------------
-  // Drag & Drop
-  // ---------------------------------------
+  // =========================================================
+  // DRAG & DROP
+  // =========================================================
 
   onDragOver(event: DragEvent): void {
+
     event.preventDefault();
+
     this.dragging = true;
   }
 
   onDragLeave(event: DragEvent): void {
+
     event.preventDefault();
+
     this.dragging = false;
   }
 
   onDrop(event: DragEvent): void {
+
     event.preventDefault();
+
     this.dragging = false;
 
-    const file = event.dataTransfer?.files?.[0];
+    const file =
+      event.dataTransfer
+        ?.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (!this.isAllowedFile(file)) {
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
-      });
+    const error =
+      this.validateFile(file);
 
-      this.pageForm.get('photo')?.markAsTouched();
+    if (error) {
+
+      this.selectedFile = null;
+      this.imagePreview = null;
+
+      this.pageForm
+        .get('photo')
+        ?.setErrors({
+          [error]: true
+        });
+
+      this.pageForm
+        .get('photo')
+        ?.markAsTouched();
+
       return;
     }
 
     this.loadFile(file);
   }
 
-  // ---------------------------------------
-  // Remove Image
-  // ---------------------------------------
+  // =========================================================
+  // REMOVE IMAGE
+  // =========================================================
 
   removeImage(): void {
+
     this.selectedFile = null;
     this.imagePreview = null;
 
-    const photoControl = this.pageForm.get('photo');
+    const photoControl =
+      this.pageForm.get('photo');
+
     photoControl?.setValue(null);
 
-    // Required when not in edit mode
-    if (!this.isEditMode) {
-      photoControl?.setErrors({
-        required: true
-      });
-    }
+    // Image is required after removal,
+    // including edit mode.
+    photoControl?.setErrors({
+      required: true
+    });
 
     photoControl?.markAsTouched();
+
     photoControl?.updateValueAndValidity();
   }
 
-  // ---------------------------------------
-  // Submit
-  // ---------------------------------------
-  isSubmitting = false;
-  submit(): void {
-    const photoControl = this.pageForm.get('photo');
+  // =========================================================
+  // SUBMIT
+  // =========================================================
 
-    // Required only when creating with no file or preview
-    if (!this.isEditMode && !this.selectedFile && !this.imagePreview) {
+  isSubmitting = false;
+
+  submit(): void {
+
+    const photoControl =
+      this.pageForm.get('photo');
+
+    // ===============================================
+    // IMAGE REQUIRED
+    // ===============================================
+
+    if (
+      !this.selectedFile &&
+      !this.imagePreview
+    ) {
+
       photoControl?.setErrors({
         required: true
       });
+
     }
 
+    // ===============================================
+    // REVALIDATE DUPLICATE TITLE
+    // ===============================================
+
+    this.pageForm
+      .get('title')
+      ?.updateValueAndValidity();
+
+    // ===============================================
+    // FORM VALIDATION
+    // ===============================================
+
     if (this.pageForm.invalid) {
+
       this.pageForm.markAllAsTouched();
+
       return;
     }
 
+    // ===============================================
+    // START SUBMITTING
+    // ===============================================
+
     this.isSubmitting = true;
 
-    const formData = new FormData();
-    const id = this.pageForm.get('id')?.value;
+    const formData =
+      new FormData();
 
-    // Id
-    if (id) {
-      formData.append('Id', id);
+    const value =
+      this.pageForm.getRawValue();
+
+    // ===============================================
+    // ID
+    // ===============================================
+
+    if (value.id) {
+
+      formData.append(
+        'Id',
+        value.id
+      );
+
     }
 
-    // Title
+    // ===============================================
+    // TITLE
+    // ===============================================
+
     formData.append(
       'Title',
-      this.pageForm.get('title')?.value ?? ''
+      value.title.trim()
     );
 
-    // Content
+    // ===============================================
+    // CONTENT
+    // ===============================================
+
     formData.append(
       'Content',
-      this.pageForm.get('content')?.value ?? ''
+      value.content.trim()
     );
 
-    // Photo
+    // ===============================================
+    // PHOTO
+    // ===============================================
+
     if (this.selectedFile) {
+
       formData.append(
         'Photo',
         this.selectedFile,
         this.selectedFile.name
       );
+
     }
 
     this.save.emit(formData);
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
   }
 
-  // ---------------------------------------
-  // Cancel
-  // ---------------------------------------
+  // =========================================================
+  // CANCEL
+  // =========================================================
 
   cancel(): void {
-    this.pageForm.reset();
-    this.selectedFile = null;
-    this.imagePreview = null;
+
     this.close.emit();
   }
+
 }
+

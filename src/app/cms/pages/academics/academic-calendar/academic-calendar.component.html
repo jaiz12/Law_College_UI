@@ -99,7 +99,45 @@
                  dark:text-white
                  dark:placeholder:text-slate-500
                  dark:focus:ring-indigo-900">
+        <!-- Clear Button -->
+        @if (search()) {
 
+        <button type="button"
+                (click)="search.set(''); page.set(1)"
+                class="absolute
+                   right-3
+                   top-1/2
+                   flex
+                   h-7
+                   w-7
+                   -translate-y-1/2
+                   items-center
+                   justify-center
+                   rounded-full
+                   text-gray-400
+                   transition
+                   hover:bg-gray-100
+                   hover:text-gray-600
+                   dark:text-slate-400
+                   dark:hover:bg-slate-700
+                   dark:hover:text-white"
+                aria-label="Clear search">
+
+          <svg class="h-4 w-4"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 6l12 12M18 6L6 18" />
+
+          </svg>
+
+        </button>
+
+        }
 
         <svg class="absolute left-4 top-3.5
                  h-5 w-5
@@ -290,13 +328,13 @@ dark:hover:bg-indigo-900/50">
               </button>
 
               <!--<div class="truncate-html
-                         max-w-xl
-                         text-sm
-                         text-gray-600
-                         dark:text-gray-300"
-                   [innerHTML]="calendar.content">
+               max-w-xl
+               text-sm
+               text-gray-600
+               dark:text-gray-300"
+         [innerHTML]="calendar.content">
 
-              </div>-->
+    </div>-->
 
             </td>
 
@@ -349,20 +387,24 @@ dark:hover:bg-indigo-900/50">
             <td class="px-6 py-5">
 
               <button type="button"
-                      (click)="setActive(calendar)"
-                      [disabled]="calendar.isActive"
+                      (click)="toggleActive(calendar)"
                       [attr.aria-pressed]="calendar.isActive"
                       class="relative inline-flex h-6 w-11 shrink-0
-                 items-center rounded-full
-                 transition-colors
-                 disabled:cursor-not-allowed"
+           items-center rounded-full
+           transition-colors
+           focus:outline-none
+           focus:ring-2
+           focus:ring-indigo-300
+           dark:focus:ring-indigo-800"
                       [class.bg-indigo-600]="calendar.isActive"
                       [class.bg-gray-300]="!calendar.isActive"
+                      [class.dark:bg-indigo-500]="calendar.isActive"
                       [class.dark:bg-slate-600]="!calendar.isActive">
 
                 <span class="inline-block h-4 w-4
-                 transform rounded-full
-                 bg-white transition-transform"
+             transform rounded-full
+             bg-white
+             transition-transform"
                       [class.translate-x-6]="calendar.isActive"
                       [class.translate-x-1]="!calendar.isActive">
                 </span>
@@ -371,7 +413,9 @@ dark:hover:bg-indigo-900/50">
 
               <span class="ml-2 align-middle text-xs font-medium"
                     [class.text-indigo-600]="calendar.isActive"
-                    [class.text-gray-400]="!calendar.isActive">
+                    [class.text-gray-400]="!calendar.isActive"
+                    [class.dark:text-indigo-400]="calendar.isActive"
+                    [class.dark:text-slate-400]="!calendar.isActive">
 
                 {{ calendar.isActive ? 'Active' : 'Inactive' }}
 
@@ -607,6 +651,7 @@ dark:hover:bg-indigo-900/50">
 @if (showModal()) {
 
 <app-academic-calendar-modal [academicCalendar]="selectedAcademicCalendar()"
+                             [academicCalendars]="academicCalendars()"
                              (close)="closeModal()"
                              (save)="saveAcademicCalendar($event)">
 </app-academic-calendar-modal>

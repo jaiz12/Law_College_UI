@@ -1,4 +1,4 @@
-<div class="space-y-6 bg-white px-6 py-3 shadow-sm
+<div class=" bg-white py-3 shadow-sm
               dark:border-slate-700 dark:bg-slate-900">
 
   <!-- Header -->
@@ -111,7 +111,7 @@
 
           <div class="mt-2 text-xs text-gray-400">
 
-            JPG, PNG, WEBP or SVG • Max 2 MB
+            JPG, JPEG, PNG, or WEBP • Max 1 MB
 
           </div>
 
@@ -120,33 +120,33 @@
       </div>
 
       }
+      @if (pageForm.get('logo')?.touched) {
 
-      @if (
-      pageForm.get('logo')?.hasError('required') &&
-      pageForm.get('logo')?.touched
-      ) {
+      @if (pageForm.get('logo')?.hasError('required')) {
 
-      <p class="mt-2 text-sm text-red-600">
-
+      <p class="mt-2 text-sm text-red-500">
         Logo is required.
-
       </p>
 
       }
-
-
-      @if (
-      pageForm.get('logo')?.hasError('invalidFileType')
-      ) {
+      @else if (pageForm.get('logo')?.hasError('invalidFileType')) {
 
       <p class="mt-2 text-sm text-red-600">
-
         Invalid image format.
-        Only PNG, JPG, JPEG and WEBP are allowed.
-
+        Only PNG, JPG, JPEG, WEBP and SVG are allowed.
       </p>
 
       }
+      @else if (pageForm.get('logo')?.hasError('fileSize')) {
+
+      <p class="mt-2 text-sm text-red-500">
+        Image size cannot exceed 1 MB.
+      </p>
+
+      }
+
+      }
+
 
     </div>
 
@@ -158,35 +158,32 @@
       <label class="mb-2 block text-sm font-semibold
                     text-gray-700 dark:text-gray-300">
 
-        Title <span class="text-[#ff0000]">*</span>
+        Title <span class="text-[#ff0000]">*</span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
 
       </label>
 
-      <ckeditor [editor]="Editor"
+      <ckeditor *ngIf="Editor"
+                [editor]="Editor"
                 [config]="editorConfig"
                 formControlName="name">
       </ckeditor>
+      @if (pageForm.get('name')?.touched) {
 
-      @if(
-      pageForm.get('name')?.invalid &&
-      pageForm.get('name')?.touched
-      ){
+      @if (pageForm.get('name')?.hasError('required')) {
 
       <p class="mt-2 text-sm text-red-600">
-
-        @if(pageForm.get('name')?.hasError('required')){
-
         Title is required.
-
-        }
-
-        @if(pageForm.get('name')?.hasError('whitespace')){
-
-        Title cannot contain leading, trailing, or only whitespace.
-
-        }
-
       </p>
+
+      }
+
+      @else if (pageForm.get('name')?.hasError('whitespace')) {
+
+      <p class="mt-2 text-sm text-red-600">
+        Title cannot contain leading, trailing, or only whitespace.
+      </p>
+
+      }
 
       }
 

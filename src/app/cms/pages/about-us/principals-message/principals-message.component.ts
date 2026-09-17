@@ -68,8 +68,18 @@ export class PrincipalsMessageComponent implements OnInit {
         ],
         nonNullable: true
       }],
-      metaTitle: [''],
-      metaDescription: ['']
+      metaTitle: ['', {
+        validators: [
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
+      metaDescription: ['', {
+        validators: [
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
     });
   }
 
@@ -90,47 +100,135 @@ export class PrincipalsMessageComponent implements OnInit {
   // ===================================================
 
   onFileChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
+
+    const input =
+      event.target as HTMLInputElement;
 
     if (!input.files?.length) {
       return;
     }
 
-    const file = input.files[0];
+    const file =
+      input.files[0];
 
-    if (!this.isAllowedFile(file)) {
+    const photoControl =
+      this.pageForm.get('photo');
+
+    // Clear previous file errors
+    photoControl?.setErrors(null);
+
+
+    // ============================================
+    // TYPE VALIDATION
+    // ============================================
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp'
+    ];
+
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+
+      photoControl?.setErrors({
+        invalidFile: true
+      });
+
+      photoControl?.markAsTouched();
+
       this.selectedFile = null;
       this.imagePreview = null;
 
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
-      });
-      this.pageForm.get('photo')?.markAsTouched();
-
       input.value = '';
+
       return;
     }
 
+
+    // ============================================
+    // SIZE VALIDATION - 1 MB
+    // ============================================
+
+    const maxSize =
+      1 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+
+      photoControl?.setErrors({
+        fileSize: true
+      });
+
+      photoControl?.markAsTouched();
+
+      this.selectedFile = null;
+      this.imagePreview = null;
+
+      input.value = '';
+
+      return;
+    }
+
+
+    // ============================================
+    // VALID FILE
+    // ============================================
+
     this.loadFile(file);
+
     input.value = '';
   }
 
-  private isAllowedFile(file: File): boolean {
-    const fileName = file.name.toLowerCase();
-    const extension = fileName.substring(fileName.lastIndexOf('.'));
-    return this.allowedExtensions.includes(extension);
+
+
+  private validateImageFile(file: File): 'invalidFile' | 'fileSize' | null {
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp'
+    ];
+
+    // File type
+    if (!allowedTypes.includes(file.type.toLowerCase())) {
+      return 'invalidFile';
+    }
+
+    // Maximum 1 MB
+    const maxSize = 1 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      return 'fileSize';
+    }
+
+    return null;
   }
 
   private loadFile(file: File): void {
-    this.selectedFile = file;
 
-    const reader = new FileReader();
+    this.selectedFile =
+      file;
+
+    const photoControl =
+      this.pageForm.get('photo');
+
+    const reader =
+      new FileReader();
 
     reader.onload = () => {
-      this.imagePreview = reader.result as string;
 
-      this.pageForm.get('photo')?.setValue(this.imagePreview);
-      this.pageForm.get('photo')?.setErrors(null);
+      this.imagePreview =
+        reader.result as string;
+
+      photoControl?.setValue(
+        this.imagePreview
+      );
+
+      photoControl?.setErrors(null);
+
+      photoControl?.markAsTouched();
+
     };
 
     reader.readAsDataURL(file);
@@ -151,23 +249,60 @@ export class PrincipalsMessageComponent implements OnInit {
   }
 
   onDrop(event: DragEvent): void {
+
     event.preventDefault();
+
     this.isDragging = false;
 
-    const file = event.dataTransfer?.files?.[0];
+    const file =
+      event.dataTransfer?.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (!this.isAllowedFile(file)) {
-      this.pageForm.get('photo')?.setErrors({
-        invalidFileType: true
+    const photoControl =
+      this.pageForm.get('photo');
+
+    // Clear previous errors
+    photoControl?.setErrors(null);
+
+    // Validate
+    const fileError =
+      this.validateImageFile(file);
+
+    if (fileError) {
+
+      this.selectedFile = null;
+      this.imagePreview = null;
+
+      photoControl?.setErrors({
+        [fileError]: true
       });
-      this.pageForm.get('photo')?.markAsTouched();
+
+      photoControl?.markAsTouched();
+
+      if (fileError === 'fileSize') {
+
+        this.toastr.warning(
+          'Image size cannot exceed 1 MB.',
+          'Invalid Image'
+        );
+
+      }
+      else {
+
+        this.toastr.warning(
+          'Only JPG, JPEG, PNG, or WEBP images are allowed.',
+          'Invalid Image'
+        );
+
+      }
+
       return;
     }
 
+    // Valid file
     this.loadFile(file);
   }
 
@@ -232,51 +367,187 @@ export class PrincipalsMessageComponent implements OnInit {
   }
 
   save(): void {
-    const description = this.pageForm.get('description')?.value ?? '';
-    const plainText = description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
 
-    if (!plainText) {
-      this.pageForm.get('description')?.setErrors({ required: true });
-    } else {
-      this.pageForm.get('description')?.setErrors(null);
-    }
-
-    if (!this.selectedFile && !this.photo) {
-      this.pageForm.get('photo')?.setErrors({ required: true });
-      this.toastr.error('Please upload an image.', 'Validation Error');
-    } else if (this.pageForm.get('photo')?.hasError('invalidFileType')) {
-      this.toastr.error('Invalid image format.', 'Validation Error');
-    } else {
-      this.pageForm.get('photo')?.setErrors(null);
-    }
-
-    if (this.pageForm.invalid) {
-      this.pageForm.markAllAsTouched();
+    if (this.isSubmitting) {
       return;
     }
 
-    this.isSubmitting = true;
+    const descriptionControl =
+      this.pageForm.get('description');
 
-    const formData = new FormData();
-    const id = this.pageForm.get('id')?.value;
+    const photoControl =
+      this.pageForm.get('photo');
+
+    const description =
+      descriptionControl?.value ?? '';
+
+
+    // ============================================
+    // DESCRIPTION
+    // ============================================
+
+    const plainText =
+      description
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/gi, ' ')
+        .trim();
+
+    if (!plainText) {
+
+      descriptionControl?.setErrors({
+        required: true
+      });
+
+    }
+
+
+    // ============================================
+    // IMAGE REQUIRED
+    // ============================================
+
+    if (!this.selectedFile && !this.photo) {
+
+      photoControl?.setErrors({
+        required: true
+      });
+
+    }
+
+
+    // ============================================
+    // SELECTED FILE VALIDATION
+    // ============================================
 
     if (this.selectedFile) {
-      formData.append('Photo', this.selectedFile, this.selectedFile.name);
+
+      const fileError =
+        this.validateImageFile(
+          this.selectedFile
+        );
+
+      if (fileError) {
+
+        photoControl?.setErrors({
+          [fileError]: true
+        });
+
+        photoControl?.markAsTouched();
+
+        if (fileError === 'fileSize') {
+
+          this.toastr.warning(
+            'Image size cannot exceed 1 MB.',
+            'Invalid Image'
+          );
+
+        }
+        else {
+
+          this.toastr.warning(
+            'Only JPG, JPEG, PNG, or WEBP images are allowed.',
+            'Invalid Image'
+          );
+
+        }
+
+        return;
+      }
+
     }
 
-    formData.append('PageName', this.pageName);
-    formData.append('Description', description);
-    formData.append('MetaTitle', this.pageForm.get('metaTitle')?.value ?? '');
-    formData.append('MetaDescription', this.pageForm.get('metaDescription')?.value ?? '');
+
+    // ============================================
+    // FORM VALIDATION
+    // ============================================
+
+    if (this.pageForm.invalid) {
+
+      this.pageForm.markAllAsTouched();
+
+      return;
+    }
+
+
+    // ============================================
+    // SUBMIT
+    // ============================================
+
+    this.isSubmitting = true;
+
+    const formData =
+      new FormData();
+
+    const id =
+      this.pageForm.get('id')?.value;
+
+
+    if (this.selectedFile) {
+
+      formData.append(
+        'Photo',
+        this.selectedFile,
+        this.selectedFile.name
+      );
+
+    }
+
+
+    formData.append(
+      'PageName',
+      this.pageName
+    );
+
+    formData.append(
+      'Description',
+      description
+    );
+
+    formData.append(
+      'MetaTitle',
+      this.pageForm.get('metaTitle')?.value ?? ''
+    );
+
+    formData.append(
+      'MetaDescription',
+      this.pageForm.get('metaDescription')?.value ?? ''
+    );
+
+
+    // ============================================
+    // CREATE / UPDATE
+    // ============================================
 
     if (id) {
-      formData.append('Id', id.toString());
-      formData.append('UpdatedBy', this.loggedInId());
-      this.update(id, formData);
-    } else {
-      formData.append('CreatedBy', this.loggedInId());
-      this.create(formData);
+
+      formData.append(
+        'Id',
+        id.toString()
+      );
+
+      formData.append(
+        'UpdatedBy',
+        this.loggedInId()
+      );
+
+      this.update(
+        id,
+        formData
+      );
+
     }
+    else {
+
+      formData.append(
+        'CreatedBy',
+        this.loggedInId()
+      );
+
+      this.create(
+        formData
+      );
+
+    }
+
   }
 
   private create(formData: FormData): void {

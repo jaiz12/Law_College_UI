@@ -33,46 +33,88 @@
             (keydown.enter)="$event.preventDefault()"
             class="space-y-6 p-6">
 
-        <!-- TITLE -->
-        <div>
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <!-- START DATE -->
+          <div>
 
-          <label class="mb-2 block text-sm font-medium
-                        text-gray-700 dark:text-gray-300">
-            Title
-            <span class="text-red-500">*</span>
-          </label>
+            <label class="mb-2 block text-sm font-medium
+                 text-gray-700 dark:text-gray-300">
 
-          <input type="text"
-                 formControlName="title"
-                 placeholder="Enter announcement title"
-                 class="w-full rounded-xl
-                        border border-gray-300
-                        bg-white px-4 py-3
-                        text-gray-800 outline-none
-                        focus:border-indigo-500
-                        focus:ring-2
-                        focus:ring-indigo-200
-                        dark:border-slate-700
-                        dark:bg-slate-800
-                        dark:text-white">
+              Start Date
 
-          @if (
-          pageForm.get('title')?.invalid &&
-          pageForm.get('title')?.touched
-          ) {
-          <p class="mt-2 text-sm text-red-600">
-            Title is required.
-          </p>
-          }
-          @if (pageForm.get('title')?.hasError('whitespace')) {
+              <span class="text-red-500">*</span>
 
-          <p class="mt-2 text-sm text-red-500">
-            Title cannot contain leading, trailing, or only whitespace.
-          </p>
+            </label>
 
-          }
+            <input type="date"
+                   formControlName="startDate"
+                   class="w-full rounded-xl
+                 border border-gray-300
+                 bg-white px-4 py-3
+                 text-gray-800 outline-none
+                 focus:border-indigo-500
+                 focus:ring-2
+                 focus:ring-indigo-200
+                 dark:border-slate-700
+                 dark:bg-slate-800
+                 dark:text-white">
 
+            @if (
+            pageForm.get('startDate')?.touched &&
+            pageForm.get('startDate')?.hasError('required')
+            ) {
+
+            <p class="mt-2 text-sm text-red-600">
+              Start Date is required.
+            </p>
+
+            }
+
+          </div>
+
+          <!-- END DATE -->
+          <div>
+
+            <label class="mb-2 block text-sm font-medium
+       text-gray-700 dark:text-gray-300">
+
+              End Date
+
+              <span class="text-xs font-normal text-gray-400">
+                (Optional)
+              </span>
+
+            </label>
+
+            <input type="date"
+                   formControlName="endDate"
+                   [min]="pageForm.get('startDate')?.value || null"
+                   class="w-full rounded-xl
+           border border-gray-300
+           bg-white px-4 py-3
+           text-gray-800 outline-none
+           focus:border-indigo-500
+           focus:ring-2
+           focus:ring-indigo-200
+           dark:border-slate-700
+           dark:bg-slate-800
+           dark:text-white">
+
+            @if (
+            pageForm.get('endDate')?.touched &&
+            pageForm.hasError('endDateBeforeStartDate')
+            ) {
+
+            <p class="mt-2 text-sm text-red-600">
+              End Date cannot be earlier than Start Date.
+            </p>
+
+            }
+
+          </div>
         </div>
+
+
 
         <!-- CATEGORY -->
         <div>
@@ -97,15 +139,15 @@
                         dark:bg-slate-800
                         dark:text-white">
 
-          @if (
-          pageForm.get('category')?.invalid &&
-          pageForm.get('category')?.touched
-          ) {
+          @if (pageForm.get('category')?.touched) {
+
+          @if (pageForm.get('category')?.hasError('required')) {
+
           <p class="mt-2 text-sm text-red-600">
             Category is required.
           </p>
-          }
-          @if (pageForm.get('category')?.hasError('whitespace')) {
+
+          } @else if (pageForm.get('category')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Category cannot contain leading, trailing, or only whitespace.
@@ -113,75 +155,64 @@
 
           }
 
+          }
+
         </div>
+        <!-- TITLE -->
+        <div>
 
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <!-- START DATE -->
-          <div>
+          <label class="mb-2 block text-sm font-medium
+                text-gray-700 dark:text-gray-300">
+            Announcement Title
+            <span class="text-red-500">*</span>
+          </label>
 
-            <label class="mb-2 block text-sm font-medium
-                        text-gray-700 dark:text-gray-300">
+          <input type="text"
+                 formControlName="title"
+                 placeholder="Enter announcement title"
+                 class="w-full rounded-xl
+                border border-gray-300
+                bg-white px-4 py-3
+                text-gray-800 outline-none
+                focus:border-indigo-500
+                focus:ring-2
+                focus:ring-indigo-200
+                dark:border-slate-700
+                dark:bg-slate-800
+                dark:text-white">
+          @if (pageForm.get('title')?.touched) {
 
-              Start Date
+          @if (pageForm.get('title')?.hasError('required')) {
 
-              <span class="text-red-500">*</span>
+          <p class="mt-2 text-sm text-red-600">
+            Announcement title is required.
+          </p>
 
-            </label>
+          } @else if (pageForm.get('title')?.hasError('whitespace')) {
 
-            <input type="date"
-                   formControlName="startDate"
-                   class="w-full rounded-xl
-                        border border-gray-300
-                        bg-white px-4 py-3
-                        text-gray-800 outline-none
-                        focus:border-indigo-500
-                        focus:ring-2
-                        focus:ring-indigo-200
-                        dark:border-slate-700
-                        dark:bg-slate-800
-                        dark:text-white">
+          <p class="mt-2 text-sm text-red-500">
+            Announcement title cannot contain leading, trailing, or only whitespace.
+          </p>
 
-            @if (
-            pageForm.get('startDate')?.invalid &&
-            pageForm.get('startDate')?.touched
-            ) {
+          } @else if (pageForm.get('title')?.hasError('maxlength')) {
 
-            <p class="mt-2 text-sm text-red-600">
-              Start Date is required.
-            </p>
+          <p class="mt-2 text-sm text-red-500">
+            Announcement title cannot exceed 2500 characters.
+          </p>
 
-            }
+          }
+          @else if (
+          pageForm.hasError('duplicateCombination')
+          ) {
 
-          </div>
+          <p class="mt-2 text-sm text-red-600">
+            An Announcement with the same announcement title, category and start date already exists.
+          </p>
 
-          <!-- END DATE -->
-          <div>
+          }
 
-            <label class="mb-2 block text-sm font-medium
-                        text-gray-700 dark:text-gray-300">
+          }
 
-              End Date
-
-              <span class="text-xs font-normal text-gray-400">
-                (Optional)
-              </span>
-
-            </label>
-
-            <input type="date"
-                   formControlName="endDate"
-                   class="w-full rounded-xl
-                        border border-gray-300
-                        bg-white px-4 py-3
-                        text-gray-800 outline-none
-                        focus:border-indigo-500
-                        focus:ring-2
-                        focus:ring-indigo-200
-                        dark:border-slate-700
-                        dark:bg-slate-800
-                        dark:text-white">
-
-          </div>
         </div>
 
         <!-- FILE UPLOAD -->
@@ -286,41 +317,20 @@
                    accept=".pdf"
                    (change)="onFileChange($event)">
 
-            <div class="flex flex-col items-center
-                          justify-center py-10">
-
-              <div class="mb-3 flex h-14 w-14
-                            items-center justify-center
-                            rounded-full
-                            bg-indigo-100
-                            text-indigo-600
-                            dark:bg-indigo-900/30
-                            dark:text-indigo-400">
-
+            <div class="flex flex-col items-center justify-center py-10">
+              <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
                 <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-
               </div>
 
-              <div class="font-semibold
-                            text-gray-700 dark:text-gray-200">
-
-                Drag & Drop Announcement File
-
+              <div class="font-semibold text-gray-700 dark:text-gray-200">
+                Drag & Drop Academic Calendar File
               </div>
 
-              <div class="mt-1 text-sm
-                            text-gray-500 dark:text-slate-400">
-
+              <div class="mt-1 text-sm text-gray-500 dark:text-slate-400">
                 or click to browse
-
               </div>
 
-              <div class="mt-2 text-xs text-gray-400">
-
-                PDF
-
-              </div>
-
+              <div class="mt-2 text-xs text-gray-400">PDF • Max 5 MB</div>
             </div>
 
           </div>
@@ -328,34 +338,29 @@
           }
 
           <!-- REQUIRED ERROR -->
-          @if (
-          pageForm.get('file')?.hasError('required') &&
-          pageForm.get('file')?.touched
-          ) {
+          @if (pageForm.get('file')?.touched) {
 
-          <p class="mt-2 text-sm text-red-600">
+          @if (pageForm.get('file')?.hasError('required')) {
 
-            Announcement file is required.
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            Academic calendar file is required.
+          </p>
 
+          } @else if (pageForm.get('file')?.hasError('invalidFileType')) {
+
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            Invalid file format. Only PDF files are allowed.
+          </p>
+
+          } @else if (pageForm.get('file')?.hasError('maxFileSize')) {
+
+          <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+            PDF file size must not exceed 5 MB.
           </p>
 
           }
 
-
-          <!-- INVALID FILE ERROR -->
-          @if (
-          pageForm.get('file')?.hasError('invalidFileType') &&
-          pageForm.get('file')?.touched
-          ) {
-
-          <p class="mt-2 text-sm text-red-600">
-
-            Only PDF files are allowed.
-
-          </p>
-
           }
-
         </div>
 
         <!-- FOOTER -->

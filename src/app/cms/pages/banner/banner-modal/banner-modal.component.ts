@@ -24,6 +24,7 @@ import { CKEditorConfigService } from '../../../../services/ckeditor-config.serv
 import { ValidationService } from '../../../../services/validation-service.service';
 
 import { Banner } from '../banner.component';
+import { DublicateValidationService } from '../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -54,7 +55,11 @@ export class BannerModalComponent
   private validationService =
     inject(ValidationService);
 
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
+  @Input()
+  isSubmitted = false;
   constructor(
     private config: ConfigService,
     private ckEditorConfig: CKEditorConfigService
@@ -126,6 +131,9 @@ export class BannerModalComponent
   @Input()
   banner: Banner | null = null;
 
+  @Input()
+  items: Banner[] = [];
+
 
   // ===================================================
   // OUTPUT
@@ -166,24 +174,23 @@ export class BannerModalComponent
           null
         ),
 
-      pageName:
-        this.fb.control(
-          '',
-          {
+      pageName: this.fb.control<string>(
+        '',
+        {
+          validators: [
+            Validators.required,
 
-            validators: [
+            this.validationService.noWhitespaceValidator(),
 
-              Validators.required,
-
-              this.validationService
-                .noWhitespaceValidator()
-
-            ],
-
-            nonNullable: true
-
-          }
-        ),
+            this.dublicateValidationService
+              .duplicateValidator(
+                () => this.items,
+                ['pageName']
+              )
+          ],
+          nonNullable: true
+        }
+      ),
 
       content:
         this.fb.control(
@@ -212,13 +219,19 @@ export class BannerModalComponent
   // ===================================================
 
   readonly allowedExtensions = [
-
-    '.png',
     '.jpg',
     '.jpeg',
+    '.png',
     '.webp'
-
   ];
+
+  readonly allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp'
+  ];
+
+  readonly maxFileSize = 1 * 1024 * 1024; // 1 MB
 
 
   // ===================================================
@@ -236,13 +249,11 @@ export class BannerModalComponent
   // INPUT CHANGES
   // ===================================================
 
-  ngOnChanges(
-    changes: SimpleChanges
-  ): void {
+  ngOnChanges(changes: SimpleChanges): void {
 
-    // ===============================================
+    // =================================================
     // EDIT MODE
-    // ===============================================
+    // =================================================
 
     if (this.banner) {
 
@@ -252,130 +263,140 @@ export class BannerModalComponent
           this.banner.id,
 
         pageName:
-          this.banner.pageName,
-
-        content:
-          this.banner.content ?? '',
+          this.banner.pageName ?? '',
 
         image:
-          this.banner.image
+          this.banner.image ?? ''
 
       });
 
-
-      // =============================================
-      // FIND SELECTED MENU
-      // =============================================
-
-      this.selectedMenu =
-        this.allMenus.find(
-          menu =>
-            menu.name ===
-            this.banner?.pageName
-        ) ?? null;
-
-
-      // =============================================
+      // ===============================================
       // EXISTING IMAGE
-      // =============================================
+      // ===============================================
 
-      const imagePath =
-        this.banner.image;
-
-
-      if (imagePath) {
+      if (this.banner.image) {
 
         this.imagePreview =
           this.config.get('IMAGE_API_URL') +
-          imagePath;
+          this.banner.image;
 
-        // Existing image is valid
-        this.pageForm.controls.image.setErrors(null);
+        // Existing image satisfies required validation
+        this.pageForm
+          .get('image')
+          ?.setErrors(null);
+
       }
 
       else {
 
-        this.imagePreview =
-          null;
-        // No existing image
-        this.pageForm.controls.image.setErrors({
-          required: true
-        });
+        this.imagePreview = null;
+
+        this.pageForm
+          .get('image')
+          ?.setErrors({
+            required: true
+          });
 
       }
 
-
-      this.selectedFile =
-        null;
-
-
-      this.pageForm
-        .get('image')
-        ?.setErrors(null);
-
-
-      this.showMenus =
-        false;
-
-
-      this.searchControl.setValue(
-        ''
-      );
+      // No new file selected initially
+      this.selectedFile = null;
 
     }
 
-    // ===============================================
+    // =================================================
     // CREATE MODE
-    // ===============================================
+    // =================================================
 
     else {
 
       this.pageForm.reset({
 
-        id:
-          null,
+        id: null,
 
-        pageName:
-          '',
+        pageName: '',
 
-        content:
-          '',
-
-        image:
-          null
+        image: ''
 
       });
 
+      this.imagePreview = null;
 
-      this.selectedMenu =
-        null;
+      this.selectedFile = null;
 
-
-      this.imagePreview =
-        null;
-
-
-      this.selectedFile =
-        null;
-
-
-      this.showMenus =
-        false;
-
-
-      this.searchControl.setValue(
-        ''
-      );
-
-
+      // Image is required during create
       this.pageForm
         .get('image')
-        ?.setErrors(null);
+        ?.setErrors({
+          required: true
+        });
 
     }
 
+    // =================================================
+    // REVALIDATE FORM
+    // =================================================
+
+    this.pageForm.updateValueAndValidity({
+      emitEvent: false
+    });
+
   }
 
+
+  // ===================================================
+  // FILE VALIDATION
+  // ===================================================
+
+  private validateFile(
+    file: File
+  ): 'invalidFileType' | 'fileTooLarge' | null {
+
+    const fileName =
+      file.name.toLowerCase();
+
+    const extension =
+      fileName.substring(
+        fileName.lastIndexOf('.')
+      );
+
+    const validExtension =
+      this.allowedExtensions.includes(
+        extension
+      );
+
+    const validMimeType =
+      this.allowedMimeTypes.includes(
+        file.type
+      );
+
+    // ===============================================
+    // FILE TYPE
+    // ===============================================
+
+    if (
+      !validExtension ||
+      !validMimeType
+    ) {
+
+      return 'invalidFileType';
+
+    }
+
+    // ===============================================
+    // FILE SIZE
+    // ===============================================
+
+    if (
+      file.size > this.maxFileSize
+    ) {
+
+      return 'fileTooLarge';
+
+    }
+
+    return null;
+  }
 
   // ===================================================
   // SELECT MENU
@@ -506,7 +527,7 @@ export class BannerModalComponent
 
           }
 
-          
+
 
         }
       );
@@ -710,77 +731,70 @@ export class BannerModalComponent
 
     event.preventDefault();
 
-    this.dragging =
-      false;
-
+    this.dragging = false;
 
     const file =
-      event.dataTransfer
-        ?.files?.[0];
-
+      event.dataTransfer?.files?.[0];
 
     if (!file) {
-
       return;
-
     }
 
+    const error =
+      this.validateFile(file);
 
-    if (
-      !this.isAllowedFile(file)
-    ) {
+    // ===============================================
+    // INVALID FILE
+    // ===============================================
 
-      this.pageForm
-        .get('image')
-        ?.setErrors({
+    if (error) {
 
-          invalidFileType: true
+      this.selectedFile = null;
 
-        });
+      this.imagePreview = null;
 
+      const imageControl =
+        this.pageForm.get('image');
 
-      this.pageForm
-        .get('image')
-        ?.markAsTouched();
+      imageControl?.setErrors({
+        [error]: true
+      });
 
+      imageControl?.markAsTouched();
 
       return;
-
     }
 
+    // ===============================================
+    // VALID FILE
+    // ===============================================
 
-    this.selectedFile =
-      file;
-
+    this.selectedFile = file;
 
     const reader =
       new FileReader();
-
 
     reader.onload = () => {
 
       this.imagePreview =
         reader.result as string;
 
+      const imageControl =
+        this.pageForm.get('image');
 
-      this.pageForm
-        .get('image')
-        ?.setValue(
-          this.imagePreview
-        );
+      imageControl?.setValue(
+        this.imagePreview
+      );
 
+      imageControl?.setErrors(null);
 
-      this.pageForm
-        .get('image')
-        ?.setErrors(null);
+      imageControl?.updateValueAndValidity({
+        emitEvent: false
+      });
 
     };
 
-
-    reader.readAsDataURL(
-      file
-    );
-
+    reader.readAsDataURL(file);
   }
 
 
@@ -899,32 +913,41 @@ export class BannerModalComponent
     // VALUES
     // ===============================================
 
-    const value =
-      this.pageForm.getRawValue();
+      const value =
+        this.pageForm.getRawValue();
 
       console.log(value)
-    // ===============================================
-    // SAVE
-    // ===============================================
+      // ===============================================
+      // SAVE
+      // ===============================================
 
-    this.save.emit({
+      this.save.emit({
 
-      id:
-        value.id ?? 0,
+        id:
+          value.id ?? 0,
 
-      pageName:
-        value.pageName,
+        pageName:
+          value.pageName,
 
-      content:
-        value.content,
+        content:
+          value.content,
 
-      image:
-        this.banner?.image ?? null,
+        image:
+          this.banner?.image ?? null,
 
-      imagePath:
-        this.selectedFile
+        imagePath:
+          this.selectedFile
 
-    });
+      });
+
+      
+
+
+    setTimeout(() => {
+      this.isSubmitting = false;
+    }, 5000);
+
+    
 
   }
 

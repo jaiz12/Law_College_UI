@@ -1,0 +1,516 @@
+
+/* =========================================================
+   CKEDITOR CONTENT
+   ========================================================= */
+.ckeditor-content {
+  width: 100%;
+  max-width: 100%;
+  color: #374151;
+  font-size: 15px;
+  line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+
+/* =========================================================
+   PARAGRAPH
+   ========================================================= */
+
+.ckeditor-content p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+.ckeditor-content h1 {
+  font-size: 2rem;
+  line-height: 1.25;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ckeditor-content h2 {
+  font-size: 1.75rem;
+  line-height: 1.3;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ckeditor-content h3 {
+  font-size: 1.5rem;
+  line-height: 1.35;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ckeditor-content h4 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ckeditor-content h5 {
+  font-size: 1.125rem;
+  line-height: 1.4;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ckeditor-content h6 {
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+
+/* =========================================================
+   BOLD / ITALIC / UNDERLINE / STRIKETHROUGH
+   ========================================================= */
+
+.ckeditor-content strong,
+.ckeditor-content b {
+  font-weight: 700;
+}
+
+.ckeditor-content em,
+.ckeditor-content i {
+  font-style: italic;
+}
+
+.ckeditor-content u {
+  text-decoration: underline;
+}
+
+.ckeditor-content s,
+.ckeditor-content del,
+.ckeditor-content strike {
+  text-decoration: line-through;
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+.ckeditor-content a {
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.ckeditor-content a:hover {
+  color: #4338ca;
+}
+
+
+/* =========================================================
+   UNORDERED LIST
+   ========================================================= */
+
+.ckeditor-content ul {
+  list-style-type: disc;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.ckeditor-content ul ul {
+  list-style-type: circle;
+}
+
+.ckeditor-content ul ul ul {
+  list-style-type: square;
+}
+
+
+/* =========================================================
+   ORDERED LIST
+   ========================================================= */
+
+.ckeditor-content ol {
+  list-style-type: decimal;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+}
+
+.ckeditor-content ol ol {
+  list-style-type: lower-alpha;
+}
+
+.ckeditor-content ol ol ol {
+  list-style-type: lower-roman;
+}
+
+
+/* =========================================================
+   LIST ITEMS
+   ========================================================= */
+
+.ckeditor-content li {
+  margin-bottom: 0.35rem;
+}
+
+.ckeditor-content li > p {
+  margin-bottom: 0.25rem;
+}
+
+
+/* =========================================================
+   ALIGNMENT
+   CKEditor generates classes such as:
+   .text-align-left
+   .text-align-center
+   .text-align-right
+   .text-align-justify
+   ========================================================= */
+
+.ckeditor-content .text-align-left {
+  text-align: left;
+}
+
+.ckeditor-content .text-align-center {
+  text-align: center;
+}
+
+.ckeditor-content .text-align-right {
+  text-align: right;
+}
+
+.ckeditor-content .text-align-justify {
+  text-align: justify;
+}
+
+
+/* =========================================================
+   INDENT
+   ========================================================= */
+
+.ckeditor-content .indent-1 {
+  margin-left: 40px;
+}
+
+.ckeditor-content .indent-2 {
+  margin-left: 80px;
+}
+
+.ckeditor-content .indent-3 {
+  margin-left: 120px;
+}
+
+.ckeditor-content .indent-4 {
+  margin-left: 160px;
+}
+
+.ckeditor-content .indent-5 {
+  margin-left: 200px;
+}
+
+
+/* =========================================================
+   BLOCKQUOTE
+   ========================================================= */
+
+.ckeditor-content blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #6366f1;
+  background: #f8fafc;
+  color: #475569;
+  font-style: italic;
+}
+
+.ckeditor-content blockquote p {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.ckeditor-content figure.table {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.ckeditor-content table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.ckeditor-content table th,
+.ckeditor-content table td {
+  border: 1px solid #d1d5db;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.ckeditor-content table th {
+  font-weight: 600;
+  background: #f3f4f6;
+}
+
+.ckeditor-content table td p,
+.ckeditor-content table th p {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   IMAGES
+   ========================================================= */
+
+.ckeditor-content figure.image {
+  margin: 1.5rem 0;
+}
+
+.ckeditor-content figure.image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+/* Image alignment */
+
+.ckeditor-content figure.image.image-style-align-left {
+  float: left;
+  margin-right: 1.5rem;
+}
+
+.ckeditor-content figure.image.image-style-align-right {
+  float: right;
+  margin-left: 1.5rem;
+}
+
+.ckeditor-content figure.image.image-style-align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* Image width */
+
+.ckeditor-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* =========================================================
+   IMAGE CAPTION
+   ========================================================= */
+
+.ckeditor-content figcaption {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+
+/* =========================================================
+   FONT COLORS
+   CKEditor writes inline styles such as:
+   style="color:red"
+   ========================================================= */
+
+.ckeditor-content [style*="color"] {
+  /* Preserve CKEditor's inline color */
+}
+
+
+/* =========================================================
+   FONT BACKGROUND COLORS
+   ========================================================= */
+
+.ckeditor-content [style*="background-color"] {
+  /* Preserve CKEditor's inline background color */
+}
+
+
+/* =========================================================
+   FONT SIZE
+   ========================================================= */
+
+.ckeditor-content [style*="font-size"] {
+  /* Preserve CKEditor's inline font-size */
+}
+
+
+/* =========================================================
+   FONT FAMILY
+   ========================================================= */
+
+.ckeditor-content [style*="font-family"] {
+  /* Preserve CKEditor's inline font-family */
+}
+
+
+/* =========================================================
+   HORIZONTAL RULE
+   ========================================================= */
+
+.ckeditor-content hr {
+  border: 0;
+  border-top: 1px solid #d1d5db;
+  margin: 2rem 0;
+}
+
+
+/* =========================================================
+   CODE
+   ========================================================= */
+
+.ckeditor-content code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #f1f5f9;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.ckeditor-content pre {
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.ckeditor-content pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
+:host-context(.dark) .ckeditor-content {
+  color: #d1d5db;
+}
+
+:host-context(.dark) .ckeditor-content a {
+  color: #818cf8;
+}
+
+:host-context(.dark) .ckeditor-content a:hover {
+  color: #a5b4fc;
+}
+
+:host-context(.dark) .ckeditor-content blockquote {
+  border-left-color: #818cf8;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+:host-context(.dark) .ckeditor-content table th,
+:host-context(.dark) .ckeditor-content table td {
+  border-color: #475569;
+}
+
+:host-context(.dark) .ckeditor-content table th {
+  background: #1e293b;
+}
+
+:host-context(.dark) .ckeditor-content figcaption {
+  background: #1e293b;
+  color: #94a3b8;
+}
+
+:host-context(.dark) .ckeditor-content hr {
+  border-top-color: #475569;
+}
+
+:host-context(.dark) .ckeditor-content code {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+
+/* =========================================================
+   FLOAT CLEAR
+   ========================================================= */
+
+.ckeditor-content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .ckeditor-content {
+    font-size: 14px;
+  }
+
+  .ckeditor-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .ckeditor-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .ckeditor-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .ckeditor-content table {
+    min-width: 600px;
+  }
+
+  .ckeditor-content figure.table {
+    overflow-x: auto;
+  }
+
+  .ckeditor-content .indent-1 {
+    margin-left: 20px;
+  }
+
+  .ckeditor-content .indent-2 {
+    margin-left: 40px;
+  }
+
+  .ckeditor-content .indent-3 {
+    margin-left: 60px;
+  }
+
+  .ckeditor-content .indent-4 {
+    margin-left: 80px;
+  }
+
+  .ckeditor-content .indent-5 {
+    margin-left: 100px;
+  }
+}
+
+

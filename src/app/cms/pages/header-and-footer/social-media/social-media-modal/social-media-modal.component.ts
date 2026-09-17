@@ -23,6 +23,7 @@ import { ValidationService } from '../../../../../services/validation-service.se
 import {
   SocialMedia
 } from '../social-media.component';
+import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
 
 
 @Component({
@@ -57,6 +58,9 @@ export class SocialMediaModalComponent
 
   private validationService =
     inject(ValidationService);
+
+  private dublicateValidationService =
+    inject(DublicateValidationService);
 
 
   // ---------------------------------------
@@ -230,38 +234,46 @@ export class SocialMediaModalComponent
           null
         ),
 
-
       icon:
-        this.fb.control('', {
-
-          validators: [
-            Validators.required
-          ],
-
-          nonNullable: true
-
-        }),
-
+        this.fb.control(
+          '',
+          {
+            validators: [
+              Validators.required,
+              this.dublicateValidationService
+                .duplicateValidator(
+                  () => this.socialMediaList,
+                  ['icon']
+                )
+            ],
+            nonNullable: true
+          }
+        ),
 
       link:
-        this.fb.control('', {
+        this.fb.control(
+          '',
+          {
+            validators: [
 
-          validators: [
+              Validators.required,
 
-            Validators.required,
+              this.validationService
+                .noWhitespaceValidator(),
 
-            this.validationService
-              .noWhitespaceValidator(),
+              Validators.pattern(
+                /^https?:\/\/(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+(?:[/?#][^\s]*)?$/
+              ),
+              this.dublicateValidationService
+                .duplicateValidator(
+                  () => this.socialMediaList,
+                  ['link']
+                )
 
-            Validators.pattern(
-              /^(https?:\/\/)([\w-]+\.)+[\w-]{2,}(\/.*)?$/i
-            )
-
-          ],
-
-          nonNullable: true
-
-        })
+            ],
+            nonNullable: true
+          }
+        )
 
     });
 
@@ -350,89 +362,156 @@ export class SocialMediaModalComponent
   // Submit
   // ---------------------------------------
   isSubmitting = false;
+
   submit(): void {
+
+    if (this.isSubmitting) {
+      return;
+    }
+
+    // ---------------------------------------
+    // Form Validation
+    // ---------------------------------------
 
     if (this.pageForm.invalid) {
 
       this.pageForm.markAllAsTouched();
 
       return;
-
     }
+
 
     this.isSubmitting = true;
 
 
-    const value =
-      this.pageForm.getRawValue();
+
+      const value =
+        this.pageForm.getRawValue();
 
 
-    // ---------------------------------------
-    // Duplicate Icon Check
-    // ---------------------------------------
+      const icon =
+        value.icon.trim();
 
-    const duplicate =
-      this.socialMediaList.some(
+      const link =
+        value.link.trim();
 
-        item =>
 
-          item.icon === value.icon &&
+      // ---------------------------------------
+      // Duplicate Icon
+      // ---------------------------------------
+
+      const duplicateIcon =
+        this.socialMediaList.some(item =>
+
+          item.icon
+            ?.trim()
+            .toLowerCase() ===
+          icon.toLowerCase()
+
+          &&
 
           item.id !==
           (value.id ?? 0)
 
+        );
+
+
+      if (duplicateIcon) {
+
+        this.pageForm.controls
+          .icon
+          .setErrors({
+
+            duplicate: true
+
+          });
+
+        this.pageForm.controls
+          .icon
+          .markAsTouched();
+
+        this.isSubmitting = false;
+
+        return;
+      }
+
+
+      // ---------------------------------------
+      // Duplicate Link
+      // ---------------------------------------
+
+      const duplicateLink =
+        this.socialMediaList.some(item =>
+
+          item.link
+            ?.trim()
+            .toLowerCase() ===
+          link.toLowerCase()
+
+          &&
+
+          item.id !==
+          (value.id ?? 0)
+
+        );
+
+
+      if (duplicateLink) {
+
+        this.pageForm.controls
+          .link
+          .setErrors({
+
+            duplicate: true
+
+          });
+
+        this.pageForm.controls
+          .link
+          .markAsTouched();
+
+        this.isSubmitting = false;
+
+        return;
+      }
+
+
+      // ---------------------------------------
+      // Social Media Object
+      // ---------------------------------------
+
+      const socialMedia:
+        SocialMedia = {
+
+        id:
+          value.id ?? 0,
+
+        icon:
+          icon,
+
+        link:
+          link
+
+      };
+
+
+      console.log(
+        'Social Media:',
+        socialMedia
       );
 
 
-    if (duplicate) {
+      // ---------------------------------------
+      // Save
+      // ---------------------------------------
 
-      this.pageForm.controls
-        .icon
-        .setErrors({
+      this.save.emit(
+        socialMedia
+      );
 
-          duplicate: true
-
-        });
-
-
-      this.pageForm.controls
-        .icon
-        .markAsTouched();
-
-
-      return;
-
-    }
-
-
-    // ---------------------------------------
-    // Social Media Object
-    // ---------------------------------------
-
-    const socialMedia:
-      SocialMedia = {
-
-      id:
-        value.id ?? 0,
-
-      icon:
-        value.icon,
-
-      link:
-        value.link.trim(),
-
-    };
-
-
-    console.log(
-      'Social Media:',
-      socialMedia
-    );
-
-
-    this.save.emit(
-      socialMedia
-    );
+      setTimeout(() => {
+        this.isSubmitting = false;
+      }, 5000);
 
   }
 

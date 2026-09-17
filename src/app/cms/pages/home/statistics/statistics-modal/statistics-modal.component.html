@@ -129,26 +129,42 @@
                    dark:text-white">
 
 
-          @if (
-          pageForm.get('title')?.invalid &&
-          pageForm.get('title')?.touched
-          ) {
+          @if (pageForm.get('title')?.touched) {
 
-          <p class="mt-2 text-sm
-                      text-red-600">
-
-            Title is required.
-
-          </p>
-
-          }
           @if (pageForm.get('title')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Title cannot contain leading, trailing, or only whitespace.
           </p>
 
+          } @else if (pageForm.get('title')?.hasError('required')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Title is required.
+          </p>
+
+          } @else if (pageForm.get('title')?.hasError('maxlength')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Title cannot exceed 100 characters.
+          </p>
+
+          } @else if (pageForm.get('title')?.hasError('duplicate')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            This title already exists. Please enter a different title.
+          </p>
+
           }
+
+          }
+          <div class="mt-1 flex justify-end">
+
+            <span class="text-xs text-gray-400">
+              {{ pageForm.get('title')?.value?.length || 0 }}/100
+            </span>
+
+          </div>
 
         </div>
 
@@ -187,27 +203,29 @@
           dark:bg-slate-800
           dark:text-white">
 
-
-          @if (
-          pageForm.get('count')?.invalid &&
-          pageForm.get('count')?.touched
-          ) {
-
-          <p class="mt-2 text-sm
-                      text-red-600">
-
-            Count is required.
-
-          </p>
-
-          }
+          @if (pageForm.get('count')?.touched) {
           @if (pageForm.get('count')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Count cannot contain leading, trailing, or only whitespace.
           </p>
 
+          } @else if (pageForm.get('count')?.hasError('required')) {
+
+          <p class="mt-2 text-sm text-red-600">
+            Count is required.
+          </p>
+
+          } @else if (pageForm.get('count')?.hasError('pattern')) {
+
+          <p class="mt-2 text-sm text-red-500">
+            Count can contain only numbers and the + symbol.
+          </p>
+
           }
+
+          }
+
 
         </div>
 
@@ -245,22 +263,17 @@
 
 
           <button type="submit"
-                  class="rounded-xl
-                   bg-indigo-600
-                   px-5 py-3
-                   text-sm
-                   font-medium
-                   text-white
-                   transition
-                   hover:bg-indigo-700">
-
-
-            {{
-              isEditMode
-                ? 'Update'
-                : 'Create'
-            }}
-
+                  [disabled]="isSubmitting"
+                  class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
+            @if (isSubmitting) {
+            <svg class="h-4 w-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Saving...</span>
+            } @else {
+            <span>{{ isEditMode ? 'Update' : 'Create' }}</span>
+            }
           </button>
 
         </div>

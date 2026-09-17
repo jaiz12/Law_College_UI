@@ -181,7 +181,7 @@ export class StudentRepresentativeCouncilComponent implements OnInit {
 
     this.apiService
 
-      .GetRequest('AdministrativeStaff')
+      .GetRequest('StudentRepresentative')
 
       .subscribe({
 
@@ -292,13 +292,13 @@ export class StudentRepresentativeCouncilComponent implements OnInit {
     const request = isEdit
 
       ? this.apiService.PutRequest(
-        'AdministrativeStaff',
+        'StudentRepresentative',
         formData,
         true
       )
 
       : this.apiService.PostRequest(
-        'AdministrativeStaff',
+        'StudentRepresentative',
         formData,
         true
       );
@@ -403,7 +403,7 @@ export class StudentRepresentativeCouncilComponent implements OnInit {
       this.apiService
 
         .DeleteFromFormRequest(
-          'AdministrativeStaff',
+          'StudentRepresentative',
           formData,
           true
         )

@@ -46,7 +46,7 @@ export class StatutoryBodiesComponent implements OnInit {
 
   showModal = signal(false);
   selectedStatutoryBodies = signal<StatutoryBodiesBody | null>(null);
-  StatutoryBodies = signal<StatutoryBodiesBody[]>([]);
+  statutoryBodies = signal<StatutoryBodiesBody[]>([]);
   imageURL = signal('');
   loggedInId = signal('');
 
@@ -76,10 +76,10 @@ export class StatutoryBodiesComponent implements OnInit {
     const keyword = this.search().trim().toLowerCase();
 
     if (!keyword) {
-      return this.StatutoryBodies();
+      return this.statutoryBodies();
     }
 
-    return this.StatutoryBodies().filter(item =>
+    return this.statutoryBodies().filter(item =>
       item.title?.toLowerCase().includes(keyword) ||
       item.content?.toLowerCase().includes(keyword) ||
       item.photo?.toLowerCase().includes(keyword)
@@ -102,7 +102,7 @@ export class StatutoryBodiesComponent implements OnInit {
           photo: item.photo ?? item.Photo ?? item.image ?? item.Image ?? ''
         }));
 
-        this.StatutoryBodies.set(statutoryBodiesList);
+        this.statutoryBodies.set(statutoryBodiesList);
       },
       error: (err) => {
         this.toastr.error(this.getErrorMessage(err, 'Unable to load Statutory Bodies.'));

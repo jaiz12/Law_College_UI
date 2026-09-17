@@ -23,7 +23,7 @@
 
       <label class="mb-3 block font-medium text-gray-700 dark:text-gray-300">
 
-        Vision & Mission
+        Vision & Mission <span class="text-[#ff0000]">*</span><i class="ml-2 text-gray-500 dark:text-gray-400">(Use Shift + Enter to start a new line.)</i>
 
       </label>
 
@@ -32,10 +32,9 @@
                 formControlName="description">
       </ckeditor>
       @if (
-      pageForm.get('description')?.invalid &&
       pageForm.get('description')?.touched
       ) {
-
+      @if (pageForm.get('description')?.hasError('required')) {
       <p class="mt-2 text-sm text-red-600">
 
         Vision & Mission is required.
@@ -43,12 +42,13 @@
       </p>
 
       }
-      @if (pageForm.get('description')?.hasError('whitespace')) {
+      @else if (pageForm.get('description')?.hasError('whitespace')) {
 
       <p class="mt-2 text-sm text-red-500">
         Vision & Mission cannot contain leading, trailing, or only whitespace.
       </p>
 
+      }
       }
     </div>
 
@@ -70,6 +70,18 @@
                  dark:bg-slate-800
                  dark:text-white">
 
+        @if (pageForm.get('metaTitle')?.touched) {
+
+        @if (pageForm.get('metaTitle')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Title cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
+
       </div>
 
       <div>
@@ -89,6 +101,18 @@
 
         </textarea>
 
+        @if (pageForm.get('metaDescription')?.touched) {
+
+        @if (pageForm.get('metaDescription')?.hasError('whitespace')) {
+
+        <p class="mt-2 text-sm text-red-500">
+          Meta Description cannot contain leading, trailing, or only whitespace.
+        </p>
+
+        }
+
+        }
+
       </div>
 
     </div>
@@ -107,20 +131,20 @@
         Cancel
 
       </button>
-        <button type="submit"
-                [disabled]="isSubmitting"
-                class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-3 font-medium text-white
+      <button type="submit"
+              [disabled]="isSubmitting"
+              class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-3 font-medium text-white
                  transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
-          @if (isSubmitting) {
-          <svg class="h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Saving...</span>
-          } @else {
-          <span>Save Page</span>
-          }
-        </button>
+        @if (isSubmitting) {
+        <svg class="h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Saving...</span>
+        } @else {
+        <span>Save Page</span>
+        }
+      </button>
 
     </div>
 
