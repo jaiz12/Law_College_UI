@@ -289,6 +289,7 @@
             <!-- CONTENT -->
 
             <td class="px-6 py-5">
+              @if (calendar.content) {
               <button type="button"
                       (click)="viewDescription(calendar)"
                       class="shrink-0
@@ -327,14 +328,19 @@ dark:hover:bg-indigo-900/50">
 
               </button>
 
-              <!--<div class="truncate-html
-               max-w-xl
-               text-sm
-               text-gray-600
-               dark:text-gray-300"
-         [innerHTML]="calendar.content">
+              }
 
-    </div>-->
+              @else {
+
+              <span class="text-sm
+                  text-gray-400
+                  dark:text-gray-500">
+
+                —
+
+              </span>
+
+              }
 
             </td>
 
