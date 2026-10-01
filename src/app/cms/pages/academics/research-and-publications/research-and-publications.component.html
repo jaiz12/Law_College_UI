@@ -269,22 +269,10 @@
 
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
 
-              <button type="button"
+              <a
                       (click)="viewDescription(item)"
-                      class="shrink-0
-                         rounded-lg
-                         border border-indigo-200
-                         bg-indigo-50
-                         px-3 py-2
-                         text-xs
-                         font-medium
-                         text-indigo-600
-                         transition
-                         hover:bg-indigo-100
-                         dark:border-indigo-800
-                         dark:bg-indigo-900/30
-                         dark:text-indigo-400
-                         dark:hover:bg-indigo-900/50">
+                     class=" cursor-pointer inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50">
+
 
                 <svg xmlns="http://www.w3.org/2000/svg"
                      fill="none"
@@ -306,7 +294,7 @@
 
                 View Description
 
-              </button>
+              </a>
 
             </td>
 
@@ -315,7 +303,7 @@
             <!-- LINK -->
             <!-- ================================= -->
 
-            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300  ">
               <a [href]="item.link"
                  target="_blank"
                  class="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50">

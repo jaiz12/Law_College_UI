@@ -222,7 +222,7 @@
           <label class="mb-2 block text-sm font-medium
                         text-gray-700 dark:text-gray-300">
 
-            Announcement File
+            Announcement PDF File
 
             <span class="text-red-500">*</span>
 
@@ -344,7 +344,7 @@
           @if (pageForm.get('file')?.hasError('required')) {
 
           <p class="mt-2 text-sm text-red-600 dark:text-red-400">
-            Academic calendar file is required.
+            Academic calendar pdf file is required.
           </p>
 
           } @else if (pageForm.get('file')?.hasError('invalidFileType')) {

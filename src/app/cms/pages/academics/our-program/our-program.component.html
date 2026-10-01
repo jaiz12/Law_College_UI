@@ -313,37 +313,25 @@
             <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
               <!-- TITLE -->
-              <td class="w-[30%] px-6 py-5 align-top">
+              <td class="w-[30%] max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                 <div class="truncate font-semibold text-gray-900 dark:text-white">
                   {{ item.title }}
                 </div>
               </td>
 
               <!-- SHORT DESCRIPTION -->
-              <td class="w-[30%] px-6 py-5 align-top">
+              <td class="w-[30%] max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
                 <div class="line-clamp-2 text-sm text-gray-600 dark:text-gray-300">
                   {{ item.shortDescription }}
                 </div>
               </td>
 
               <!-- DESCRIPTION -->
-              <td class="w-[25%] px-6 py-5 align-top">
-                <button type="button"
+              <td class="w-[25%] max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                <a
                         (click)="viewDescription(item)"
-                        class="shrink-0
-               rounded-lg
-               border border-indigo-200
-               bg-indigo-50
-               px-3 py-2
-               text-xs
-               font-medium
-               text-indigo-600
-               transition
-               hover:bg-indigo-100
-               dark:border-indigo-800
-               dark:bg-indigo-900/30
-               dark:text-indigo-400
-               dark:hover:bg-indigo-900/50">
+                        class=" cursor-pointer inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50">
+
 
                   <svg xmlns="http://www.w3.org/2000/svg"
                        fill="none"
@@ -364,7 +352,7 @@
 
                   View Description
 
-                </button>
+                </a>
               </td>
 
               <!-- ACTIONS -->
