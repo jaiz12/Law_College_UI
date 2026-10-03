@@ -1,503 +1,193 @@
+import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
-  Component,
-  OnInit,
-  computed,
-  signal, inject, PLATFORM_ID
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { ToastrService } from 'ngx-toastr';
-import Swal from 'sweetalert2';
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
-import { LegalAidCellModalComponent } from './legal-aid-cell-modal/legal-aid-cell-modal.component';
+import { ToastrService } from 'ngx-toastr';
+import { ConfigService } from '../../../../services/config.service';
+import { ValidationService } from '../../../../services/validation-service.service';
+import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
+import { finalize } from 'rxjs/operators';
 
-export interface LegalAidCell {
 
-  id: number;
 
-  title: string;
-
-  externalLink: string | null;
-
-}
 @Component({
   selector: 'app-legal-aid-cell',
   standalone: true,
   imports: [CommonModule,
-    FormsModule,
-    NgxPaginationModule,
-    LegalAidCellModalComponent],
+    ReactiveFormsModule,
+    CKEditorModule],
   templateUrl: './legal-aid-cell.component.html',
   styleUrl: './legal-aid-cell.component.scss'
 })
 export class LegalAidCellComponent implements OnInit {
 
-  constructor(
+  public Editor: any;
 
-    private apiService: CmsApiService,
-
-    private toastr: ToastrService
-
-  ) { }
-
-
-  // -------------------------------------------------
-  // Signals
-  // -------------------------------------------------
-
-  search = signal('');
-
-  showModal = signal(false);
-
-  page = signal(1);
-
-  itemsPerPage = signal(5);
-
-  pageSizeOptions = [5, 10, 20, 50];
-
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  pageForm: FormGroup;
   loggedInId = signal('');
-
-  legalAidCells =
-    signal<LegalAidCell[]>([]);
-
-  selectedLegalAidCell =
-    signal<LegalAidCell | null>(null);
+  pageName: string = "Legal Aid Cell";
+  editorConfig: any;
+  isSubmitting = false;
+  isEdit = false;
 
   private platformId = inject(PLATFORM_ID);
-  // -------------------------------------------------
-  // Init
-  // -------------------------------------------------
 
-  ngOnInit(): void {
+  constructor(
+    private fb: FormBuilder,
+    private apiservice: CmsApiService,
+    private toastr: ToastrService,
+    private config: ConfigService,
+    private validationService: ValidationService,
+    private ckEditorConfig: CKEditorConfigService
+  ) {
+    this.Editor = this.ckEditorConfig.Editor;
+    this.editorConfig = this.ckEditorConfig.getConfig();
 
-    this.getLegalAidCells();
+    this.pageForm = this.fb.group({
+      id: [''],
+      pageName: [''],
+      content: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.noWhitespaceValidator()
+        ],
+        nonNullable: true
+      }],
+    });
+  }
+
+  ngOnInit() {
+    this.get();
     if (isPlatformBrowser(this.platformId)) {
+      const userString = localStorage.getItem('user');
 
-      const user =
-        localStorage.getItem('user');
-
-      if (user) {
-
-        this.loggedInId.set(
-
-          JSON.parse(user).id
-
-        );
-
+      if (userString) {
+        const currentUser = JSON.parse(userString);
+        this.loggedInId.set(currentUser.id);
       }
     }
-
   }
 
-
-  // -------------------------------------------------
-  // Filter
-  // -------------------------------------------------
-
-  filteredLegalAidCells = computed(() => {
-
-    const keyword =
-      this.search()
-        .trim()
-        .toLowerCase();
-
-    if (!keyword) {
-
-      return this.legalAidCells();
-
-    }
-
-    return this.legalAidCells().filter(item =>
-
-      item.title
-        .toLowerCase()
-        .includes(keyword)
-
-      ||
-
-      (item.externalLink ?? '')
-        .toLowerCase()
-        .includes(keyword)
-
-    );
-
-  });
-
-
-  // -------------------------------------------------
-  // GET
-  // -------------------------------------------------
-
-  getLegalAidCells(): void {
-
-    this.apiService
-
-      .GetRequest('LegalAidCell')
-
-      .subscribe({
-
-        next: (res: any) => {
-
-          this.page.set(1);
-
-          const data =
-            Array.isArray(res)
-
-              ? res
-
-              : res.data || [];
-
-
-          const list: LegalAidCell[] =
-
-            data.map((item: any) => ({
-
-              id:
-
-                item.id ??
-
-                item.Id ??
-
-                0,
-
-              title:
-
-                item.title ??
-
-                item.Title ??
-
-                '',
-
-              externalLink:
-
-                item.externalLink ??
-
-                item.ExternalLink ??
-
-                ''
-
-            }));
-
-
-          this.legalAidCells.set(list);
-
-        },
-
-        error: (err) => {
-
-          console.error(err);
-
-          this.toastr.error(
-
-            err?.error?.message ||
-
-            'Unable to load Legal Aid Cell records.'
-
-          );
-
-        }
-
-      });
-
-  }
-
-
-  // -------------------------------------------------
-  // ADD
-  // -------------------------------------------------
-
-  addLegalAidCell(): void {
-
-    this.selectedLegalAidCell.set(null);
-
-    this.showModal.set(true);
-
-  }
-
-
-  // -------------------------------------------------
-  // EDIT
-  // -------------------------------------------------
-
-  editLegalAidCell(
-    legalAidCell: LegalAidCell
-  ): void {
-
-    this.selectedLegalAidCell.set({
-
-      ...legalAidCell
-
-    });
-
-    this.showModal.set(true);
-
-  }
-
-
-  // -------------------------------------------------
-  // CLOSE MODAL
-  // -------------------------------------------------
-
-  closeModal(): void {
-
-    this.showModal.set(false);
-
-    this.selectedLegalAidCell.set(null);
-
-  }
-
-
-  // -------------------------------------------------
-  // SAVE
-  // -------------------------------------------------
-
-  saveLegalAidCell(
-    legalAidCell: LegalAidCell
-  ): void {
-
-    const isEdit =
-      legalAidCell.id > 0;
-
-
-    const formData =
-      new FormData();
-
-
-    if (isEdit) {
-
-      formData.append(
-
-        'Id',
-
-        legalAidCell.id.toString()
-
-      );
-
-      formData.append(
-
-        'UpdatedBy',
-
-        this.loggedInId()
-
-      );
-
-    }
-
-    else {
-
-      formData.append(
-
-        'CreatedBy',
-
-        this.loggedInId()
-
-      );
-
-    }
-
-
-    formData.append(
-
-      'Title',
-
-      legalAidCell.title
-
-    );
-
-
-    formData.append(
-
-      'ExternalLink',
-
-      legalAidCell.externalLink ?? ''
-
-    );
-
-
-    const request =
-
-      isEdit
-
-        ? this.apiService.PutRequest(
-
-          'LegalAidCell',
-
-          formData,
-
-          true
-
-        )
-
-        : this.apiService.PostRequest(
-
-          'LegalAidCell',
-
-          formData,
-
-          true
-
-        );
-
-
-    request.subscribe({
-
+  get(): void {
+    this.apiservice.GetRequest('CommitteeAndCell/0/' + this.pageName).subscribe({
       next: (res: any) => {
+        const data = Array.isArray(res) ? res[0] : res;
 
-        if (res.isSucceeded) {
-
-          this.toastr.success(
-
-            res.message ||
-
-            `Legal Aid Cell ${isEdit
-              ? 'updated'
-              : 'created'
-            } successfully.`
-
-          );
-
-
-          this.getLegalAidCells();
-
-          this.closeModal();
-
+        if (!data) {
+          return;
         }
 
-        else {
-
-          this.toastr.warning(
-
-            res.message ||
-
-            'Unable to save Legal Aid Cell record.'
-
-          );
-
-        }
-
-      },
-
-      error: (err) => {
-
-        console.error(err);
-
-        this.toastr.error(
-
-          err?.error?.message ||
-
-          err?.message ||
-
-          'Something went wrong while saving the Legal Aid Cell record.'
-
-        );
-
-      }
-
-    });
-
-  }
-
-
-  // -------------------------------------------------
-  // DELETE
-  // -------------------------------------------------
-
-  deleteLegalAidCell(
-    legalAidCell: LegalAidCell
-  ): void {
-
-    Swal.fire({
-
-      title: 'Delete Legal Aid Cell?',
-
-      text:
-        `Are you sure you want to delete "${legalAidCell.title}"?`,
-
-      icon: 'warning',
-
-      showCancelButton: true,
-
-      confirmButtonText: 'Yes, Delete',
-
-      cancelButtonText: 'Cancel',
-
-      confirmButtonColor: '#dc2626',
-
-      reverseButtons: true
-
-    }).then(result => {
-
-      if (!result.isConfirmed) {
-
-        return;
-
-      }
-
-
-
-      this.apiService
-
-        .DeleteRequest(
-
-          'LegalAidCell',
-
-          legalAidCell.id.toString()
-        )
-
-        .subscribe({
-
-          next: (res: any) => {
-
-            if (res.isSucceeded) {
-
-              this.toastr.success(
-
-                res.message ||
-
-                'Legal Aid Cell deleted successfully.'
-
-              );
-
-              this.getLegalAidCells();
-
-            }
-
-            else {
-
-              this.toastr.warning(
-
-                res.message ||
-
-                'Unable to delete Legal Aid Cell.'
-
-              );
-
-            }
-
-          },
-
-          error: (err) => {
-
-            console.error(err);
-
-            this.toastr.error(
-
-              err?.error?.message ||
-
-              err?.message ||
-
-              'Unable to delete Legal Aid Cell.'
-
-            );
-
-          }
-
+        this.pageForm.patchValue({
+          id: data.id ?? '',
+          pageName: data.pageName ?? '',
+          content: data.content ?? '',
         });
-
+        this.isEdit = true;
+      },
+      error: (err) => {
+        this.toastr.error(
+          err?.error?.message ||
+          err?.message ||
+          'Something went wrong. Please try again.',
+          'Error'
+        );
+      }
     });
-
   }
 
+  save(): void {
+    const content = this.pageForm.get('content')?.value ?? '';
+    const plainText = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+
+    if (!plainText) {
+      this.pageForm.get('content')?.setErrors({ required: true });
+    } else {
+      this.pageForm.get('content')?.setErrors(null);
+    }
+
+    const id = this.pageForm.get('id')?.value;
+
+    if (this.pageForm.invalid) {
+      this.pageForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    const formData = new FormData();
+    formData.append('PageName', this.pageName);
+    formData.append('Content', content);
+
+    if (id) {
+      formData.append('Id', id.toString());
+      formData.append('UpdatedBy', this.loggedInId());
+      this.update(id, formData);
+    } else {
+      formData.append('CreatedBy', this.loggedInId());
+      this.create(formData);
+    }
+  }
+
+  private create(formData: FormData): void {
+    this.apiservice.PostRequest('CommitteeAndCell', formData, true)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: (res) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            this.pageForm.reset({
+              id: '',
+              pageName: 'Legal Aid Cell',
+              content: '',
+            });
+
+            this.selectedFile = null;
+            this.imagePreview = null;
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
+          );
+        }
+      });
+  }
+
+  private update(id: number, formData: FormData): void {
+    this.apiservice.PutRequest('CommitteeAndCell', formData, true)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: (res: any) => {
+          if (res.isSucceeded) {
+            this.toastr.success(res.message);
+            this.selectedFile = null;
+            this.get();
+          } else {
+            this.toastr.warning(res.message);
+          }
+        },
+        error: (err) => {
+          this.toastr.error(
+            err?.error?.message ||
+            err?.message ||
+            'Something went wrong.'
+          );
+        }
+      });
+  }
 }
+

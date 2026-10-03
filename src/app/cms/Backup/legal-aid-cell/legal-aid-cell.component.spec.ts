@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BciComplianceComponent } from './bci-compliance.component';
+import { LegalAidCellComponent } from './legal-aid-cell.component';
 
-describe('BciComplianceComponent', () => {
-  let component: BciComplianceComponent;
-  let fixture: ComponentFixture<BciComplianceComponent>;
+describe('LegalAidCellComponent', () => {
+  let component: LegalAidCellComponent;
+  let fixture: ComponentFixture<LegalAidCellComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BciComplianceComponent]
+      imports: [LegalAidCellComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(BciComplianceComponent);
+    fixture = TestBed.createComponent(LegalAidCellComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

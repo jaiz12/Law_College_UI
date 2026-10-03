@@ -38,6 +38,7 @@ export class VisionAndMissionComponent implements OnInit {
   editorConfig: any;
   private platformId = inject(PLATFORM_ID);
   isSubmitting = false;
+  isEdit = false;
 
   constructor(
     private fb: FormBuilder,
@@ -104,6 +105,7 @@ export class VisionAndMissionComponent implements OnInit {
           metaTitle: data.metaTitle ?? '',
           metaDescription: data.metaDescription ?? ''
         });
+        this.isEdit = true;
       },
       error: (err) => {
         this.toastr.error(

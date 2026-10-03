@@ -1,105 +1,241 @@
 <div class="space-y-6">
 
-  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <!-- ============================================= -->
+  <!-- MAIN CARD -->
+  <!-- ============================================= -->
 
-    <!-- Header -->
-    <div class="flex flex-col gap-4 px-6 py-3 md:flex-row md:items-center md:justify-between">
+  <div class="overflow-hidden rounded-2xl
+           border border-gray-200
+           bg-white shadow-sm
+           dark:border-slate-700
+           dark:bg-slate-900">
+
+    <!-- =========================================== -->
+    <!-- HEADER -->
+    <!-- =========================================== -->
+
+    <div class="flex flex-col gap-4
+             px-6 pb-3 pt-6
+             md:flex-row
+             md:items-center
+             md:justify-between">
 
       <div>
 
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          Recognitions & Affiliations
+        <h1 class="text-2xl font-bold
+                 text-gray-900
+                 dark:text-white">
+          Recognition & Affiliation
         </h1>
 
-        <p class="mt-1 text-gray-500 dark:text-slate-400">
-          Manage recognitions, affiliations and accreditation records.
+        <p class="mt-1 text-gray-500
+                 dark:text-slate-400">
+          Configure and manage Recognition & Affiliation.
         </p>
 
       </div>
 
+
+      <!-- ADD -->
+
       <button type="button"
-              (click)="addRecognition()"
-              class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 font-medium text-white shadow-sm transition hover:bg-indigo-700">
-
-        <span class="text-xl">+</span>
-
-        Add Recognition
-
+              (click)="createRecognitionAffiliation()"
+              class="rounded-xl
+               bg-indigo-600
+               px-5 py-3
+               font-medium
+               text-white
+               transition
+               hover:bg-indigo-700">
+        + Add Recognition & Affiliation
       </button>
 
     </div>
 
-    <!-- Toolbar -->
-    <div class="flex flex-col gap-4 border-b border-slate-200 p-6 md:flex-row md:items-center md:justify-between dark:border-slate-800">
 
-      <!-- Search -->
-      <div class="relative w-full max-w-sm">
+    <!-- =========================================== -->
+    <!-- TOOLBAR -->
+    <!-- =========================================== -->
 
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+    <div class="flex flex-col gap-4
+             border-b border-gray-200
+             px-6 py-4
+             md:flex-row
+             md:items-center
+             md:justify-between
+             dark:border-slate-700">
+
+      <!-- SEARCH -->
+
+      <div class="relative w-full md:w-96">
+
+        <input [ngModel]="search()"
+               (ngModelChange)="search.set($event); page.set(1)"
+               type="text"
+               placeholder="Search Recognition Affiliation..."
+               class="w-full rounded-xl
+                 border border-gray-300
+                 bg-white py-3
+                 pl-11 pr-4
+                 text-sm
+                 text-gray-800
+                 outline-none
+                 transition
+                 placeholder:text-gray-400
+                 focus:border-indigo-500
+                 focus:ring-2
+                 focus:ring-indigo-200
+                 dark:border-slate-700
+                 dark:bg-slate-800
+                 dark:text-white
+                 dark:placeholder:text-slate-500
+                 dark:focus:ring-indigo-900" />
+
+
+        <!-- CLEAR -->
+        @if (search()) {
+
+        <button type="button"
+                (click)="search.set(''); page.set(1)"
+                class="absolute
+                   right-3
+                   top-1/2
+                   flex
+                   h-7
+                   w-7
+                   -translate-y-1/2
+                   items-center
+                   justify-center
+                   rounded-full
+                   text-gray-400
+                   transition
+                   hover:bg-gray-100
+                   hover:text-gray-600
+                   dark:text-slate-400
+                   dark:hover:bg-slate-700
+                   dark:hover:text-white"
+                aria-label="Clear search">
+
+          <svg class="h-4 w-4"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="2"
+               viewBox="0 0 24 24">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 6l12 12M18 6L6 18" />
+
+          </svg>
+
+        </button>
+
+        }
+
+
+        <!-- SEARCH ICON -->
+
+        <svg class="absolute left-4 top-3.5
+                 h-5 w-5
+                 text-gray-400
+                 dark:text-slate-500"
              fill="none"
              stroke="currentColor"
+             stroke-width="2"
              viewBox="0 0 24 24">
 
           <path stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
-                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.04 6.04a7.5 7.5 0 0 0 10.61 10.61" />
+                d="M21 21l-4.3-4.3M10 18a8 8 0 100-16 8 8 0 000 16z" />
 
         </svg>
 
-        <input type="text"
-               [ngModel]="search()"
-               (ngModelChange)="search.set($event);page.set(1)"
-               placeholder="Search recognitions..."
-               class="w-full rounded-xl border border-slate-300 bg-white py-3 pl-10 pr-4 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white">
-
       </div>
 
-      <span class="text-sm font-medium text-gray-600 dark:text-slate-400">
+
+      <!-- TOTAL -->
+
+      <span class="text-sm font-medium
+               text-gray-600
+               dark:text-slate-400">
 
         Total Records :
 
-        <span class="font-semibold text-indigo-600 dark:text-indigo-400">
-
-          {{ filteredRecognitions().length }}
-
+        <span class="font-semibold
+                 text-indigo-600
+                 dark:text-indigo-400">
+          {{ filteredRecognitionAffiliation().length }}
         </span>
 
       </span>
 
     </div>
 
-    <!-- Table -->
+
+    <!-- =========================================== -->
+    <!-- TABLE -->
+    <!-- =========================================== -->
+
     <div class="overflow-x-auto">
 
       <table class="w-full text-left">
 
-        <thead class="bg-gray-50 dark:bg-slate-800">
+        <!-- HEADER -->
+
+        <thead class="bg-gray-50
+                 dark:bg-slate-800">
 
           <tr>
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Image
-            </th>
+            <!-- TITLE -->
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider text-gray-500">
+            <th class="px-6 py-4
+                     text-xs
+                     font-semibold
+                     uppercase
+                     tracking-wider
+                     text-gray-500
+                     dark:text-gray-400">
               Title
             </th>
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Description
+
+            <!-- CONTENT -->
+
+            <th class="px-6 py-4
+                     text-xs
+                     font-semibold
+                     uppercase
+                     tracking-wider
+                     text-gray-500
+                     dark:text-gray-400">
+              Content
             </th>
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              External URL
+
+            <!-- PDF -->
+
+            <th class="px-6 py-4
+                     text-xs
+                     font-semibold
+                     uppercase
+                     tracking-wider
+                     text-gray-500
+                     dark:text-gray-400">
+              File
             </th>
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Order
-            </th>
 
-            <th class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-right text-xs font-semibold uppercase  tracking-wider text-gray-500">
+            <!-- ACTIONS -->
+
+            <th class="px-6 py-4
+                     text-right
+                     text-xs
+                     font-semibold
+                     uppercase
+                     tracking-wider
+                     text-gray-500
+                     dark:text-gray-400">
               Actions
             </th>
 
@@ -107,78 +243,93 @@
 
         </thead>
 
-        <tbody>
+
+        <!-- BODY -->
+
+        <tbody class="divide-y
+                 divide-gray-200
+                 dark:divide-slate-700">
 
           @for (
-          item of filteredRecognitions()
-          | paginate:{
+          recognitionAffiliation of filteredRecognitionAffiliation()
+          | paginate: {
           itemsPerPage: itemsPerPage(),
           currentPage: page()
           };
-          track item.id
+          track recognitionAffiliation.id
           ) {
 
-          <tr class="border-b border-slate-100 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800">
+          <tr class="transition
+                     hover:bg-gray-50
+                     dark:hover:bg-slate-800">
 
-            <!-- Image -->
+            <!-- ================================= -->
+            <!-- TITLE -->
+            <!-- ================================= -->
+
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
 
-              @if(item.image){
-
-              <img [src]="imageURL() + item.image"
-                   class="h-14 w-14 rounded-xl border border-slate-200 object-cover">
-
-              }
-
-              @else{
-
-              <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-200 text-slate-500">
-
-                —
-
-              </div>
-
-              }
-
-            </td>
-
-            <!-- Title -->
-            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-medium text-slate-900 dark:text-white">
-
-              {{ item.title }}
-
-            </td>
-
-            <!-- Description -->
-            <td class="max-w-xs max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-sm text-slate-600 dark:text-slate-300">
-
-              <div class="line-clamp-2">
-
-                {{ item.description }}
-
+              <div class="font-semibold
+                         text-gray-900
+                         dark:text-white">
+                {{ recognitionAffiliation.title }}
               </div>
 
             </td>
 
-            <!-- External URL -->
-            <td class="max-w-xs max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-sm text-slate-600 dark:text-slate-300">
 
-              @if(item.externalUrl){
+            <!-- ================================= -->
+            <!-- CONTENT -->
+            <!-- ================================= -->
 
-              <a [href]="item.externalUrl"
-                 target="_blank"
-                 class="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50">
+            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+              @if (recognitionAffiliation.content) {
+              <button type="button"
+                      (click)="viewDescription(recognitionAffiliation)"
+                      class="shrink-0
+                         rounded-lg
+                         border border-indigo-200
+                         bg-indigo-50
+                         px-3 py-2
+                         text-xs
+                         font-medium
+                         text-indigo-600
+                         transition
+                         hover:bg-indigo-100
+                         dark:border-indigo-800
+                         dark:bg-indigo-900/30
+                         dark:text-indigo-400
+                         dark:hover:bg-indigo-900/50">
 
-                <i class="fa-solid
-           fa-arrow-up-right-from-square"></i> Open Link
+                <!-- EYE ICON -->
 
-              </a>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke-width="1.8"
+                     stroke="currentColor"
+                     class="mr-1 inline-block h-4 w-4">
 
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 15.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z" />
+
+                </svg>
+
+                View Content
+
+              </button>
               }
 
-              @else{
+              @else {
 
-              <span class="max-w-xs max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-sm text-slate-600 dark:text-slate-300">
+              <span class="text-sm
+                  text-gray-400
+                  dark:text-gray-500">
 
                 —
 
@@ -188,21 +339,80 @@
 
             </td>
 
-            <!-- Display Order -->
-            <td class="max-w-xs max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 text-sm text-slate-600 dark:text-slate-300">
 
-              {{ item.displayOrder }}
+            <!-- ================================= -->
+            <!-- PDF -->
+            <!-- ================================= -->
+
+            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+
+              @if (recognitionAffiliation.file) {
+
+              <a [href]="imageURL() + recognitionAffiliation.file"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="inline-flex
+                           items-center
+                           gap-2
+                           rounded-lg
+                           bg-indigo-50
+                           px-3 py-2
+                           text-sm
+                           font-medium
+                           text-indigo-600
+                           transition
+                           hover:bg-indigo-100
+                           dark:bg-indigo-900/30
+                           dark:text-indigo-400
+                           dark:hover:bg-indigo-900/50">
+
+                <i class="fa-solid fa-file-arrow-down"></i>
+
+                View File
+
+              </a>
+
+              }
+
+              @else {
+
+              <span class="text-sm
+                           text-gray-400
+                           dark:text-gray-500">
+                —
+              </span>
+
+              }
 
             </td>
 
-            <!-- Actions -->
+
+            <!-- ================================= -->
+            <!-- ACTIONS -->
+            <!-- ================================= -->
+
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
 
-              <div class="flex justify-center gap-2">
+              <div class="flex
+                         justify-end
+                         gap-3">
+
+                <!-- EDIT -->
 
                 <button type="button"
-                        (click)="editRecognition(item)"
-                        class="rounded-lg border border-amber-200 bg-amber-50 p-2 text-amber-600 transition hover:bg-amber-100">
+                        (click)="edit(recognitionAffiliation)"
+                        class="rounded-lg
+                           border border-amber-200
+                           bg-amber-50
+                           p-2
+                           text-amber-600
+                           transition
+                           hover:bg-amber-100
+                           dark:border-amber-800
+                           dark:bg-amber-900/30
+                           dark:text-amber-400
+                           dark:hover:bg-amber-900/50"
+                        title="Edit">
 
                   <svg xmlns="http://www.w3.org/2000/svg"
                        fill="none"
@@ -210,17 +420,32 @@
                        stroke-width="1.8"
                        stroke="currentColor"
                        class="h-5 w-5">
+
                     <path stroke-linecap="round"
                           stroke-linejoin="round"
                           d="M16.862 4.487a2.1 2.1 0 113.03 2.899L8.25 19.5 3 21l1.5-5.25L16.862 4.487z" />
-                  </svg>
 
+                  </svg>
 
                 </button>
 
+
+                <!-- DELETE -->
+
                 <button type="button"
-                        (click)="deleteRecognition(item)"
-                        class="rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 transition hover:bg-red-100">
+                        (click)="delete(recognitionAffiliation)"
+                        class="rounded-lg
+                           border border-red-200
+                           bg-red-50
+                           p-2
+                           text-red-600
+                           transition
+                           hover:bg-red-100
+                           dark:border-red-800
+                           dark:bg-red-900/30
+                           dark:text-red-400
+                           dark:hover:bg-red-900/50"
+                        title="Delete">
 
                   <svg xmlns="http://www.w3.org/2000/svg"
                        fill="none"
@@ -228,9 +453,11 @@
                        stroke-width="1.8"
                        stroke="currentColor"
                        class="h-5 w-5">
+
                     <path stroke-linecap="round"
                           stroke-linejoin="round"
                           d="M6 7h12M9 7V4h6v3m-8 0l1 13h8l1-13" />
+
                   </svg>
 
                 </button>
@@ -243,37 +470,39 @@
 
           }
 
-          @if(filteredRecognitions().length === 0){
+
+          <!-- ======================================= -->
+          <!-- EMPTY -->
+          <!-- ======================================= -->
+          @empty {
 
           <tr>
 
-            <td colspan="6"
-                class="py-20 text-center text-gray-500 dark:text-slate-400">
+            <td colspan="4"
+                class="py-20
+                       text-center
+                       text-gray-500
+                       dark:text-slate-400">
 
-              <div class="flex flex-col items-center gap-4">
+              <div class="flex
+                         flex-col
+                         items-center
+                         gap-4">
 
-                <svg class="h-14 w-14 text-slate-300 dark:text-slate-600"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.5"
-                     viewBox="0 0 24 24">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-14 h-14 text-gray-300 dark:text-slate-600"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16.8l-4.9 2.6.9-5.5-4-3.9 5.5-.8L12 3z"></path> </svg>
 
-                  <path stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 6v6l4 2m6-2A10 10 0 1112 2a10 10 0 0110 10z" />
 
-                </svg>
-
-                <div class="text-lg font-semibold">
-
-                  No Recognitions & Affiliations Found
-
+                <div class="text-lg
+                           font-semibold">
+                  No Recognition & Affiliation Found
                 </div>
 
-                <div class="text-sm text-slate-400">
 
-                  Click "Add Recognition" to create one.
-
+                <div class="text-sm
+                           text-gray-400
+                           dark:text-slate-500">
+                  Click "Add Recognition & Affiliation"
+                  to create one.
                 </div>
 
               </div>
@@ -288,39 +517,76 @@
 
       </table>
 
-    </div>
 
-    <!-- Footer -->
-    <div class="mt-6 flex flex-col justify-between gap-4 border-t border-gray-200 px-5 pb-4 pt-4 md:flex-row md:items-center dark:border-slate-700">
+      <!-- =========================================== -->
+      <!-- FOOTER -->
+      <!-- =========================================== -->
 
-      <div class="flex items-center gap-3">
+      <div class="mt-6
+               flex
+               flex-col
+               justify-between
+               gap-4
+               border-t
+               border-gray-200
+               px-5
+               pb-4
+               pt-4
+               md:flex-row
+               md:items-center
+               dark:border-slate-700">
 
-        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <!-- PAGE SIZE -->
 
-          Items per page
+        <div class="flex
+                 items-center
+                 gap-3">
 
-        </label>
+          <label class="text-sm
+                   font-medium
+                   text-gray-700
+                   dark:text-gray-300">
+            Items per page
+          </label>
 
-        <select [ngModel]="itemsPerPage()"
-                (ngModelChange)="itemsPerPage.set(+$event);page.set(1)"
-                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white">
 
-          @for(size of pageSizeOptions;track size){
+          <select [ngModel]="itemsPerPage()"
+                  (ngModelChange)="itemsPerPage.set(+$event); page.set(1)"
+                  class="rounded-lg
+                   border border-gray-300
+                   bg-white
+                   px-3 py-2
+                   text-sm
+                   text-gray-700
+                   shadow-sm
+                   focus:border-indigo-500
+                   focus:outline-none
+                   dark:border-slate-700
+                   dark:bg-slate-800
+                   dark:text-white">
 
-          <option [value]="size">
+            @for (
+            size of pageSizeOptions;
+            track size
+            ) {
 
-            {{ size }}
+            <option [value]="size">
+              {{ size }}
+            </option>
 
-          </option>
+            }
 
-          }
+          </select>
 
-        </select>
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        <pagination-controls (pageChange)="page.set($event)">
+        </pagination-controls>
 
       </div>
-
-      <pagination-controls (pageChange)="page.set($event)">
-      </pagination-controls>
 
     </div>
 
@@ -328,11 +594,27 @@
 
 </div>
 
+
+
+
+<!-- ============================================= -->
+<!-- DESCRIPTION MODAL -->
+<!-- ============================================= -->
+@if (showDescriptionModal()) {
+
+<app-description-modal [title]="selectedDescriptionTitle()"
+                       [content]="selectedDescription()"
+                       (close)="closeDescriptionModal()">
+</app-description-modal>
+
+}
+
+
 @if(showModal()){
 
-<app-recognitions-and-affiliations-modal [recognition]="selectedRecognition()"
-                                         [recognitions]="recognitions()"
-                                         (save)="saveRecognition($event)"
+<app-recognitions-and-affiliations-modal [recognition]="selectedRecognitionAffiliation()"
+                                         [recognitions]="recognitionAffiliation()"
+                                         (save)="saveRecognitionAffiliation($event)"
                                          (close)="closeModal()">
 </app-recognitions-and-affiliations-modal>
 

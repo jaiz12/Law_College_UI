@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { LibraryModalComponent } from './library-modal/library-modal.component';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 export interface Library {
 
@@ -20,6 +21,8 @@ export interface Library {
   title: string;
 
   externalLink: string | null;
+
+  description: string | null;
 
 }
 
@@ -34,7 +37,8 @@ export interface Library {
     CommonModule,
     FormsModule,
     NgxPaginationModule,
-    LibraryModalComponent
+    LibraryModalComponent,
+    DescriptionModalComponent
 
   ],
 
@@ -81,6 +85,16 @@ export class LibraryComponent
     signal<Library | null>(null);
 
   private platformId = inject(PLATFORM_ID);
+
+  // ===================================================
+  // DESCRIPTION MODAL
+  // ===================================================
+
+  showDescriptionModal = signal(false);
+
+  selectedDescription = signal('');
+
+  selectedDescriptionTitle = signal('');
 
   // -------------------------------------------------
   // Init
@@ -135,6 +149,12 @@ export class LibraryComponent
 
       (item.externalLink ?? '')
         .toLowerCase()
+        .includes(keyword)
+
+      ||
+
+      item.description
+        ?.toLowerCase()
         .includes(keyword)
 
     );
@@ -192,7 +212,15 @@ export class LibraryComponent
 
                 item.ExternalLink ??
 
-                ''
+                '',
+
+              description:
+
+                item.description ??
+
+                item.Description ??
+
+                null
 
             }));
 
@@ -265,6 +293,46 @@ export class LibraryComponent
   }
 
 
+  // ===================================================
+  // VIEW DESCRIPTION
+  // ===================================================
+
+  viewDescription(
+    item: Library
+  ): void {
+
+    this.selectedDescriptionTitle.set(
+
+      item.title ?? 'Content'
+
+    );
+
+
+    this.selectedDescription.set(
+
+      item.description ?? ''
+
+    );
+
+
+    this.showDescriptionModal.set(true);
+
+  }
+
+  // ===================================================
+  // CLOSE DESCRIPTION MODAL
+  // ===================================================
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
+
+  }
+
   // -------------------------------------------------
   // SAVE
   // -------------------------------------------------
@@ -328,6 +396,15 @@ export class LibraryComponent
       'ExternalLink',
 
       library.externalLink ?? ''
+
+    );
+
+
+    formData.append(
+
+      'Description',
+
+      library.description ?? ''
 
     );
 

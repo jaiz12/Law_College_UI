@@ -40,6 +40,7 @@ export class PrincipalsMessageComponent implements OnInit {
   loggedInId = signal('');
   photo: string = '';
   pageName: string = 'Principals Message';
+  isEdit = false;
 
   readonly allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
 
@@ -353,6 +354,7 @@ export class PrincipalsMessageComponent implements OnInit {
           this.imagePreview = null;
           this.pageForm.get('photo')?.setErrors({ required: true });
         }
+        this.isEdit = true;
       },
 
       error: (err) => {

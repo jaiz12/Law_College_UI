@@ -22,6 +22,8 @@ import {
   Library
 } from '../library.component';
 import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { CKEditorConfigService } from '../../../../../services/ckeditor-config.service';
 
 
 @Component({
@@ -33,7 +35,8 @@ import { DublicateValidationService } from '../../../../../services/dublicate-va
   imports: [
 
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CKEditorModule
 
   ],
 
@@ -48,6 +51,13 @@ import { DublicateValidationService } from '../../../../../services/dublicate-va
 export class LibraryModalComponent
   implements OnChanges {
 
+  // =========================================
+  // CKEDITOR
+  // =========================================
+
+  public Editor: any;
+
+  editorConfig: any;
 
   private fb =
     inject(FormBuilder);
@@ -83,6 +93,17 @@ export class LibraryModalComponent
   close =
     new EventEmitter<void>();
 
+  constructor(
+    private ckEditorConfig: CKEditorConfigService
+  ) {
+
+    this.Editor =
+      this.ckEditorConfig.Editor;
+
+    this.editorConfig =
+      this.ckEditorConfig.getConfig();
+
+  }
 
   // -------------------------------------------------
   // Form
@@ -131,7 +152,13 @@ export class LibraryModalComponent
 
           nonNullable: true
 
-        })
+        }),
+
+      description: this.fb.control<string>('', {
+
+        nonNullable: true
+
+      }),
 
     });
 
@@ -203,7 +230,10 @@ export class LibraryModalComponent
           this.library.title,
 
         externalLink:
-          this.library.externalLink ?? ''
+          this.library.externalLink ?? '',
+
+        description:
+          this.library.description ?? ''
 
       });
 
@@ -217,7 +247,9 @@ export class LibraryModalComponent
 
         title: '',
 
-        externalLink: ''
+        externalLink: '',
+
+        description: ''
 
       });
 
@@ -256,7 +288,9 @@ export class LibraryModalComponent
         value.title,
 
       externalLink:
-        value.externalLink || null
+        value.externalLink || null,
+
+      description: value.description
 
     });
     setTimeout(() => {

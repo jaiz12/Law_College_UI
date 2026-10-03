@@ -75,6 +75,8 @@ export class LogoAndTitleComponent implements OnInit {
 
   isSubmitting = false;
 
+  isEdit = false;
+
 
   // =====================================================
   // USER
@@ -566,6 +568,7 @@ export class LogoAndTitleComponent implements OnInit {
               });
 
           }
+          this.isEdit = true;
 
         },
 

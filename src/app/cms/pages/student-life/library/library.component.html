@@ -4,7 +4,7 @@
               dark:border-slate-700 dark:bg-slate-900">
 
     <!-- Header -->
-    <div class="flex flex-col gap-4 px-6 py-3 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col gap-4 px-6 pb-3 pt-6 md:flex-row md:items-center md:justify-between">
 
       <div>
 
@@ -16,7 +16,7 @@
 
         <p class="mt-1 text-gray-500 dark:text-slate-400">
 
-          Manage library links and resources.
+          Configure and manage library.
 
         </p>
 
@@ -39,7 +39,7 @@
 
 
     <!-- Toolbar -->
-    <div class="flex flex-col gap-4 border-b border-slate-200 p-6
+    <div class="flex flex-col gap-4 border-b border-slate-200 px-6 py-4
                 md:flex-row md:items-center md:justify-between
                 dark:border-slate-800">
 
@@ -149,6 +149,11 @@
 
             </th>
 
+            <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+
+              Description
+            </th>
+
 
             <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
 
@@ -238,6 +243,67 @@
 
             </td>
 
+            <!-- ================================= -->
+            <!-- CONTENT -->
+            <!-- ================================= -->
+
+            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+              @if (item.description) {
+              <button type="button"
+                      (click)="viewDescription(item)"
+                      class="shrink-0
+             rounded-lg
+             border border-indigo-200
+             bg-indigo-50
+             px-3 py-2
+             text-xs
+             font-medium
+             text-indigo-600
+             transition
+             hover:bg-indigo-100
+             dark:border-indigo-800
+             dark:bg-indigo-900/30
+             dark:text-indigo-400
+             dark:hover:bg-indigo-900/50">
+
+                <!-- EYE ICON -->
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke-width="1.8"
+                     stroke="currentColor"
+                     class="mr-1 inline-block h-4 w-4">
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 15.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z" />
+
+                </svg>
+
+                View Content
+
+              </button>
+              }
+
+              @else {
+
+              <span class="text-sm
+      text-gray-400
+      dark:text-gray-500">
+
+                —
+
+              </span>
+
+              }
+
+            </td>
+
 
             <!-- Actions -->
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
@@ -304,7 +370,7 @@
 
           <tr>
 
-            <td colspan="3"
+            <td colspan="4"
                 class="py-20 text-center text-gray-500 dark:text-slate-400">
 
               <div class="flex flex-col items-center gap-4">
@@ -406,5 +472,17 @@
                    (close)="closeModal()">
 
 </app-library-modal>
+
+}
+
+<!-- ============================================= -->
+<!-- DESCRIPTION MODAL -->
+<!-- ============================================= -->
+@if (showDescriptionModal()) {
+
+<app-description-modal [title]="selectedDescriptionTitle()"
+                       [content]="selectedDescription()"
+                       (close)="closeDescriptionModal()">
+</app-description-modal>
 
 }

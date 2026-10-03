@@ -8,12 +8,12 @@ import Swal from 'sweetalert2';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { StatutoryBodiesModalComponent } from './statutory-bodies-modal/statutory-bodies-modal.component';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 export interface StatutoryBodiesBody {
-  id: string | null;
+  id: number;
   title: string;
   content: string;
-  photo: string;
 }
 
 @Component({
@@ -23,7 +23,8 @@ export interface StatutoryBodiesBody {
     CommonModule,
     FormsModule,
     NgxPaginationModule,
-    StatutoryBodiesModalComponent
+    StatutoryBodiesModalComponent,
+    DescriptionModalComponent
   ],
   templateUrl: './statutory-bodies.component.html',
   styleUrl: './statutory-bodies.component.scss'
@@ -51,6 +52,21 @@ export class StatutoryBodiesComponent implements OnInit {
   loggedInId = signal('');
 
   private platformId = inject(PLATFORM_ID);
+
+  // =================================================
+  // DESCRIPTION MODAL
+  // =================================================
+
+  showDescriptionModal =
+    signal(false);
+
+
+  selectedDescription =
+    signal('');
+
+
+  selectedDescriptionTitle =
+    signal('');
 
   ngOnInit() {
     this.getStatutoryBodies();
@@ -81,8 +97,7 @@ export class StatutoryBodiesComponent implements OnInit {
 
     return this.statutoryBodies().filter(item =>
       item.title?.toLowerCase().includes(keyword) ||
-      item.content?.toLowerCase().includes(keyword) ||
-      item.photo?.toLowerCase().includes(keyword)
+      item.content?.toLowerCase().includes(keyword) 
     );
   });
 
@@ -139,7 +154,7 @@ export class StatutoryBodiesComponent implements OnInit {
   // ---------------------------------------
   saveStatutoryBodies(formData: FormData): void {
     const id = formData.get('Id');
-
+    console.log(formData.get('Id'))
     // Safe handling: avoid appending duplicate 'Id', set audit metadata safely
     if (id && id.toString().trim() !== '') {
       formData.set('Id', id.toString());
@@ -187,12 +202,11 @@ export class StatutoryBodiesComponent implements OnInit {
     }).then(result => {
       if (!result.isConfirmed) return;
 
-      const formData = new FormData();
-      formData.append('Id', statutoryBody.id ?? '');
-      formData.append('Image', statutoryBody.photo);
-
       this.apiService
-        .DeleteFromFormRequest('StatutoryBodies', formData, true)
+        .DeleteRequest(
+          'StatutoryBodies',
+          statutoryBody.id.toString()
+        )
         .subscribe({
           next: (res: any) => {
             if (res?.isSucceeded) {
@@ -213,5 +227,46 @@ export class StatutoryBodiesComponent implements OnInit {
   private getErrorMessage(err: any, fallback: string): string {
     if (typeof err?.error === 'string') return err.error;
     return err?.error?.message || err?.message || fallback;
+  }
+
+  // =================================================
+  // VIEW DESCRIPTION
+  // =================================================
+
+  viewDescription(
+    item: StatutoryBodiesBody
+  ): void {
+
+    this.selectedDescriptionTitle.set(
+
+      item.title ?? 'Description'
+
+    );
+
+
+    this.selectedDescription.set(
+
+      item.content ?? ''
+
+    );
+
+
+    this.showDescriptionModal.set(true);
+
+  }
+
+
+  // =================================================
+  // CLOSE DESCRIPTION
+  // =================================================
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
+
   }
 }

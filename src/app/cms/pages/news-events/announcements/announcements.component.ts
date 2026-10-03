@@ -659,6 +659,173 @@ export class AnnouncementsComponent implements OnInit {
 
   }
 
+  delete(
+    announcement: Announcements
+  ): void {
+
+    Swal.fire({
+
+      title:
+        'Delete Announcement?',
+
+      text:
+        `Are you sure you want to delete "${announcement.title}"?`,
+
+      icon:
+        'warning',
+
+      showCancelButton:
+        true,
+
+      confirmButtonColor:
+        '#dc2626',
+
+      cancelButtonColor:
+        '#6b7280',
+
+      confirmButtonText:
+        'Yes, Delete',
+
+      cancelButtonText:
+        'Cancel',
+
+      reverseButtons:
+        true,
+
+      focusCancel:
+        true
+
+    })
+
+      .then(result => {
+
+        if (
+          !result.isConfirmed
+        ) {
+
+          return;
+
+        }
+
+        console.log(announcement);
+
+        // =================================================
+        // FORM DATA
+        // =================================================
+
+        const formData =
+          new FormData();
+
+
+        formData.append(
+
+          'Id',
+
+          announcement.id.toString()
+
+        );
+
+
+        /*
+         * Existing file path.
+         *
+         * Your backend can use this to physically
+         * delete the file if required.
+         */
+
+        if (
+          announcement.file
+        ) {
+
+          formData.append(
+
+            'FilePath',
+
+            announcement.file
+
+          );
+
+        }
+
+
+        // =================================================
+        // API
+        // =================================================
+
+        this.apiService.DeleteFromFormRequest(
+
+          'Announcements',
+
+          formData,
+
+          true
+
+        )
+
+          .subscribe({
+
+            next: (res: any) => {
+
+              if (
+                res?.isSucceeded
+              ) {
+
+                this.toastr.success(
+
+                  res.message ||
+
+                  'Announcements deleted successfully.'
+
+                );
+
+
+                this.getAnnouncements();
+
+              }
+
+              else {
+
+                this.toastr.warning(
+
+                  res?.message ||
+
+                  'Unable to delete Announcements.'
+
+                );
+
+              }
+
+            },
+
+            error: (err) => {
+
+              console.error(
+
+                'Delete Announcements Error:',
+
+                err
+
+              );
+
+
+              this.toastr.error(
+
+                err?.error?.message ||
+
+                err?.message ||
+
+                'Unable to delete Announcements.'
+
+              );
+
+            }
+
+          });
+
+      });
+
+  }
+
   // ===================================================
   // SET URGENT
   // ===================================================
@@ -878,5 +1045,235 @@ export class AnnouncementsComponent implements OnInit {
       });
 
   }
+
+  toggleUrgent(announcement: Announcements): void {
+
+    // =================================================
+    // NEW STATUS
+    // =================================================
+
+    const newStatus = !announcement.urgent;
+
+
+    // =================================================
+    // BACKUP
+    // =================================================
+
+    const previousItems =
+      this.announcements().map(item => ({
+        ...item
+      }));
+
+
+    // =================================================
+    // OPTIMISTIC UPDATE
+    // =================================================
+
+    this.announcements.update(list =>
+      list.map(item => {
+
+        if (item.id === announcement.id) {
+
+          return {
+            ...item,
+            urgent: newStatus
+          };
+
+        }
+
+        return item;
+      })
+    );
+
+
+    // =================================================
+    // FORM DATA
+    // =================================================
+
+    const formData = new FormData();
+
+
+    formData.append(
+      'Id',
+      announcement.id.toString()
+    );
+
+
+    // =================================================
+    // TITLE
+    // =================================================
+
+    formData.append(
+      'Title',
+      announcement.title?.trim() ?? ''
+    );
+
+
+    // =================================================
+    // CATEGORY
+    // =================================================
+
+    formData.append(
+      'Category',
+      announcement.category?.trim() ?? ''
+    );
+
+
+    // =================================================
+    // START DATE
+    // =================================================
+
+    formData.append(
+      'StartDate',
+      announcement.startDate
+    );
+
+
+    // =================================================
+    // END DATE
+    // =================================================
+
+    if (announcement.endDate) {
+
+      formData.append(
+        'EndDate',
+        announcement.endDate
+      );
+
+    }
+
+
+    // =================================================
+    // URGENT
+    // =================================================
+
+    formData.append(
+      'Urgent',
+      announcement.urgent
+        ? 'true'
+        : 'false'
+    );
+
+    // =================================================
+    // IsActive
+    // =================================================
+
+    formData.append(
+      'IsActive',
+      'true'
+    );
+
+
+    // =================================================
+    // USER
+    // =================================================
+
+      formData.append(
+        'UpdatedBy',
+        this.loggedInId()
+      );
+
+    
+
+    // =================================================
+    // FILE
+    // =================================================
+
+    if (announcement.filePath) {
+
+      formData.append(
+        'File',
+        announcement.filePath,
+        announcement.filePath.name
+      );
+
+    }
+
+
+    // =================================================
+    // API
+    // =================================================
+
+    this.apiService
+
+      .PutRequest(
+        'Announcements',
+        formData,
+        true
+      )
+
+      .subscribe({
+
+        next: (res: any) => {
+
+          if (res?.isSucceeded) {
+
+            this.toastr.success(
+
+              res?.message ||
+
+              `Announcements ${newStatus
+                ? 'activated'
+                : 'deactivated'
+              } successfully.`
+
+            );
+
+          } else {
+
+            // -----------------------------------------
+            // ROLLBACK
+            // -----------------------------------------
+
+            this.announcements.set(
+              previousItems
+            );
+
+            this.toastr.warning(
+
+              res?.message ||
+
+              'Unable to update status.'
+
+            );
+
+          }
+
+        },
+
+        error: (err) => {
+
+          // -----------------------------------------
+          // ROLLBACK
+          // -----------------------------------------
+
+          this.announcements.set(
+            previousItems
+          );
+
+
+          console.error(
+            'Toggle Announcements Status Error:',
+            err
+          );
+
+
+          this.toastr.error(
+
+            err?.error?.message ||
+
+            err?.message ||
+
+            'Unable to update status.'
+
+          );
+
+        }
+
+      });
+
+  }
+
+
 
 }

@@ -37,7 +37,7 @@ export class GeneralOverviewComponent implements OnInit {
   pageName: string = "General Overview";
   editorConfig: any;
   isSubmitting = false;
-
+  isEdit = false
   private platformId = inject(PLATFORM_ID);
 
   constructor(
@@ -104,6 +104,7 @@ export class GeneralOverviewComponent implements OnInit {
           metaTitle: data.metaTitle ?? '',
           metaDescription: data.metaDescription ?? ''
         });
+        this.isEdit = true;
       },
       error: (err) => {
         this.toastr.error(

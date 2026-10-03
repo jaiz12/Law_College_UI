@@ -293,25 +293,6 @@ export const routes: Routes = [
       // ===========================
       // Compliance
       // ===========================
-
-      {
-        path: 'compliance/bci-compliance',
-        loadComponent: () =>
-          import('./cms/pages/compliance/bci-compliance/bci-compliance.component')
-            .then(m => m.BciComplianceComponent)
-      },
-      {
-        path: 'compliance/ugc-compliance',
-        loadComponent: () =>
-          import('./cms/pages/compliance/ugc-compliance/ugc-compliance.component')
-            .then(m => m.UgcComplianceComponent)
-      },
-      {
-        path: 'compliance/nirf-iqac',
-        loadComponent: () =>
-          import('./cms/pages/compliance/nirf-iqac/nirf-iqac.component')
-            .then(m => m.NirfIqacComponent)
-      },
       {
         path: 'compliance/nirf',
         loadComponent: () =>

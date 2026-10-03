@@ -59,7 +59,6 @@
 
       <form [formGroup]="pageForm"
             (ngSubmit)="submit()"
-            
             class="space-y-6 p-6">
 
 
@@ -146,6 +145,7 @@
         </div>
 
 
+
         <!-- External Link -->
 
         <div>
@@ -218,6 +218,31 @@
 
         </div>
 
+        <!-- ======================================= -->
+        <!-- DESCRIPTION -->
+        <!-- ======================================= -->
+
+        <div>
+
+          <label class="mb-2 block
+                text-sm font-medium
+                text-gray-700
+                dark:text-gray-300">
+
+            Description
+
+            <span _ngcontent-ng-c1811301009="" class="text-xs font-normal text-gray-400">(Optional)</span>
+
+          </label>
+
+          <ckeditor [editor]="Editor"
+                    [config]="editorConfig"
+                    formControlName="description">
+
+          </ckeditor>
+
+        </div>
+
 
         <!-- Footer -->
 
@@ -240,7 +265,7 @@
           </button>
 
 
-          <button type="submit" 
+          <button type="submit"
                   [disabled]="isSubmitting"
                   class="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-70">
             @if (isSubmitting) {

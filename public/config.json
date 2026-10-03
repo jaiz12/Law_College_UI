@@ -373,27 +373,6 @@
       "submenus": [
 
         {
-          "name": "BCI Compliance",
-          "UIrouterlink": "/compliance/bci-compliance",
-          "routerlink": "/compliance/bci-compliance",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9.5 12l2 2 4-4'/> </svg>"
-        },
-
-        {
-          "name": "UGC Compliance",
-          "UIrouterlink": "/compliance/ugc-compliance",
-          "routerlink": "/compliance/ugc-compliance",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9.5 12l2 2 4-4'/> </svg>"
-        },
-
-        {
-          "name": "NIRF / IQAC",
-          "UIrouterlink": "/compliance/nirf-iqac",
-          "routerlink": "/compliance/nirf-iqac",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3v18M3 12h18'/> <circle cx='12' cy='12' r='8'/> </svg>"
-        },
-
-        {
           "name": "NIRF",
           "UIrouterlink": "/compliance/nirf",
           "routerlink": "/compliance/nirf",
@@ -461,7 +440,7 @@
         },
 
         {
-          "name": "Internal Committee (Sexual Harassment Inquiry Committee)",
+          "name": "Internal Committee (Sexual Harassment Enquiry Committee)",
           "UIrouterlink": "/committee-and-cell/internal-committee",
           "routerlink": "/committee-and-cell/internal-committee",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9.5 12l2 2 4-4'/> </svg>"
@@ -475,14 +454,14 @@
         },
 
         {
-          "name": "Anti Ragging Committee and Squad",
+          "name": "Anti Ragging Committee & Squad",
           "UIrouterlink": "/committee-and-cell/anti-ragging-committee-and-squad",
           "routerlink": "/committee-and-cell/anti-ragging-committee-and-squad",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <circle cx='12' cy='12' r='9'/> <path stroke-linecap='round' stroke-linejoin='round' d='M8 8l8 8M16 8l-8 8'/> </svg>"
         },
 
         {
-          "name": "Legal Research Development Cell",
+          "name": "Legal Research & Development Cell",
           "UIrouterlink": "/committee-and-cell/legal-research-development-cell",
           "routerlink": "/committee-and-cell/legal-research-development-cell",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <circle cx='11' cy='11' r='6'/> <path stroke-linecap='round' stroke-linejoin='round' d='M20 20l-4-4'/> </svg>"
@@ -532,27 +511,6 @@
           "UIrouterlink": "/news-events/announcements",
           "routerlink": "/news-events/announcements",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M10.5 6.75L18 4.5v10.5l-7.5-2.25H6.75A2.25 2.25 0 014.5 10.5V9a2.25 2.25 0 012.25-2.25h3.75z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M10.5 12.75v4.5'/> </svg>"
-        },
-
-        {
-          "name": "Seminars & Webinars",
-          "UIrouterlink": "/news-events/seminars-webinars",
-          "routerlink": "/news-events/seminars-webinars",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <rect x='3.75' y='5.25' width='16.5' height='10.5' rx='1.5'/> <path stroke-linecap='round' stroke-linejoin='round' d='M8.25 19.5h7.5M12 15.75v3.75'/> </svg>"
-        },
-
-        {
-          "name": "Moot Court Competitions",
-          "UIrouterlink": "/news-events/moot-court-competitions",
-          "routerlink": "/news-events/moot-court-competitions",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 4v14m-5 2h10M8 7l-3 4h6L8 7zm8 0l-3 4h6l-3-4z'/> </svg>"
-        },
-
-        {
-          "name": "News & Events Archives",
-          "UIrouterlink": "/news-events/news-events-archives",
-          "routerlink": "/news-events/news-events-archives",
-          "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <rect x='4.5' y='4.5' width='15' height='15' rx='2'/> <path stroke-linecap='round' stroke-linejoin='round' d='M8.25 9h7.5M8.25 12h7.5M8.25 15h4.5'/> </svg>"
         }
 
       ]

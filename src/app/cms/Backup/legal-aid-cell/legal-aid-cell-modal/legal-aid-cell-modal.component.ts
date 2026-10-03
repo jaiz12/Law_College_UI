@@ -16,9 +16,9 @@ import {
   Validators
 } from '@angular/forms';
 
-import { ValidationService } from '../../../../../services/validation-service.service';
 import { LegalAidCell } from '../legal-aid-cell.component';
-import { DublicateValidationService } from '../../../../../services/dublicate-validation.-service.service';
+import { DublicateValidationService } from '../../../../services/dublicate-validation.-service.service';
+import { ValidationService } from '../../../../services/validation-service.service';
 
 @Component({
   selector: 'app-legal-aid-cell-modal',

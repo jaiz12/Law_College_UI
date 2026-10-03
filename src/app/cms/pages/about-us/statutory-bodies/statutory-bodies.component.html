@@ -8,7 +8,7 @@
 
     <!-- Header -->
 
-    <div class="flex flex-col px-6 py-3  gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="flex flex-col px-6 pb-3 pt-6  gap-4 md:flex-row md:items-center md:justify-between">
 
       <div>
 
@@ -17,7 +17,7 @@
         </h1>
 
         <p class="mt-1 text-gray-500 dark:text-slate-400">
-          Create, edit and manage Statutory Body.
+          Configure and manage statutory body.
         </p>
 
       </div>
@@ -33,7 +33,7 @@
 
     <!-- Toolbar -->
 
-    <div class="flex flex-col gap-4 border-b border-gray-200 p-6 md:flex-row md:items-center md:justify-between dark:border-slate-700">
+    <div class="flex flex-col gap-4 border-b border-gray-200 px-6 py-4 md:flex-row md:items-center md:justify-between dark:border-slate-700">
 
       <!-- Search -->
 
@@ -137,13 +137,6 @@
             <th class="px-6 py-4 text-xs font-semibold uppercase
                 tracking-wider text-gray-500">
 
-              Image
-
-            </th>
-
-            <th class="px-6 py-4 text-xs font-semibold uppercase
-                tracking-wider text-gray-500">
-
               Title
 
             </th>
@@ -174,15 +167,6 @@
 
           <tr class="transition hover:bg-gray-50 dark:hover:bg-slate-800">
 
-            <!-- Image -->
-
-            <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
-
-              <img [src]="imageURL() + statutoryBody.photo"
-                   class="h-14 w-14 rounded-full border border-gray-200 object-cover dark:border-slate-700" />
-
-            </td>
-
             <!-- Name -->
 
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
@@ -198,10 +182,33 @@
             <!-- Description -->
 
             <td class="max-w-xs px-6 py-4 text-sm text-slate-600 dark:text-slate-300 w-1/2">
+              <a (click)="viewDescription(statutoryBody)"
+                 class=" cursor-pointer inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50">
 
-              <div class="truncate-html  font-semibold text-gray-900 dark:text-white" [innerHTML]="statutoryBody.content">
 
-              </div>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke-width="1.8"
+                     stroke="currentColor"
+                     class="mr-1 inline-block
+             h-4 w-4">
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
+
+                  <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 15.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z" />
+
+                </svg>
+
+                View Description
+
+              </a>
+
+
 
             </td>
 
@@ -264,17 +271,7 @@
 
               <div class="flex flex-col items-center gap-4">
 
-                <svg class="h-14 w-14 text-gray-300 dark:text-slate-600"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.5"
-                     viewBox="0 0 24 24">
-
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.75 21h16.5M4.5 21V7.5L12 3l7.5 4.5V21M9 21v-5.25h6V21M8.25 9.75h.008v.008H8.25V9.75zm3.75 0h.008v.008H12V9.75zm3.75 0h.008v.008H15.75V9.75z" />
-
-
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-14 h-14 text-gray-300 dark:text-slate-600"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"></path> </svg>
 
                 <div class="text-lg font-semibold">
 
@@ -348,9 +345,22 @@
 @if(showModal()){
 
 <app-statutory-bodies-modal [statutorybody]="selectedStatutoryBodies()"
-                           [statutorybodies]="statutoryBodies()"
+                            [statutorybodies]="statutoryBodies()"
                             (close)="closeModal()"
                             (save)="saveStatutoryBodies($event)">
 </app-statutory-bodies-modal>
+
+}
+
+
+<!-- ============================================= -->
+<!-- DESCRIPTION MODAL -->
+<!-- ============================================= -->
+@if (showDescriptionModal()) {
+
+<app-description-modal [title]="selectedDescriptionTitle()"
+                       [content]="selectedDescription()"
+                       (close)="closeDescriptionModal()">
+</app-description-modal>
 
 }

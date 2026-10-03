@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { InfrastructureModalComponent } from './infrastructure-modal/infrastructure-modal.component';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 
 export interface InfrastructureBody {
@@ -37,7 +38,8 @@ export interface InfrastructureBody {
 
     NgxPaginationModule,
 
-    InfrastructureModalComponent
+    InfrastructureModalComponent,
+    DescriptionModalComponent
 
   ],
 
@@ -83,6 +85,16 @@ export class InfrastructureComponent implements OnInit {
   loggedInId = signal('');
 
   private platformId = inject(PLATFORM_ID);
+
+  // ===================================================
+  // DESCRIPTION MODAL
+  // ===================================================
+
+  showDescriptionModal = signal(false);
+
+  selectedDescription = signal('');
+
+  selectedDescriptionTitle = signal('');
 
   ngOnInit() {
     this.getInfrastructures();
@@ -359,6 +371,48 @@ export class InfrastructureComponent implements OnInit {
         });
 
     });
+
+  }
+
+
+  // ===================================================
+  // VIEW DESCRIPTION
+  // ===================================================
+
+  viewDescription(
+    item: InfrastructureBody
+  ): void {
+
+    this.selectedDescriptionTitle.set(
+
+      item.title ?? 'Content'
+
+    );
+
+
+    this.selectedDescription.set(
+
+      item.content ?? ''
+
+    );
+
+
+    this.showDescriptionModal.set(true);
+
+  }
+
+
+  // ===================================================
+  // CLOSE DESCRIPTION MODAL
+  // ===================================================
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
 
   }
 

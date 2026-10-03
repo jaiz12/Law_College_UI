@@ -14,6 +14,7 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 
 import { RecognitionsAndAffiliationsModalComponent } from './recognitions-and-affiliations-modal/recognitions-and-affiliations-modal.component';
+import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 export interface RecognitionAffiliation {
 
@@ -21,15 +22,13 @@ export interface RecognitionAffiliation {
 
   title: string;
 
-  description: string;
+  content: string | null;
 
-  externalUrl: string | null;
+  // Existing PDF path from database
+  file: string | null;
 
-  image: string | null;
-
-  imageFile: File | null;
-
-  displayOrder: number;
+  // Newly selected file
+  filePath?: File | null;
 
 }
 
@@ -44,7 +43,8 @@ export interface RecognitionAffiliation {
     CommonModule,
     FormsModule,
     NgxPaginationModule,
-    RecognitionsAndAffiliationsModalComponent
+    RecognitionsAndAffiliationsModalComponent,
+    DescriptionModalComponent
 
   ],
 
@@ -59,6 +59,11 @@ export interface RecognitionAffiliation {
 export class RecognitionsAndAffiliationsComponent
   implements OnInit {
 
+
+  // ===================================================
+  // CONSTRUCTOR
+  // ===================================================
+
   constructor(
 
     private apiService: CmsApiService,
@@ -69,13 +74,12 @@ export class RecognitionsAndAffiliationsComponent
 
   ) { }
 
-  // -------------------------------------------------
-  // Signals
-  // -------------------------------------------------
+
+  // ===================================================
+  // SIGNALS
+  // ===================================================
 
   search = signal('');
-
-  showModal = signal(false);
 
   page = signal(1);
 
@@ -83,182 +87,248 @@ export class RecognitionsAndAffiliationsComponent
 
   pageSizeOptions = [5, 10, 20, 50];
 
-  imageURL = signal('');
+
+  showModal = signal(false);
+
+  selectedRecognitionAffiliation = signal<RecognitionAffiliation | null>(null);
+
+  recognitionAffiliation = signal<RecognitionAffiliation[]>([]);
+
 
   loggedInId = signal('');
 
-  recognitions =
-    signal<RecognitionAffiliation[]>([]);
+  imageURL = signal('');
 
-  selectedRecognition =
-    signal<RecognitionAffiliation | null>(null);
+
+  // ===================================================
+  // DESCRIPTION MODAL
+  // ===================================================
+
+  showDescriptionModal = signal(false);
+
+  selectedDescription = signal('');
+
+  selectedDescriptionTitle = signal('');
+
+
+  // ===================================================
+  // PLATFORM
+  // ===================================================
 
   private platformId = inject(PLATFORM_ID);
 
+
+  // ===================================================
+  // INIT
+  // ===================================================
+
   ngOnInit(): void {
+
+    this.getRecognitionAffiliation();
 
     this.imageURL.set(
       this.config.get('IMAGE_API_URL')
     );
 
-    this.getRecognitions();
+
+    // -----------------------------------------------
+    // Get logged-in user
+    // -----------------------------------------------
 
     if (isPlatformBrowser(this.platformId)) {
-      const user =
+
+      const userString =
         localStorage.getItem('user');
 
-      if (user) {
+
+      if (userString) {
+
+        const currentUser =
+          JSON.parse(userString);
+
 
         this.loggedInId.set(
-
-          JSON.parse(user).id
-
+          currentUser.id ?? ''
         );
 
       }
+
     }
 
   }
 
-  // -------------------------------------------------
-  // Filter
-  // -------------------------------------------------
 
-  filteredRecognitions = computed(() => {
+  // ===================================================
+  // FILTER
+  // ===================================================
+
+  filteredRecognitionAffiliation = computed(() => {
 
     const keyword =
       this.search()
         .trim()
         .toLowerCase();
 
+
     if (!keyword) {
 
-      return this.recognitions();
+      return this.recognitionAffiliation();
 
     }
 
-    return this.recognitions().filter(item =>
 
-      item.title
-        .toLowerCase()
-        .includes(keyword)
+    return this.recognitionAffiliation().filter(
+      recognitionAffiliation =>
 
-      ||
+        recognitionAffiliation.title
+          ?.toLowerCase()
+          .includes(keyword)
 
-      item.description
-        .toLowerCase()
-        .includes(keyword)
+        ||
 
-      ||
-
-      (item.externalUrl ?? '')
-        .toLowerCase()
-        .includes(keyword)
+        recognitionAffiliation.content
+          ?.toLowerCase()
+          .includes(keyword)
 
     );
 
   });
 
-  // -------------------------------------------------
-  // Load Recognitions & Affiliations
-  // -------------------------------------------------
 
-  getRecognitions(): void {
+  // ===================================================
+  // CREATE
+  // ===================================================
+
+  createRecognitionAffiliation(): void {
+
+    this.selectedRecognitionAffiliation.set(null);
+
+    this.showModal.set(true);
+
+  }
+
+
+  // ===================================================
+  // EDIT
+  // ===================================================
+
+  edit(
+    RecognitionAffiliation: RecognitionAffiliation
+  ): void {
+
+    this.selectedRecognitionAffiliation.set({
+
+      ...RecognitionAffiliation,
+
+      filePath: null
+
+    });
+
+    this.showModal.set(true);
+
+  }
+
+
+  // ===================================================
+  // CLOSE MODAL
+  // ===================================================
+
+  closeModal(): void {
+
+    this.showModal.set(false);
+
+    this.selectedRecognitionAffiliation.set(null);
+
+  }
+
+
+  // ===================================================
+  // GET
+  // ===================================================
+
+  getRecognitionAffiliation(): void {
 
     this.apiService
 
-      .GetRequest('RecognitionsAndAffiliations')
+      .GetRequest(
+        'RecognitionsAndAffiliations'
+      )
 
       .subscribe({
 
         next: (res: any) => {
 
           this.page.set(1);
+          console.log(res)
 
-          const data = Array.isArray(res)
+          const data =
+            Array.isArray(res)
+              ? res
+              : res?.data || [];
 
-            ? res
 
-            : res.data || [];
+          const RecognitionAffiliation:
+            RecognitionAffiliation[] =
 
-          const list: RecognitionAffiliation[] =
+            data.map(
+              (item: any) => ({
 
-            data.map((item: any) => ({
+                id:
+                  item.id ??
+                  item.Id ??
+                  0,
 
-              id:
 
-                item.id ??
+                title:
+                  item.title ??
+                  item.Title ??
+                  '',
 
-                item.Id ??
 
-                0,
+                content:
+                  item.content ??
+                  item.Content ??
+                  null,
 
-              title:
 
-                item.title ??
+                file:
+                  item.file ??
+                  item.File ??
+                  item.filePath ??
+                  item.FilePath ??
+                  null,
 
-                item.Title ??
 
-                '',
+                filePath:
+                  null
 
-              description:
+              })
+            );
 
-                item.description ??
 
-                item.Description ??
+          this.recognitionAffiliation.set(
+            RecognitionAffiliation
+          );
 
-                '',
-
-              externalUrl:
-
-                item.externalUrl ??
-
-                item.ExternalUrl ??
-
-                '',
-
-              image:
-
-                item.image ??
-
-                item.Image ??
-
-                item.coverImage ??
-
-                item.CoverImage ??
-
-                null,
-
-              // Used only while uploading a new image
-              imageFile: null,
-
-              displayOrder:
-
-                item.displayOrder ??
-
-                item.DisplayOrder ??
-
-                item.order ??
-
-                item.Order ??
-
-                0
-
-            }));
-
-          this.recognitions.set(list);
 
         },
 
+
         error: (err) => {
 
-          console.error(err);
+          console.error(
+            'Recognition Affiliation Error:',
+            err
+          );
+
 
           this.toastr.error(
 
             err?.error?.message ||
 
-            'Unable to load Recognitions & Affiliations.'
+            err?.message ||
+
+            'Unable to load Recognition Affiliation.'
 
           );
 
@@ -268,72 +338,87 @@ export class RecognitionsAndAffiliationsComponent
 
   }
 
-  // -------------------------------------------------
-  // Add Recognition
-  // -------------------------------------------------
 
-  addRecognition(): void {
+  // ===================================================
+  // SAVE
+  // ===================================================
 
-    this.selectedRecognition.set(null);
-
-    this.showModal.set(true);
-
-  }
-
-  // -------------------------------------------------
-  // Edit Recognition
-  // -------------------------------------------------
-
-  editRecognition(
-    recognition: RecognitionAffiliation
+  saveRecognitionAffiliation(
+    RecognitionAffiliation: RecognitionAffiliation
   ): void {
 
-    this.selectedRecognition.set({
 
-      ...recognition
-
-    });
-
-    this.showModal.set(true);
-
-  }
-
-  // -------------------------------------------------
-  // Close Modal
-  // -------------------------------------------------
-
-  closeModal(): void {
-
-    this.showModal.set(false);
-
-    this.selectedRecognition.set(null);
-
-  }
-
-  // -------------------------------------------------
-  // Save Recognition
-  // -------------------------------------------------
-
-  saveRecognition(
-    recognition: RecognitionAffiliation
-  ): void {
+    // =================================================
+    // DETERMINE CREATE / EDIT
+    // =================================================
 
     const isEdit =
-      recognition.id > 0;
+      !!RecognitionAffiliation.id;
+
+
+    // =================================================
+    // FORM DATA
+    // =================================================
 
     const formData =
       new FormData();
 
+
+    // =================================================
+    // ID
+    // =================================================
+
     if (isEdit) {
 
       formData.append(
+
         'Id',
-        recognition.id.toString()
+
+        RecognitionAffiliation.id.toString()
+
       );
 
+    }
+
+
+    // =================================================
+    // TITLE
+    // =================================================
+
+    formData.append(
+
+      'Title',
+
+      RecognitionAffiliation.title?.trim() ?? ''
+
+    );
+
+
+    // =================================================
+    // CONTENT
+    // =================================================
+
+    formData.append(
+
+      'Content',
+
+      RecognitionAffiliation.content ?? ''
+
+    );
+
+
+    // =================================================
+    // USER
+    // =================================================
+
+    if (isEdit) {
+
       formData.append(
+
         'UpdatedBy',
+
         this.loggedInId()
+
       );
 
     }
@@ -341,73 +426,96 @@ export class RecognitionsAndAffiliationsComponent
     else {
 
       formData.append(
+
         'CreatedBy',
+
         this.loggedInId()
+
       );
 
     }
 
-    formData.append(
-      'Title',
-      recognition.title
-    );
 
-    formData.append(
-      'Description',
-      recognition.description
-    );
+    // =================================================
+    // PDF
+    // =================================================
 
-    formData.append(
-      'ExternalUrl',
-      recognition.externalUrl ?? ''
-    );
+    /*
+     * Only send PDF when user selects a new file.
+     *
+     * During edit, if no new PDF is selected,
+     * backend should preserve existing PDF.
+     */
 
-    formData.append(
-      'DisplayOrder',
-      recognition.displayOrder.toString()
-    );
-
-    // Upload image only when user selects a new one
-    if (recognition.imageFile) {
+    if (RecognitionAffiliation.filePath) {
 
       formData.append(
-        'Image',
-        recognition.imageFile,
-        recognition.imageFile.name
+
+        'File',
+
+        RecognitionAffiliation.filePath,
+
+        RecognitionAffiliation.filePath.name
+
       );
 
     }
 
-    const request = isEdit
 
-      ? this.apiService.PutRequest(
-        'RecognitionsAndAffiliations',
-        formData,
-        true
-      )
+    // =================================================
+    // API REQUEST
+    // =================================================
 
-      : this.apiService.PostRequest(
-        'RecognitionsAndAffiliations',
-        formData,
-        true
-      );
+    const request =
+
+      isEdit
+
+        ? this.apiService.PutRequest(
+
+          'RecognitionsAndAffiliations',
+
+          formData,
+
+          true
+
+        )
+
+        : this.apiService.PostRequest(
+
+          'RecognitionsAndAffiliations',
+
+          formData,
+
+          true
+
+        );
+
+
+    // =================================================
+    // RESPONSE
+    // =================================================
 
     request.subscribe({
 
       next: (res: any) => {
 
-        if (res.isSucceeded) {
+        if (
+          res?.isSucceeded
+        ) {
 
           this.toastr.success(
 
             res.message ||
 
-            `Recognitions And Affiliations ${isEdit ? 'updated' : 'created'
+            `RecognitionAffiliation ${isEdit
+              ? 'updated'
+              : 'created'
             } successfully.`
 
           );
 
-          this.getRecognitions();
+
+          this.getRecognitionAffiliation();
 
           this.closeModal();
 
@@ -417,9 +525,9 @@ export class RecognitionsAndAffiliationsComponent
 
           this.toastr.warning(
 
-            res.message ||
+            res?.message ||
 
-            'Unable to save recognition.'
+            'Unable to save RecognitionAffiliation.'
 
           );
 
@@ -427,7 +535,17 @@ export class RecognitionsAndAffiliationsComponent
 
       },
 
+
       error: (err) => {
+
+        console.error(
+
+          'Save RecognitionAffiliation Error:',
+
+          err
+
+        );
+
 
         this.toastr.error(
 
@@ -435,7 +553,7 @@ export class RecognitionsAndAffiliationsComponent
 
           err?.message ||
 
-          'Something went wrong while saving the recognition.'
+          'Something went wrong while saving.'
 
         );
 
@@ -445,97 +563,220 @@ export class RecognitionsAndAffiliationsComponent
 
   }
 
-  // -------------------------------------------------
-  // Delete
-  // -------------------------------------------------
 
-  deleteRecognition(recognitionandaffiliation: RecognitionAffiliation): void {
+  // ===================================================
+  // DELETE
+  // ===================================================
+
+  delete(
+    RecognitionAffiliation: RecognitionAffiliation
+  ): void {
 
     Swal.fire({
 
-      title: 'Delete Member?',
+      title:
+        'Delete RecognitionAffiliation?',
 
-      text: `Are you sure you want to delete "${recognitionandaffiliation.title}"?`,
+      text:
+        `Are you sure you want to delete "${RecognitionAffiliation.title}"?`,
 
-      icon: 'warning',
+      icon:
+        'warning',
 
-      showCancelButton: true,
+      showCancelButton:
+        true,
 
-      confirmButtonText: 'Yes, Delete',
+      confirmButtonColor:
+        '#dc2626',
 
-      cancelButtonText: 'Cancel',
+      cancelButtonColor:
+        '#6b7280',
 
-      confirmButtonColor: '#dc2626',
+      confirmButtonText:
+        'Yes, Delete',
 
-      reverseButtons: true
+      cancelButtonText:
+        'Cancel',
 
-    }).then(result => {
+      reverseButtons:
+        true,
 
-      if (!result.isConfirmed) {
+      focusCancel:
+        true
 
-        return;
+    })
 
-      }
 
-      const formData = new FormData();
+      .then(result => {
 
-      formData.append(
-        'Id',
-        recognitionandaffiliation.id.toString()
-      );
+        if (
+          !result.isConfirmed
+        ) {
 
-      formData.append(
-        'CoverImage',
-        recognitionandaffiliation.image ?? ''
-      );
+          return;
 
-      this.apiService
+        }
 
-        .DeleteFromFormRequest(
-          'RecognitionsAndAffiliations',
-          formData,
-          true
-        )
 
-        .subscribe({
+        // =================================================
+        // FORM DATA
+        // =================================================
 
-          next: (res: any) => {
+        const formData =
+          new FormData();
 
-            if (res.isSucceeded) {
 
-              this.toastr.success(
-                res.message || 'Member deleted successfully.'
+        formData.append(
+
+          'Id',
+
+          RecognitionAffiliation.id.toString()
+
+        );
+
+
+        /*
+         * Existing PDF path.
+         *
+         * Backend can use this to physically
+         * delete the PDF if required.
+         */
+
+        if (
+          RecognitionAffiliation.file
+        ) {
+
+          formData.append(
+
+            'File',
+
+            RecognitionAffiliation.file
+
+          );
+
+        }
+
+
+        // =================================================
+        // API
+        // =================================================
+
+        this.apiService
+
+          .DeleteFromFormRequest(
+
+            'RecognitionsAndAffiliations',
+
+            formData,
+
+            true
+
+          )
+
+          .subscribe({
+
+            next: (res: any) => {
+
+              if (
+                res?.isSucceeded
+              ) {
+
+                this.toastr.success(
+
+                  res.message ||
+
+                  'RecognitionAffiliation deleted successfully.'
+
+                );
+
+
+                this.getRecognitionAffiliation();
+
+              }
+
+              else {
+
+                this.toastr.warning(
+
+                  res?.message ||
+
+                  'Unable to delete RecognitionAffiliation.'
+
+                );
+
+              }
+
+            },
+
+
+            error: (err) => {
+
+              console.error(
+
+                'Delete RecognitionAffiliation Error:',
+
+                err
+
               );
 
-              this.getRecognitions();
 
-            } else {
+              this.toastr.error(
 
-              this.toastr.warning(
-                res.message || 'Unable to delete member.'
+                err?.error?.message ||
+
+                err?.message ||
+
+                'Unable to delete RecognitionAffiliation.'
+
               );
 
             }
 
-          },
+          });
 
-          error: (err) => {
+      });
 
-            this.toastr.error(
+  }
 
-              err?.error?.message ||
 
-              err?.message ||
+  // ===================================================
+  // VIEW DESCRIPTION
+  // ===================================================
 
-              'Unable to delete member.'
+  viewDescription(
+    item: RecognitionAffiliation
+  ): void {
 
-            );
+    this.selectedDescriptionTitle.set(
 
-          }
+      item.title ?? 'Content'
 
-        });
+    );
 
-    });
+
+    this.selectedDescription.set(
+
+      item.content ?? ''
+
+    );
+
+
+    this.showDescriptionModal.set(true);
+
+  }
+
+
+  // ===================================================
+  // CLOSE DESCRIPTION MODAL
+  // ===================================================
+
+  closeDescriptionModal(): void {
+
+    this.showDescriptionModal.set(false);
+
+    this.selectedDescription.set('');
+
+    this.selectedDescriptionTitle.set('');
 
   }
 
