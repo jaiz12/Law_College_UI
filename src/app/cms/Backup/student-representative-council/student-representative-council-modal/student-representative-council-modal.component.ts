@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ConfigService } from '../../../../../services/config.service';
-import { ValidationService } from '../../../../../services/validation-service.service';
 import { StudentRepresentativeCouncil } from '../student-representative-council.component';
+import { ConfigService } from '../../../../services/config.service';
+import { ValidationService } from '../../../../services/validation-service.service';
 
 @Component({
   selector: 'app-student-representative-council-modal',
