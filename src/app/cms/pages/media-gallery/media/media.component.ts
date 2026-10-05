@@ -18,6 +18,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { MediaModalComponent } from './media-modal/media-modal.component';
 import { Album } from '../album/album.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface Media {
   id: number;
@@ -39,6 +41,8 @@ export class MediaComponent implements OnInit, OnChanges {
   // Inputs & Outputs
   @Input() album: Album | null = null;
   @Output() back = new EventEmitter<void>();
+
+  constructor(private layout: LayoutService) { }
 
   // Services
   private apiService = inject(CmsApiService);
@@ -85,8 +89,12 @@ export class MediaComponent implements OnInit, OnChanges {
       this.media.set([]);
       return;
     }
-
-    this.apiService.GetRequest(`Media/Album/${this.album.id}`).subscribe({
+    this.layout.showPageLoader();
+    this.apiService.GetRequest(`Media/Album/${this.album.id}`).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    ).subscribe({
       next: (res: any) => {
         const data = Array.isArray(res)
           ? res

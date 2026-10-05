@@ -142,4 +142,16 @@ export class LayoutService {
     this.darkMode.set(false);
   }
 
+
+  private _pageLoading = signal(false);
+
+  readonly pageLoading = this._pageLoading.asReadonly();
+
+  showPageLoader(): void {
+    this._pageLoading.set(true);
+  }
+
+  hidePageLoader(): void {
+    this._pageLoading.set(false);
+  }
 }

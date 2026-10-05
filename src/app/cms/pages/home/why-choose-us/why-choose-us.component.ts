@@ -17,6 +17,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import {
   WhyChooseUsModalComponent
 } from './why-choose-us-modal/why-choose-us-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 // =====================================================
@@ -79,7 +81,8 @@ export class WhyChooseUsComponent
 
     private apiService: CmsApiService,
 
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
 
   ) { }
 
@@ -245,13 +248,17 @@ export class WhyChooseUsComponent
   // ===================================================
 
   getItems(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'Home/' + this.PageName
       )
-
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

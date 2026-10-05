@@ -24,6 +24,8 @@ import { ConfigService } from '../../../../services/config.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 import { SyllabusModalComponent } from './syllabus-modal/syllabus-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 // =====================================================
@@ -89,7 +91,8 @@ export class SyllabusComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -266,12 +269,16 @@ export class SyllabusComponent implements OnInit {
   // ===================================================
 
   getSyllabus(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'Syllabus'
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

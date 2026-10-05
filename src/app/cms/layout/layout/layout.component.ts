@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -17,4 +17,6 @@ import { LayoutService } from '../services/layout.service';
 })
 export class LayoutComponent {
   layout = inject(LayoutService);
+
+  
 }

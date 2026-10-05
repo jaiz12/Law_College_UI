@@ -14,6 +14,7 @@ import { ConfigService } from '../../../../services/config.service';
 import { ValidationService } from '../../../../services/validation-service.service';
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 import { finalize } from 'rxjs/operators';
+import { LayoutService } from '../../../layout/services/layout.service';
 
 @Component({
   selector: 'app-national-cadet-crops',
@@ -45,7 +46,8 @@ export class NationalCadetCropsComponent implements OnInit {
     private toastr: ToastrService,
     private config: ConfigService,
     private validationService: ValidationService,
-    private ckEditorConfig: CKEditorConfigService
+    private ckEditorConfig: CKEditorConfigService,
+    private layout: LayoutService
   ) {
     this.Editor = this.ckEditorConfig.Editor;
     this.editorConfig = this.ckEditorConfig.getConfig();
@@ -76,7 +78,12 @@ export class NationalCadetCropsComponent implements OnInit {
   }
 
   get(): void {
-    this.apiservice.GetRequest('StudentLife/0/' + this.pageName).subscribe({
+    this.layout.showPageLoader();
+    this.apiservice.GetRequest('StudentLife/0/' + this.pageName).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    ).subscribe({
       next: (res: any) => {
         const data = Array.isArray(res) ? res[0] : res;
 

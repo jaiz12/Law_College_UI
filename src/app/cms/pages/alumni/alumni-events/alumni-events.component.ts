@@ -9,6 +9,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 import { AlumniEventsModalComponent } from './alumni-events-modal/alumni-events-modal.component';
+import { finalize } from 'rxjs';
+import { LayoutService } from '../../../layout/services/layout.service';
 
 
 export interface AlumniEvents {
@@ -50,7 +52,8 @@ export class AlumniEventsComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -138,9 +141,14 @@ export class AlumniEventsComponent implements OnInit {
   // ---------------------------------------
 
   getData(): void {
-
+    this.layout.showPageLoader();
     this.apiService
       .GetRequest('AlumniEvents')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

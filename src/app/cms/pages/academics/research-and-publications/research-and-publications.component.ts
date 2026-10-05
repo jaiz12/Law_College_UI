@@ -22,6 +22,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 
 import { ResearchAndPublicationsModalComponent } from './research-and-publications-modal/research-and-publications-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 export interface ResearchAndPublications {
@@ -32,7 +34,7 @@ export interface ResearchAndPublications {
 
   description: string | null;
 
-  link: string;
+  link: string | null;
 
 }
 @Component({
@@ -61,7 +63,8 @@ export class ResearchAndPublicationsComponent implements OnInit {
 
     private apiService: CmsApiService,
 
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
 
   ) { }
 
@@ -282,12 +285,16 @@ export class ResearchAndPublicationsComponent implements OnInit {
   // =================================================
 
   getResearchAndPublications(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'ResearchAndPublications'
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

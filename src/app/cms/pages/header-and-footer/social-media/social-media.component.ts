@@ -15,6 +15,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { SocialMediaModalComponent } from './social-media-modal/social-media-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface SocialMedia {
   id: number;
@@ -42,7 +44,8 @@ export class SocialMediaComponent implements OnInit {
 
   constructor(
     private apiService: CmsApiService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
   ) { }
 
 
@@ -141,13 +144,17 @@ export class SocialMediaComponent implements OnInit {
   // ---------------------------------------
 
   getSocialMedia(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'HeaderAndFooter/0/' + this.SectionName
       )
-
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

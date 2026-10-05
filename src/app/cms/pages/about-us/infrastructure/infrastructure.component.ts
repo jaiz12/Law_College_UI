@@ -9,6 +9,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { InfrastructureModalComponent } from './infrastructure-modal/infrastructure-modal.component';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 export interface InfrastructureBody {
@@ -59,7 +61,8 @@ export class InfrastructureComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -147,9 +150,13 @@ export class InfrastructureComponent implements OnInit {
   // ---------------------------------------
 
   getInfrastructures(): void {
-
+    this.layout.showPageLoader();
     this.apiService
-      .GetRequest('Infrastructure')
+      .GetRequest('Infrastructure').pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

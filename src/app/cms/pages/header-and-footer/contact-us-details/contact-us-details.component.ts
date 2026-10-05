@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ContactUsModalComponent } from './contact-us-modal/contact-us-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface ContactDetail {
 
@@ -48,7 +50,8 @@ export class ContactUsDetailsComponent implements OnInit {
 
     private apiService: CmsApiService,
 
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
 
   ) { }
 
@@ -144,12 +147,16 @@ export class ContactUsDetailsComponent implements OnInit {
   // ---------------------------------------
 
   getContacts(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'HeaderAndFooter/0/' + this.SectionName
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

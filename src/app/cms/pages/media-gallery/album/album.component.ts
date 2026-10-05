@@ -35,6 +35,8 @@ import {
   MediaComponent
 } from '../media/media.component';
 import { ConfigService } from '../../../../services/config.service';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 // =====================================================
@@ -103,7 +105,8 @@ export class AlbumComponent
     private toastr:
       ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -290,10 +293,15 @@ export class AlbumComponent
   // =====================================================
 
   getAlbums(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest('Album')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
 
       .subscribe({
 

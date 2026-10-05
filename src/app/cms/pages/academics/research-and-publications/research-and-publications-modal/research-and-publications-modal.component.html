@@ -202,7 +202,12 @@
 
             Link
 
-            <span class="text-red-500">*</span>
+            <span class="text-xs font-normal
+   text-gray-400">
+
+              (Optional)
+
+            </span>
 
           </label>
 
@@ -225,15 +230,7 @@
 
           @if (pageForm.get('link')?.touched) {
 
-          @if (pageForm.get('link')?.hasError('required')) {
-
-          <p class="mt-2 text-sm text-red-600">
-            Link is required.
-          </p>
-
-          }
-
-          @else if (pageForm.get('link')?.hasError('whitespace')) {
+          @if (pageForm.get('link')?.hasError('whitespace')) {
 
           <p class="mt-2 text-sm text-red-500">
             Link cannot contain leading, trailing, or only whitespace.

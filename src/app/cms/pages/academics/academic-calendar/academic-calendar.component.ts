@@ -21,6 +21,8 @@ import { AcademicCalendarModalComponent } from './academic-calendar-modal/academ
 import { ConfigService } from '../../../../services/config.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 import { OurProgram } from '../our-program/our-program.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 // =====================================================
@@ -93,7 +95,8 @@ export class AcademicCalendarComponent
 
     private toastr:
       ToastrService,
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -265,12 +268,16 @@ export class AcademicCalendarComponent
   // ===================================================
 
   getAcademicCalendars(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'AcademicCalendar'
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

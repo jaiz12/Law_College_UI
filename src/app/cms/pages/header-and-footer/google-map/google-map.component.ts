@@ -14,6 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs/operators';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
+import { LayoutService } from '../../../layout/services/layout.service';
 
 export interface GoogleMapLocation {
   id: number;
@@ -47,7 +48,8 @@ export class GoogleMapComponent implements OnInit {
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
     private apiService: CmsApiService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
   ) {
     this.pageForm = this.fb.group({
       id: this.fb.control<number>(0),
@@ -99,8 +101,14 @@ export class GoogleMapComponent implements OnInit {
   }
 
   getLocation(): void {
+    this.layout.showPageLoader();
     this.apiService
       .GetRequest('HeaderAndFooter/0/' + this.SectionName)
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
         next: (res: any) => {
           const data = Array.isArray(res) ? res : [res];

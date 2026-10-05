@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { CreateEditUserModalComponent } from './create-edit-user-modal/create-edit-user-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface Role {
   id: string;
@@ -40,7 +42,8 @@ export class UserManagerComponent implements OnInit {
 
   constructor(
     private apiService: CmsApiService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
   ) {
    
   }
@@ -115,9 +118,9 @@ export class UserManagerComponent implements OnInit {
   //-------------------------------------
 
   getRoles() {
-
     this.apiService
       .GetRequest('RoleManagment/GetRoles')
+      
       .subscribe({
 
         next: (res: any[]) => {
@@ -154,9 +157,14 @@ export class UserManagerComponent implements OnInit {
   //-------------------------------------
 
   getUsers() {
-
+    this.layout.showPageLoader();
     this.apiService
       .GetRequest('UserManagement/GetUsers')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

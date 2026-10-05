@@ -9,6 +9,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { StatutoryBodiesModalComponent } from './statutory-bodies-modal/statutory-bodies-modal.component';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface StatutoryBodiesBody {
   id: number;
@@ -34,7 +36,8 @@ export class StatutoryBodiesComponent implements OnInit {
   constructor(
     private apiService: CmsApiService,
     private toastr: ToastrService,
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
   ) { }
 
   // ---------------------------------------
@@ -105,7 +108,12 @@ export class StatutoryBodiesComponent implements OnInit {
   // Load Statutory Bodies
   // ---------------------------------------
   getStatutoryBodies(): void {
-    this.apiService.GetRequest('StatutoryBodies').subscribe({
+    this.layout.showPageLoader();
+    this.apiService.GetRequest('StatutoryBodies').pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    ).subscribe({
       next: (res: any) => {
         this.page.set(1);
         const data = Array.isArray(res) ? res : [res];

@@ -15,6 +15,8 @@ import { ConfigService } from '../../../../services/config.service';
 
 import { RecognitionsAndAffiliationsModalComponent } from './recognitions-and-affiliations-modal/recognitions-and-affiliations-modal.component';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface RecognitionAffiliation {
 
@@ -70,7 +72,8 @@ export class RecognitionsAndAffiliationsComponent
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -247,12 +250,16 @@ export class RecognitionsAndAffiliationsComponent
   // ===================================================
 
   getRecognitionAffiliation(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'RecognitionsAndAffiliations'
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 
@@ -781,3 +788,4 @@ export class RecognitionsAndAffiliationsComponent
   }
 
 }
+

@@ -6,6 +6,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 interface Role {
   id: number;
@@ -25,7 +27,8 @@ interface Role {
 })
 export class RoleManagerComponent {
 
-  constructor(private apiService: CmsApiService, private toastr: ToastrService) {
+  constructor(private apiService: CmsApiService, private toastr: ToastrService,
+    private layout: LayoutService) {
     this.getRoles();
   }
 
@@ -98,7 +101,12 @@ export class RoleManagerComponent {
 
 
   getRoles() {
-    this.apiService.GetRequest("RoleManagment/GetRoles").subscribe((res: any[]) => {
+    this.layout.showPageLoader();
+    this.apiService.GetRequest("RoleManagment/GetRoles").pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    ).subscribe((res: any[]) => {
       this.page.set(1);
       this.roles.set(res);
     });

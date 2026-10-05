@@ -14,6 +14,8 @@ import Swal from 'sweetalert2';
 
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { StatisticsModalComponent } from './statistics-modal/statistics-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 // =====================================================
@@ -54,7 +56,8 @@ export class StatisticsComponent implements OnInit {
 
     private apiService: CmsApiService,
 
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
 
   ) { }
 
@@ -206,12 +209,16 @@ export class StatisticsComponent implements OnInit {
   // ===================================================
 
   getItems(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'Home/' + this.PageName
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

@@ -22,6 +22,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 
 import { ProspectusModalComponent } from './prospectus-modal/prospectus-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 
@@ -84,7 +86,8 @@ export class ProspectusComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -264,12 +267,16 @@ export class ProspectusComponent implements OnInit {
   // ===================================================
 
   getProspectus(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'Prospectus'
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

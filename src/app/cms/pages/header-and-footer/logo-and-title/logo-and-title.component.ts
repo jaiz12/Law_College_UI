@@ -23,6 +23,7 @@ import { ValidationService } from '../../../../services/validation-service.servi
 import { CKEditorConfigService } from '../../../../services/ckeditor-config.service';
 
 import { finalize } from 'rxjs/operators';
+import { LayoutService } from '../../../layout/services/layout.service';
 
 
 @Component({
@@ -148,7 +149,9 @@ export class LogoAndTitleComponent implements OnInit {
 
     private config: ConfigService,
 
-    private ckEditorConfig: CKEditorConfigService
+    private ckEditorConfig: CKEditorConfigService,
+    
+    private layout: LayoutService
 
   ) {
 
@@ -476,13 +479,17 @@ export class LogoAndTitleComponent implements OnInit {
   // =====================================================
 
   get(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest(
         'HeaderAndFooter/0/' +
         this.pageName
-      )
+    ).pipe(
+      finalize(() => {
+        this.layout.hidePageLoader();
+      })
+    )
 
       .subscribe({
 

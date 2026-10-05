@@ -9,6 +9,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 import { NotableAlumniModalComponent } from './notable-alumni-modal/notable-alumni-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 export interface NotableAlumni {
@@ -50,7 +52,8 @@ export class NotableAlumniComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -138,9 +141,14 @@ export class NotableAlumniComponent implements OnInit {
   // ---------------------------------------
 
   getData(): void {
-
+    this.layout.showPageLoader();
     this.apiService
       .GetRequest('NotableAlumni')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

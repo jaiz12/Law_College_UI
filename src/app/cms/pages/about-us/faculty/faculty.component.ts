@@ -8,6 +8,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { FacultyModalComponent } from './faculty-modal/faculty-modal.component';
 import { ViewStructureComponent } from '../../../shared/view-structure/view-structure.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface OrganizationMember {
 
@@ -47,7 +49,8 @@ export class FacultyComponent implements OnInit {
   constructor(
     private apiService: CmsApiService,
     private toastr: ToastrService,
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) {
 
@@ -199,11 +202,15 @@ export class FacultyComponent implements OnInit {
   // ---------------------------------------
 
   getMembers(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest('Faculty')
-
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

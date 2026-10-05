@@ -190,9 +190,6 @@ export class ResearchAndPublicationsModalComponent
 
           validators: [
 
-            // Required
-            Validators.required,
-
             // Leading / trailing / only whitespace
             this.validationService
               .noWhitespaceValidator(),

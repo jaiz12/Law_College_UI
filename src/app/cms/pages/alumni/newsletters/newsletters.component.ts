@@ -9,6 +9,8 @@ import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { ConfigService } from '../../../../services/config.service';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
 import { NewslettersModalComponent } from './newsletters-modal/newsletters-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 
 export interface Newsletters {
@@ -49,7 +51,8 @@ export class NewslettersComponent implements OnInit {
 
     private toastr: ToastrService,
 
-    private config: ConfigService
+    private config: ConfigService,
+    private layout: LayoutService
 
   ) { }
 
@@ -137,9 +140,14 @@ export class NewslettersComponent implements OnInit {
   // ---------------------------------------
 
   getData(): void {
-
+    this.layout.showPageLoader();
     this.apiService
       .GetRequest('Newsletters')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
       .subscribe({
 
         next: (res: any) => {

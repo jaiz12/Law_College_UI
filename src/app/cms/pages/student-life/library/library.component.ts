@@ -13,6 +13,8 @@ import Swal from 'sweetalert2';
 import { CmsApiService } from '../../../../services/cms-api-service.service';
 import { LibraryModalComponent } from './library-modal/library-modal.component';
 import { DescriptionModalComponent } from '../../../shared/description-modal/description-modal.component';
+import { LayoutService } from '../../../layout/services/layout.service';
+import { finalize } from 'rxjs';
 
 export interface Library {
 
@@ -57,7 +59,8 @@ export class LibraryComponent
 
     private apiService: CmsApiService,
 
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private layout: LayoutService
 
   ) { }
 
@@ -167,10 +170,15 @@ export class LibraryComponent
   // -------------------------------------------------
 
   getLibraries(): void {
-
+    this.layout.showPageLoader();
     this.apiService
 
       .GetRequest('Library')
+      .pipe(
+        finalize(() => {
+          this.layout.hidePageLoader();
+        })
+      )
 
       .subscribe({
 
