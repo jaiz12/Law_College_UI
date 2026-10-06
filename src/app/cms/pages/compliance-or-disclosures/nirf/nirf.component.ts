@@ -32,17 +32,17 @@ import { LayoutService } from '../../../layout/services/layout.service';
 
 
 @Component({
-  selector: 'app-reservation-policy',
+  selector: 'app-nirf',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     CKEditorModule
   ],
-  templateUrl: './reservation-policy.component.html',
-  styleUrl: './reservation-policy.component.scss'
+  templateUrl: './nirf.component.html',
+  styleUrl: './nirf.component.scss'
 })
-export class ReservationPolicyComponent implements OnInit {
+export class NirfComponent implements OnInit {
 
   public Editor: any;
 
@@ -55,6 +55,8 @@ export class ReservationPolicyComponent implements OnInit {
   isSubmitting = false;
 
   isEdit = false;
+
+  pageName: string = "NIRF";
 
   private platformId = inject(PLATFORM_ID);
 
@@ -110,6 +112,8 @@ export class ReservationPolicyComponent implements OnInit {
     this.pageForm = this.fb.group({
 
       id: [''],
+
+      pageName: [''],
 
       // CKEditor is NOT required
       content: [''],
@@ -168,7 +172,7 @@ export class ReservationPolicyComponent implements OnInit {
     this.layout.showPageLoader();
 
     this.apiservice
-      .GetRequest('ReservationPolicy')
+      .GetRequest('ComplianceOrDisclosures/' + this.pageName)
       .pipe(
         finalize(() => {
 
@@ -196,6 +200,7 @@ export class ReservationPolicyComponent implements OnInit {
 
             this.pageForm.reset({
               id: '',
+              pageName: this.pageName,
               content: '',
               file: null
             });
@@ -242,6 +247,8 @@ export class ReservationPolicyComponent implements OnInit {
           this.pageForm.patchValue({
 
             id: data.id ?? '',
+
+            pageName: data.pageName ?? '',
 
             content: data.content ?? '',
 
@@ -346,7 +353,6 @@ export class ReservationPolicyComponent implements OnInit {
     const id =
       this.pageForm.get('id')?.value;
 
-
     const content =
       this.pageForm.get('content')?.value ?? '';
 
@@ -358,6 +364,12 @@ export class ReservationPolicyComponent implements OnInit {
 
     const formData =
       new FormData();
+
+    // CKEditor content is optional
+    formData.append(
+      'PageName',
+      this.pageName
+    );
 
 
     // CKEditor content is optional
@@ -446,7 +458,7 @@ export class ReservationPolicyComponent implements OnInit {
 
     this.apiservice
       .PostRequest(
-        'ReservationPolicy',
+        'ComplianceOrDisclosures',
         formData,
         true
       )
@@ -470,6 +482,7 @@ export class ReservationPolicyComponent implements OnInit {
 
             this.pageForm.reset({
               id: '',
+              pageName: this.pageName,
               content: '',
               file: null
             });
@@ -528,7 +541,7 @@ export class ReservationPolicyComponent implements OnInit {
 
     this.apiservice
       .PutRequest(
-        'ReservationPolicy',
+        'ComplianceOrDisclosures',
         formData,
         true
       )

@@ -294,15 +294,15 @@ export const routes: Routes = [
       // Compliance
       // ===========================
       {
-        path: 'compliance/nirf',
+        path: 'compliance-or-disclosures/nirf',
         loadComponent: () =>
-          import('./cms/pages/compliance/nirf/nirf.component')
+          import('./cms/pages/compliance-or-disclosures/nirf/nirf.component')
             .then(m => m.NirfComponent)
       },
       {
-        path: 'compliance/aishe',
+        path: 'compliance-or-disclosures/aishe',
         loadComponent: () =>
-          import('./cms/pages/compliance/aishe/aishe.component')
+          import('./cms/pages/compliance-or-disclosures/aishe/aishe.component')
             .then(m => m.AisheComponent)
       },
 

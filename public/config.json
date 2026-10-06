@@ -374,15 +374,15 @@
 
         {
           "name": "NIRF",
-          "UIrouterlink": "/compliance/nirf",
-          "routerlink": "/compliance/nirf",
+          "UIrouterlink": "/compliance-or-disclosures/nirf",
+          "routerlink": "/compliance-or-disclosures/nirf",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M5.25 5.25h13.5v13.5H5.25z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M8.25 15l2.25-3 2.25 2.25L15.75 9'/> </svg>"
         },
 
         {
           "name": "AISHE",
-          "UIrouterlink": "/compliance/aishe",
-          "routerlink": "/compliance/aishe",
+          "UIrouterlink": "/compliance-or-disclosures/aishe",
+          "routerlink": "/compliance-or-disclosures/aishe",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M7.5 3.75h9L20.25 7.5v12.75H7.5A2.25 2.25 0 015.25 18V6A2.25 2.25 0 017.5 3.75z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M15.75 3.75V7.5h4.5'/> </svg>"
         }
 
