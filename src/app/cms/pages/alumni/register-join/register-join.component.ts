@@ -30,6 +30,8 @@ export interface AlumniRegistration {
 
   id: string | null;
 
+  registrationId: string;
+
   fullName: string;
 
   email: string;
@@ -149,6 +151,10 @@ export class RegisterJoinComponent implements OnInit {
 
       return (
 
+        item.registrationId
+          ?.toLowerCase()
+          .includes(keyword) ||
+
         item.fullName
           ?.toLowerCase()
           .includes(keyword) ||
@@ -233,6 +239,10 @@ export class RegisterJoinComponent implements OnInit {
                 item.Id ??
                 null,
 
+              registrationId:
+                item.registrationId ??
+                item.RegistrationId ??
+                null,
 
               fullName:
                 item.fullName ??
