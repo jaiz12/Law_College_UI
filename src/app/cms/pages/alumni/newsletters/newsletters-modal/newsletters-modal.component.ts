@@ -1,10 +1,11 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   EventEmitter,
   Input,
   OnChanges,
   Output,
+  PLATFORM_ID,
   SimpleChanges,
   inject
 } from '@angular/core';
@@ -47,14 +48,19 @@ export class NewslettersModalComponent implements OnChanges {
 
   private dublicateValidationService =
     inject(DublicateValidationService);
-
+  private platformId = inject(PLATFORM_ID);
   constructor(
     private config: ConfigService,
     private ckEditorConfig: CKEditorConfigService
   ) {
-    this.Editor = this.ckEditorConfig.Editor;
-    this.editorConfig =
-      this.ckEditorConfig.getConfig();
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+      }
+    }
   }
 
   // ===================================================

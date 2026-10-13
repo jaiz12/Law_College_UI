@@ -155,24 +155,6 @@ export class LogoAndTitleComponent implements OnInit {
 
   ) {
 
-    // ===================================================
-    // CKEDITOR
-    // ===================================================
-
-    if (
-      isPlatformBrowser(
-        this.platformId
-      )
-    ) {
-
-      this.Editor =
-        this.ckEditorConfig.Editor;
-
-    }
-
-
-    this.editorConfig =
-      this.ckEditorConfig.getConfig();
 
 
     // ===================================================
@@ -239,6 +221,13 @@ export class LogoAndTitleComponent implements OnInit {
         this.platformId
       )
     ) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+        this.toastr.error('Unable to load the text editor.');
+      }
 
       const userString =
         localStorage.getItem(

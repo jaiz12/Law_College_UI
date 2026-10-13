@@ -57,8 +57,6 @@ export class PrincipalsMessageComponent implements OnInit {
     private layout: LayoutService
   ) {
     // CKEditor build
-    this.Editor = this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
 
     this.pageForm = this.fb.group({
       id: [''],
@@ -86,9 +84,16 @@ export class PrincipalsMessageComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.get();
     if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = await this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+        this.toastr.error('Unable to load the text editor.');
+      }
       const userString = localStorage.getItem('user');
 
       if (userString) {

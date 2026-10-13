@@ -97,10 +97,7 @@ export class ReservationPolicyComponent implements OnInit {
     private layout: LayoutService
   ) {
 
-    this.Editor = this.ckEditorConfig.Editor;
-
-    this.editorConfig =
-      this.ckEditorConfig.getConfig();
+   
 
 
     // =====================================================
@@ -139,6 +136,14 @@ export class ReservationPolicyComponent implements OnInit {
     console.log(this.imageURL)
 
     if (isPlatformBrowser(this.platformId)) {
+
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+        this.toastr.error('Unable to load the text editor.');
+      }
 
       const userString =
         localStorage.getItem('user');

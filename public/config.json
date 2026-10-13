@@ -440,7 +440,7 @@
         },
 
         {
-          "name": "Internal Committee (Sexual Harassment Enquiry Committee)",
+          "name": "Internal Committee (Sexual Harassment Inquiry Committee)",
           "UIrouterlink": "/committee-and-cell/internal-committee",
           "routerlink": "/committee-and-cell/internal-committee",
           "svgicon": "<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='currentColor' class='w-5 h-5'> <path stroke-linecap='round' stroke-linejoin='round' d='M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z'/> <path stroke-linecap='round' stroke-linejoin='round' d='M9.5 12l2 2 4-4'/> </svg>"

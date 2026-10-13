@@ -89,7 +89,6 @@ export class AisheComponent implements OnInit {
 
   readonly maxFileSize = 5 * 1024 * 1024; // 5 MB
 
-
   constructor(
     private fb: FormBuilder,
     private apiservice: CmsApiService,
@@ -99,10 +98,14 @@ export class AisheComponent implements OnInit {
     private layout: LayoutService
   ) {
 
-    this.Editor = this.ckEditorConfig.Editor;
-
-    this.editorConfig =
-      this.ckEditorConfig.getConfig();
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+      }
+    }
 
 
     // =====================================================

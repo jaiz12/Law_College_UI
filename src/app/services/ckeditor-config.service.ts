@@ -135,4 +135,10 @@ export class CKEditorConfigService {
       }
     };
   }
+
+  async loadEditor(): Promise<any> {
+    // Move your existing editor-loading logic here.
+    // Return the existing editor constructor.
+    return this.Editor;
+  }
 }

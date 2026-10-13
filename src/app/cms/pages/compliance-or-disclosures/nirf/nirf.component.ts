@@ -99,10 +99,14 @@ export class NirfComponent implements OnInit {
     private layout: LayoutService
   ) {
 
-    this.Editor = this.ckEditorConfig.Editor;
-
-    this.editorConfig =
-      this.ckEditorConfig.getConfig();
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+      }
+    }
 
 
     // =====================================================

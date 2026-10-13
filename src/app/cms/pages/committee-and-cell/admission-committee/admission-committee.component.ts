@@ -49,8 +49,7 @@ export class AdmissionCommitteeComponent implements OnInit {
     private ckEditorConfig: CKEditorConfigService,
     private layout: LayoutService
   ) {
-    this.Editor = this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
+   
 
     this.pageForm = this.fb.group({
       id: [''],
@@ -68,6 +67,13 @@ export class AdmissionCommitteeComponent implements OnInit {
   ngOnInit() {
     this.get();
     if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+        this.toastr.error('Unable to load the text editor.');
+      }
       const userString = localStorage.getItem('user');
 
       if (userString) {

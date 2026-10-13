@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, Output, PLATFORM_ID, SimpleChanges, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ValidationService } from '../../../../../services/validation-service.service';
 
@@ -68,11 +68,17 @@ export class OurProgramModalComponent implements OnChanges {
     });
 
   editorConfig: any;
+  private platformId = inject(PLATFORM_ID);
   constructor(private configService: ConfigService, private ckEditorConfig: CKEditorConfigService) {
     // CKEditor build
-    this.Editor =
-      this.ckEditorConfig.Editor;
-    this.editorConfig = this.ckEditorConfig.getConfig();
+    if (isPlatformBrowser(this.platformId)) {
+      try {
+        this.Editor = this.ckEditorConfig.loadEditor();
+        this.editorConfig = this.ckEditorConfig.getConfig();
+      } catch (error) {
+        console.error('Failed to load editor:', error);
+      }
+    }
   };
 
   
