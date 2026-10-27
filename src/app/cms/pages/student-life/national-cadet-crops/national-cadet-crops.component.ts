@@ -27,14 +27,14 @@ import { LayoutService } from '../../../layout/services/layout.service';
 })
 export class NationalCadetCropsComponent implements OnInit {
 
-  public Editor: any;
+  public Editor: any = null;
 
   selectedFile: File | null = null;
   imagePreview: string | null = null;
   pageForm: FormGroup;
   loggedInId = signal('');
   pageName: string = "National Cadet Crops";
-  editorConfig: any;
+  public editorConfig: any = null;
   isSubmitting = false;
   isEdit = false;
 

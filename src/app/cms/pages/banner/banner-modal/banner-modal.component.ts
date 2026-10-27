@@ -102,9 +102,9 @@ export class BannerModalComponent
   // CKEDITOR
   // ===================================================
 
-  public Editor: any;
+  public Editor: any = null;
 
-  public editorConfig: any;
+  public editorConfig: any = null;
 
 
   // ===================================================

@@ -84,9 +84,9 @@ export class ResearchAndPublicationsModalComponent
   // CKEDITOR
   // =================================================
 
-  public Editor: any;
+  public Editor: any = null;
 
-  editorConfig: any;
+  public editorConfig: any = null;
 
 
   // =================================================

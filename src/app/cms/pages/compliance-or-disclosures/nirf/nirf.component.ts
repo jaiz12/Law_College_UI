@@ -44,13 +44,13 @@ import { LayoutService } from '../../../layout/services/layout.service';
 })
 export class NirfComponent implements OnInit {
 
-  public Editor: any;
+  public Editor: any = null;
 
   pageForm: FormGroup;
 
   loggedInId = signal('');
 
-  editorConfig: any;
+  public editorConfig: any = null;
 
   isSubmitting = false;
 

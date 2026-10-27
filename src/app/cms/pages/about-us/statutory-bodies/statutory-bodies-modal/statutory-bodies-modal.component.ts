@@ -36,8 +36,8 @@ import { DublicateValidationService } from '../../../../../services/dublicate-va
 })
 export class StatutoryBodiesModalComponent implements OnChanges {
 
-  editorConfig: any;
-  public Editor: any;
+  public editorConfig: any = null;
+  public Editor: any = null;
 
   private fb = inject(FormBuilder);
   private validationService = inject(ValidationService);

@@ -30,13 +30,13 @@ import { LayoutService } from '../../../layout/services/layout.service';
   styleUrl: './vision-and-mission.component.scss'
 })
 export class VisionAndMissionComponent implements OnInit {
-  public Editor: any;
+  public Editor: any = null;
 
   pageForm: FormGroup;
 
   loggedInId = signal('');
   pageName: string = "Vision and Mission";
-  editorConfig: any;
+  public editorConfig: any = null;
   private platformId = inject(PLATFORM_ID);
   isSubmitting = false;
   isEdit = false;
@@ -83,8 +83,11 @@ export class VisionAndMissionComponent implements OnInit {
       try {
         this.Editor = this.ckEditorConfig.loadEditor();
         this.editorConfig = this.ckEditorConfig.getConfig();
+
+        console.log('Editor loaded:', !!this.Editor);
+        console.log('Editor config loaded:', !!this.editorConfig);
       } catch (error) {
-        console.error('Failed to load editor:', error);
+        console.error('Failed to load CKEditor:', error);
         this.toastr.error('Unable to load the text editor.');
       }
       const userString = localStorage.getItem('user');

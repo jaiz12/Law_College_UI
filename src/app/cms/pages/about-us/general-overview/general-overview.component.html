@@ -21,7 +21,8 @@
         Description <span class="text-[#ff0000]">*</span><i class="ml-2 text-gray-500 dark:text-gray-400"></i>
       </label>
 
-      <ckeditor [editor]="Editor"
+      <ckeditor *ngIf="Editor && editorConfig"
+                [editor]="Editor"
                 [config]="editorConfig"
                 formControlName="description">
       </ckeditor>

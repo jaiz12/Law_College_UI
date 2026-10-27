@@ -35,8 +35,8 @@ import { DublicateValidationService } from '../../../../../services/dublicate-va
 })
 export class AcademicCalendarModalComponent implements OnChanges {
 
-  public Editor: any;
-  editorConfig: any;
+  public Editor: any = null;
+  public editorConfig: any = null;
 
   private fb = inject(FormBuilder);
   private validationService = inject(ValidationService);

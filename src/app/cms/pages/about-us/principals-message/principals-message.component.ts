@@ -28,8 +28,8 @@ import { LayoutService } from '../../../layout/services/layout.service';
 })
 export class PrincipalsMessageComponent implements OnInit {
 
-  public Editor: any;
-  editorConfig: any;
+  public Editor: any = null;
+  public editorConfig: any = null;
 
   pageForm: FormGroup;
 
@@ -88,10 +88,13 @@ export class PrincipalsMessageComponent implements OnInit {
     this.get();
     if (isPlatformBrowser(this.platformId)) {
       try {
-        this.Editor = await this.ckEditorConfig.loadEditor();
+        this.Editor = this.ckEditorConfig.loadEditor();
         this.editorConfig = this.ckEditorConfig.getConfig();
+
+        console.log('Editor loaded:', !!this.Editor);
+        console.log('Editor config loaded:', !!this.editorConfig);
       } catch (error) {
-        console.error('Failed to load editor:', error);
+        console.error('Failed to load CKEditor:', error);
         this.toastr.error('Unable to load the text editor.');
       }
       const userString = localStorage.getItem('user');

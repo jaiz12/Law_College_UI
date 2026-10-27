@@ -68,8 +68,8 @@ export class NotableAlumniModalComponent implements OnChanges {
   // CKEDITOR
   // ===================================================
 
-  editorConfig: any;
-  public Editor: any;
+  public editorConfig: any = null;
+  public Editor: any = null;
 
   // ===================================================
   // INPUT

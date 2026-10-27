@@ -60,14 +60,14 @@ export class OurProgramModalComponent implements OnChanges {
   close =
     new EventEmitter<void>();
 
-  public Editor: any;
+  public Editor: any = null;
 
   searchControl =
     new FormControl('', {
       nonNullable: true
     });
 
-  editorConfig: any;
+  public editorConfig: any = null;
   private platformId = inject(PLATFORM_ID);
   constructor(private configService: ConfigService, private ckEditorConfig: CKEditorConfigService) {
     // CKEditor build

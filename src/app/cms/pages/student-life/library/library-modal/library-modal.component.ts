@@ -56,9 +56,9 @@ export class LibraryModalComponent
   // CKEDITOR
   // =========================================
 
-  public Editor: any;
+  public Editor: any = null;
 
-  editorConfig: any;
+  public editorConfig: any = null;
 
   private fb =
     inject(FormBuilder);

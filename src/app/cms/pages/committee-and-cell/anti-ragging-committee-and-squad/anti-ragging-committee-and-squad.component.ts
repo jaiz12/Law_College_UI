@@ -29,14 +29,14 @@ import { LayoutService } from '../../../layout/services/layout.service';
 })
 export class AntiRaggingCommitteeAndSquadComponent implements OnInit {
 
-  public Editor: any;
+  public Editor: any = null;
 
   selectedFile: File | null = null;
   imagePreview: string | null = null;
   pageForm: FormGroup;
   loggedInId = signal('');
   pageName: string = "Anti Ragging Committee & Squad";
-  editorConfig: any;
+  public editorConfig: any = null;
   isSubmitting = false;
   isEdit = false;
 
