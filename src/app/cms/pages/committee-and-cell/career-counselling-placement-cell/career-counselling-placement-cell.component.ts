@@ -30,8 +30,6 @@ import { LayoutService } from '../../../layout/services/layout.service';
 export class CareerCounsellingPlacementCellComponent implements OnInit {
 
   public Editor: any = null;
-
-  selectedFile: File | null = null;
   imagePreview: string | null = null;
   pageForm: FormGroup;
   loggedInId = signal('');
@@ -41,7 +39,33 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
   isEdit = false;
 
   private platformId = inject(PLATFORM_ID);
+  imageURL = signal('');
 
+  // =========================================
+  // FILE VARIABLES
+  // =========================================
+
+  selectedFile: File | null = null;
+
+  existingFile: string | null = null;
+
+  fileName = '';
+
+  dragging = false;
+
+
+  readonly allowedExtensions = [
+    '.pdf'
+  ];
+
+
+  readonly allowedMimeTypes = [
+    'application/pdf'
+  ];
+
+
+  readonly maxFileSize =
+    5 * 1024 * 1024; // 5 MB
   constructor(
     private fb: FormBuilder,
     private apiservice: CmsApiService,
@@ -62,11 +86,17 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
         ],
         nonNullable: true
       }],
+
+      file: this.fb.control<string | null>(null)
     });
   }
 
   ngOnInit() {
     this.get();
+
+    this.imageURL.set(
+      this.config.get('IMAGE_API_URL')
+    );
     if (isPlatformBrowser(this.platformId)) {
       try {
         this.Editor = this.ckEditorConfig.loadEditor();
@@ -102,7 +132,28 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
           id: data.id ?? '',
           pageName: data.pageName ?? '',
           content: data.content ?? '',
+          file: data.filePath ?? null
         });
+        // Existing PDF
+
+        this.existingFile =
+          data.filePath ?? null;
+
+
+        this.fileName =
+          this.getFileName(
+            this.existingFile
+          );
+
+
+        // Reset selected file
+
+        this.selectedFile = null;
+
+
+        this.pageForm
+          .get('file')
+          ?.setErrors(null);
         this.isEdit = true;
       },
       error: (err) => {
@@ -114,6 +165,304 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
         );
       }
     });
+  }
+
+  // =========================================
+  // FILE SELECTION
+  // =========================================
+
+  onFileChange(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+
+    if (!input.files?.length) {
+
+      return;
+
+    }
+
+
+    this.loadFile(
+      input.files[0]
+    );
+
+
+    // Allow selecting the same
+    // file again
+
+    input.value = '';
+
+  }
+
+
+  // =========================================
+  // FILE LOADING & VALIDATION
+  // =========================================
+
+  loadFile(
+    file: File
+  ): void {
+
+    const fileControl =
+      this.pageForm.get('file');
+
+
+    const validationError =
+      this.validateFile(file);
+
+
+    // =====================================
+    // INVALID
+    // =====================================
+
+    if (validationError) {
+
+      this.selectedFile = null;
+
+      this.fileName = '';
+
+      fileControl?.setErrors(
+        validationError
+      );
+
+      fileControl?.markAsTouched();
+
+      return;
+
+    }
+
+
+    // =====================================
+    // VALID
+    // =====================================
+
+    this.selectedFile = file;
+
+    this.fileName = file.name;
+
+
+    fileControl?.setValue(
+      file.name
+    );
+
+
+    fileControl?.setErrors(null);
+
+    fileControl?.markAsTouched();
+
+
+    /*
+     * New PDF selected.
+     *
+     * Existing PDF should no longer
+     * be submitted as the selected file.
+     */
+
+    this.existingFile = null;
+
+  }
+
+
+  // =========================================
+  // COMPLETE FILE VALIDATION
+  // =========================================
+
+  private validateFile(
+    file: File
+  ): { [key: string]: boolean } | null {
+
+
+    const fileName =
+      file.name
+        .trim()
+        .toLowerCase();
+
+
+    const extension =
+      fileName.substring(
+        fileName.lastIndexOf('.')
+      );
+
+
+    // =====================================
+    // EXTENSION
+    // =====================================
+
+    if (
+      !this.allowedExtensions
+        .includes(extension)
+    ) {
+
+      return {
+        invalidFileType: true
+      };
+
+    }
+
+
+    // =====================================
+    // MIME TYPE
+    // =====================================
+
+    if (
+      !this.allowedMimeTypes
+        .includes(file.type)
+    ) {
+
+      return {
+        invalidFileType: true
+      };
+
+    }
+
+
+    // =====================================
+    // FILE SIZE
+    // =====================================
+
+    if (
+      file.size > this.maxFileSize
+    ) {
+
+      return {
+        maxFileSize: true
+      };
+
+    }
+
+
+    return null;
+
+  }
+
+
+  // =========================================
+  // DRAG & DROP
+  // =========================================
+
+  onDragOver(
+    event: DragEvent
+  ): void {
+
+    event.preventDefault();
+
+    this.dragging = true;
+
+  }
+
+
+  onDragLeave(
+    event: DragEvent
+  ): void {
+
+    event.preventDefault();
+
+    this.dragging = false;
+
+  }
+
+
+  onDrop(
+    event: DragEvent
+  ): void {
+
+    event.preventDefault();
+
+    this.dragging = false;
+
+
+    const file =
+      event.dataTransfer
+        ?.files?.[0];
+
+
+    if (file) {
+
+      this.loadFile(file);
+
+    }
+
+  }
+
+
+  // =========================================
+  // REMOVE FILE
+  // =========================================
+
+  removeFile(): void {
+
+    this.selectedFile = null;
+
+    this.fileName = '';
+
+    const fileControl =
+      this.pageForm.get('file');
+
+    fileControl?.setValue(null);
+
+
+    /*
+     * Creation:
+     * File is required.
+     */
+
+    if (!this.isEdit) {
+
+      this.existingFile = null;
+
+      fileControl?.setErrors({
+        required: true
+      });
+
+    }
+
+    else {
+
+      /*
+       * Editing:
+       * If existing file was removed,
+       * require a replacement file.
+       */
+
+      this.existingFile = null;
+
+      fileControl?.setErrors({
+        required: true
+      });
+
+    }
+
+    fileControl?.markAsTouched();
+
+    fileControl?.updateValueAndValidity();
+  }
+
+
+  // =========================================
+  // GET FILE NAME
+  // =========================================
+
+  private getFileName(
+    path: string | null
+  ): string {
+
+    if (!path) {
+
+      return '';
+
+    }
+
+
+    return path
+      .split('/')
+      .pop()
+      ?.split('\\')
+      .pop() ?? '';
+
   }
 
   save(): void {
@@ -133,11 +482,47 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
       return;
     }
 
+    // =====================================
+    // FILE VALIDATION
+    // =====================================
+
+    /*
+     * Create:
+     * A file is mandatory.
+     *
+     * Edit:
+     * Existing file OR newly selected file
+     * must be available.
+     */
+    const fileControl =
+      this.pageForm.get('file');
+
+    if (
+      !this.selectedFile &&
+      !this.existingFile
+    ) {
+
+      fileControl?.setErrors({
+        required: true
+      });
+
+      fileControl?.markAsTouched();
+    }
+
     this.isSubmitting = true;
 
     const formData = new FormData();
+
     formData.append('PageName', this.pageName);
     formData.append('Content', content);
+
+    if (this.selectedFile) {
+      formData.append(
+        'File',
+        this.selectedFile,
+        this.selectedFile.name
+      );
+    }
 
     if (id) {
       formData.append('Id', id.toString());
@@ -160,9 +545,11 @@ export class CareerCounsellingPlacementCellComponent implements OnInit {
               id: '',
               pageName: 'Career Counselling & Placement Cell',
               content: '',
+              file: null
             });
-
             this.selectedFile = null;
+            this.existingFile = null;
+            this.fileName = '';
             this.imagePreview = null;
             this.get();
           } else {
