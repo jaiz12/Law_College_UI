@@ -736,105 +736,144 @@ export class ImportantLinkModalComponent
 
   isSubmitting = false;
 
+
   submit(): void {
 
-    // -----------------------------------------
-    // Internal page must be selected
-    // -----------------------------------------
+    if (this.isSubmitting) {
+      return;
+    }
 
-    if (
-      this.pageForm.get('type')?.value ===
-      'internal'
-    ) {
+    const type = this.pageForm.get('type')?.value;
 
+    const nameControl = this.pageForm.get('name');
+    const linkControl = this.pageForm.get('link');
+
+    // =========================================
+    // INTERNAL LINK FORM
+    // =========================================
+
+    if (type === 'internal') {
+
+      // Internal menu must be selected
       if (!this.selectedMenu) {
 
-        const linkControl =
-          this.pageForm.get('link');
+        nameControl?.setValue('', { emitEvent: false });
+        linkControl?.setValue('', { emitEvent: false });
 
-        linkControl?.setErrors({
-          ...(linkControl.errors || {}),
-          required: true
-        });
+        nameControl?.setErrors(null);
 
+        linkControl?.setErrors({ required: true });
         linkControl?.markAsTouched();
 
         return;
-
       }
+
+      // Get values directly from selected menu
+      const internalName = (this.selectedMenu.name || '').trim();
+      const internalLink = (this.selectedMenu.routerlink || '').trim();
+
+      nameControl?.setValue(internalName, { emitEvent: false });
+      linkControl?.setValue(internalLink, { emitEvent: false });
+
+      // Internal validation: no external URL validator
+      nameControl?.setValidators([
+        Validators.required,
+        Validators.maxLength(100),
+        this.validationService.noWhitespaceValidator(),
+        this.duplicateValidator('name')
+      ]);
+
+      linkControl?.setValidators([
+        Validators.required,
+        this.validationService.noWhitespaceValidator(),
+        this.duplicateValidator('link')
+      ]);
 
     }
 
+    // =========================================
+    // EXTERNAL LINK FORM
+    // =========================================
 
-    // -----------------------------------------
-    // Run all validators
-    // -----------------------------------------
+    else if (type === 'external') {
 
-    this.pageForm
-      .get('name')
-      ?.updateValueAndValidity();
+      // External links must be entered manually
+      this.selectedMenu = null;
 
-    this.pageForm
-      .get('link')
-      ?.updateValueAndValidity();
+      // External validation
+      nameControl?.setValidators([
+        Validators.required,
+        Validators.maxLength(100),
+        this.validationService.noWhitespaceValidator(),
+        this.duplicateValidator('name')
+      ]);
 
+      linkControl?.setValidators([
+        Validators.required,
+        this.validationService.noWhitespaceValidator(),
+        this.duplicateValidator('link'),
+        this.urlValidator()
+      ]);
 
-    // -----------------------------------------
-    // Invalid form
-    // -----------------------------------------
+    }
 
-    if (
-      this.pageForm.invalid
-    ) {
+    else {
+      return;
+    }
+
+    // =========================================
+    // VALIDATE ONLY CURRENT FORM VALUES
+    // =========================================
+
+    nameControl?.updateValueAndValidity({
+      emitEvent: false
+    });
+
+    linkControl?.updateValueAndValidity({
+      emitEvent: false
+    });
+
+    if (this.pageForm.invalid) {
 
       this.pageForm.markAllAsTouched();
 
       return;
-
     }
 
+    // =========================================
+    // PREPARE SUBMISSION
+    // =========================================
 
-    // -----------------------------------------
-    // Submit
-    // -----------------------------------------
+    const value = this.pageForm.getRawValue();
 
-    this.isSubmitting = true;
+    const importantLink: ImportantLink = {
 
+      id: value.id ?? 0,
 
-    const value =
-      this.pageForm.getRawValue();
+      type: value.type,
 
+      name: value.name.trim(),
 
-    const importantLink:
-      ImportantLink = {
-
-      id:
-        value.id ?? 0,
-
-      type:
-        value.type,
-
-      name:
-        value.name.trim(),
-
-      link:
-        value.link.trim()
+      link: value.link.trim()
 
     };
 
+    console.log('Submitting Important Link:', importantLink);
 
-    this.save.emit(
-      importantLink
-    );
+    // =========================================
+    // EMIT DATA
+    // =========================================
 
+    this.isSubmitting = true;
+
+    this.save.emit(importantLink);
 
     setTimeout(() => {
-
       this.isSubmitting = false;
-
     }, 5000);
 
   }
+
 
 
   // ===========================================
