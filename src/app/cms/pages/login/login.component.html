@@ -151,41 +151,51 @@
 
             </div>
 
-            @if(submitted && f['password'].errors){
 
-            <div class="mt-2 text-sm text-red-500">
+            @if(submitted && f['password'].errors?.['required']) {
+            <p class="mt-2 text-sm text-red-500">
+              Password is required.
+            </p>
+            }
 
-              @if(f['password'].errors['required']){
+            @if(passwordValue) {
 
-              <div>Password is required.</div>
+            <div class="mt-3 space-y-1">
 
-              }
+              <p class="text-sm"
+                 [class.text-green-600]="hasMinLength"
+                 [class.text-red-500]="!hasMinLength">
+                {{ hasMinLength ? '✓' : '✕' }} At least 8 characters
+              </p>
 
-              @if(f['password'].errors['pattern']){
+              <p class="text-sm"
+                 [class.text-green-600]="hasUppercase"
+                 [class.text-red-500]="!hasUppercase">
+                {{ hasUppercase ? '✓' : '✕' }} At least one uppercase letter
+              </p>
 
-              <div>
+              <p class="text-sm"
+                 [class.text-green-600]="hasLowercase"
+                 [class.text-red-500]="!hasLowercase">
+                {{ hasLowercase ? '✓' : '✕' }} At least one lowercase letter
+              </p>
 
-                Password must contain
+              <p class="text-sm"
+                 [class.text-green-600]="hasNumber"
+                 [class.text-red-500]="!hasNumber">
+                {{ hasNumber ? '✓' : '✕' }} At least one number
+              </p>
 
-                <ul class="ml-5 list-disc">
-
-                  <li>Minimum 8 characters</li>
-
-                  <li>One Uppercase letter</li>
-
-                  <li>One Number</li>
-
-                  <li>One Special Character (&#64;$!%*?&)</li>
-
-                </ul>
-
-              </div>
-
-              }
+              <p class="text-sm"
+                 [class.text-green-600]="hasSpecialCharacter"
+                 [class.text-red-500]="!hasSpecialCharacter">
+                {{ hasSpecialCharacter ? '✓' : '✕' }} At least one special character
+              </p>
 
             </div>
 
             }
+
 
           </div>
 

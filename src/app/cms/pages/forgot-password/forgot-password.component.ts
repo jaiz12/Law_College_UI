@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CmsApiService } from '../../../services/cms-api-service.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-forgot-password',
@@ -25,7 +26,8 @@ export class ForgotPasswordComponent {
 
   forgotForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private apiservice: CmsApiService) {
+  isLoading = false;
+  constructor(private fb: FormBuilder, private apiservice: CmsApiService, private toastr: ToastrService) {
 
     this.forgotForm = this.fb.group({
 
@@ -54,18 +56,30 @@ export class ForgotPasswordComponent {
     }
 
     console.log(this.forgotForm.value);
-
-
+    this.isLoading = true;
     this.apiservice
       .forgotPassword(this.forgotForm.value.email)
       .subscribe({
         next: (res: any) => {
+          this.isLoading = false;
+          if (res.messageType == 'success') {
+            this.toastr.success(res.messageDescription,
+              res.messageType);
+          }
+          else {
+            this.toastr.error(res.messageDescription,
+              res.messageType);
+          }
           console.log(res);
         },
         error: (err) => {
           console.error(err);
+          this.isLoading = false;
+          this.toastr.success(err.messageDescription,
+            err.messageType);
         }
       });
   }
+
 
 }

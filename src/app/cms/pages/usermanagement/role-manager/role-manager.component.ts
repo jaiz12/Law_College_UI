@@ -190,7 +190,7 @@ export class RoleManagerComponent {
     }).then((result) => {
 
       if (result.isConfirmed) {
-
+        debugger;
         this.apiService.DeleteRequest(`RoleManagment/DeleteRole`, role.id)
           .subscribe({
 

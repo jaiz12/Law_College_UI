@@ -265,8 +265,8 @@ export class CreateEditUserModalComponent implements OnChanges {
   // Input changes
   // --------------------------------------------------
 
+
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(this.user)
 
     if (this.user) {
 
@@ -274,12 +274,12 @@ export class CreateEditUserModalComponent implements OnChanges {
         userName: this.user.userName ?? '',
         email: this.user.email ?? '',
         phoneNumber: this.user.phoneNumber ?? '',
-        password: this.user.password,
+
+        // Always keep password blank in edit mode.
+        password: '',
+
         roleId: this.user.roleId ?? null
       });
-
-      // Password optional in edit
-      this.userForm.controls['password'].clearValidators();
 
     } else {
 
@@ -293,23 +293,32 @@ export class CreateEditUserModalComponent implements OnChanges {
         updatedBy: ''
       });
 
-      // Password required in create
-      this.userForm.controls['password'].setValidators([
-        Validators.required,
-        this.passwordMinLengthValidator(),
-        this.passwordUppercaseValidator(),
-        this.passwordLowercaseValidator(),
-        this.passwordNumberValidator(),
-        this.passwordSpecialCharacterValidator()
-      ]);
     }
 
-    this.userForm.controls['password'].updateValueAndValidity();
+    // Apply the same password validation rules in both modes.
+    const passwordValidators: ValidatorFn[] = [
+      this.passwordMinLengthValidator(),
+      this.passwordUppercaseValidator(),
+      this.passwordLowercaseValidator(),
+      this.passwordNumberValidator(),
+      this.passwordSpecialCharacterValidator()
+    ];
 
-    /*
-     * Important:
-     * Duplicate validation depends on users and user inputs.
-     */
+    // Password is mandatory only during creation.
+    if (!this.isEditMode) {
+      passwordValidators.unshift(Validators.required);
+    }
+
+    this.userForm.get('password')?.setValidators(passwordValidators);
+
+    this.userForm.get('password')?.updateValueAndValidity();
+
+    // Reset password strength.
+    this.passwordStrength = '';
+
+    this.showPassword = false;
+
+    // Refresh duplicate validation.
     this.userForm.updateValueAndValidity();
 
     this.submitted = false;
@@ -317,16 +326,17 @@ export class CreateEditUserModalComponent implements OnChanges {
   }
 
 
+
   // --------------------------------------------------
   // Submit
   // --------------------------------------------------
+
 
   submit(): void {
 
     this.submitted = true;
 
     this.userForm.markAllAsTouched();
-
     this.userForm.updateValueAndValidity();
 
     if (this.userForm.invalid) {
@@ -337,22 +347,22 @@ export class CreateEditUserModalComponent implements OnChanges {
 
     const formValue = this.userForm.value;
 
-    this.save.emit({
-
+    const userData: User = {
       id: this.user?.id ?? null,
-
       userName: String(formValue.userName).trim(),
-
       email: String(formValue.email).trim(),
-
       phoneNumber: String(formValue.phoneNumber).trim(),
-
-      password: formValue.password,
-
       roleId: formValue.roleId
+    };
 
-    });
+    // Include password only when provided.
+    if (formValue.password) {
+      userData.password = formValue.password;
+    }
+
+    this.save.emit(userData);
   }
+
 
 
   // --------------------------------------------------

@@ -188,6 +188,7 @@ export class UserManagerComponent implements OnInit {
             isActive: x.userStatus ?? x.UserStatus
 
           }));
+          console.log(users)
 
           this.users.set(users);
 
@@ -296,7 +297,7 @@ export class UserManagerComponent implements OnInit {
 
         if (res.messageType === 'success') {
 
-          this.toastr.success(res.message,
+          this.toastr.success(res.messageDescription,
             res.messageType);
 
           this.getUsers();
@@ -306,7 +307,7 @@ export class UserManagerComponent implements OnInit {
         }
         else {
 
-          this.toastr.warning(res.message,
+          this.toastr.warning(res.messageDescription,
             res.messageType);
 
         }
@@ -317,9 +318,9 @@ export class UserManagerComponent implements OnInit {
 
         this.toastr.error(
 
-          err?.error?.message ||
+          err?.error?.messageDescription ||
 
-          err?.message ||
+          err?.messageDescription ||
 
           'Something went wrong.'
 
@@ -372,11 +373,11 @@ export class UserManagerComponent implements OnInit {
 
             if (res.messageType === 'success') {
               this.getUsers();
-              this.toastr.success(res.message,
+              this.toastr.success(res.messageDescription,
                 res.messageType);
             }
             else {
-              this.toastr.warning(res.message,
+              this.toastr.warning(res.messageDescription,
             res.messageType);
             }
           },
@@ -385,7 +386,7 @@ export class UserManagerComponent implements OnInit {
 
             this.toastr.error(
 
-              err?.error?.message ||
+              err?.error?.messageDescription ||
 
               'Unable to delete user.'
 

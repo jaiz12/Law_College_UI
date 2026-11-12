@@ -49,8 +49,8 @@ export class LoginComponent implements OnInit {
           [
             Validators.required,
             Validators.pattern(
-              /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-            )
+              /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/
+        )
           ]
         ],
         remember: [
@@ -68,6 +68,7 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.invalid) {
       return;
     }
+    
 
     const { email, password, remember } = this.loginForm.value;
 
@@ -88,6 +89,7 @@ export class LoginComponent implements OnInit {
       email,
       password
     };
+    console.log(request)
 
     this.apiService.login(request).subscribe({
 
@@ -117,6 +119,30 @@ export class LoginComponent implements OnInit {
 
     });
 
+  }
+
+  get passwordValue(): string {
+    return this.loginForm.get('password')?.value || '';
+  }
+
+  get hasMinLength(): boolean {
+    return this.passwordValue.length >= 8;
+  }
+
+  get hasUppercase(): boolean {
+    return /[A-Z]/.test(this.passwordValue);
+  }
+
+  get hasLowercase(): boolean {
+    return /[a-z]/.test(this.passwordValue);
+  }
+
+  get hasNumber(): boolean {
+    return /\d/.test(this.passwordValue);
+  }
+
+  get hasSpecialCharacter(): boolean {
+    return /[^A-Za-z0-9\s]/.test(this.passwordValue);
   }
 
   get f() {

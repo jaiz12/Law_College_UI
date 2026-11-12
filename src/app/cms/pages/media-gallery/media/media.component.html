@@ -30,6 +30,7 @@
 <!-- MEDIA GRID -->
 @if (media().length > 0) {
 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
   @for (item of media(); track item.id) {
   <div class="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800">
 
@@ -37,8 +38,9 @@
     @if (isImage(item)) {
     <div class="relative aspect-video overflow-hidden bg-gray-100 dark:bg-slate-900">
       <img [src]="getMediaUrl(item.image)"
-           alt="Album Image"
+           alt="Album image"
            class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+
       <div class="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
         <i class="fa-solid fa-image mr-1"></i>
         Image
@@ -47,15 +49,55 @@
     }
 
     <!-- VIDEO -->
-    @if (isVideo(item)) {
+    @else if (isVideo(item)) {
     <div class="relative aspect-video overflow-hidden bg-black">
-      <video controls class="h-full w-full object-contain" [src]="getMediaUrl(item.video)">
+      <video controls
+             preload="metadata"
+             class="h-full w-full object-contain"
+             [src]="getMediaUrl(item.video)">
         Your browser does not support video playback.
       </video>
-      <div class="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white">
+
+      <div class="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-medium text-white pointer-events-none">
         <i class="fa-solid fa-video mr-1"></i>
         Video
       </div>
+    </div>
+    }
+
+    <!-- PDF -->
+    @else if (isPdf(item)) {
+    <div class="relative aspect-video overflow-hidden rounded-t-2xl bg-red-50 dark:bg-slate-900">
+
+      <a [href]="getMediaUrl(item.pdf)"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="group/pdf flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500 dark:hover:bg-slate-800"
+         title="Open PDF in a new tab"
+         [attr.aria-label]="'Open PDF for media ' + item.id">
+
+        <i class="fa-solid fa-file-pdf text-6xl text-red-600 transition duration-300 group-hover/pdf:scale-110"></i>
+
+        <span class="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          View PDF
+        </span>
+
+        <span class="text-xs text-gray-500 dark:text-gray-400">
+          Click to open document
+        </span>
+
+        <div class="absolute left-3 top-3 rounded-full bg-red-600 px-3 py-1 text-xs font-medium text-white">
+          <i class="fa-solid fa-file-pdf mr-1"></i>
+          PDF
+        </div>
+
+        <div class="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 transition group-hover/pdf:opacity-100">
+          <span class="rounded-lg bg-black/70 px-4 py-2 text-sm font-medium text-white">
+            <i class="fa-solid fa-up-right-from-square mr-1"></i>
+            Open PDF
+          </span>
+        </div>
+      </a>
     </div>
     }
 
@@ -66,14 +108,16 @@
       </span>
 
       <div class="flex gap-2">
-
         <button type="button"
                 (click)="deleteMedia(item)"
+                title="Delete media"
+                aria-label="Delete media"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
     </div>
+
   </div>
   }
 </div>
@@ -82,15 +126,19 @@
 <!-- NO MEDIA -->
 @if (media().length === 0) {
 <div class="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 text-center dark:border-slate-700 dark:bg-slate-800/50">
+
   <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
     <i class="fa-solid fa-photo-film text-2xl"></i>
   </div>
+
   <h4 class="text-lg font-semibold text-gray-800 dark:text-white">
     No media found
   </h4>
+
   <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-    Add photos or videos to this album.
+    Add images, videos or PDF documents to this album.
   </p>
+
   <button type="button"
           class="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
           (click)="openAddModal()">
